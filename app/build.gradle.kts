@@ -3,6 +3,18 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("appmetrica-plugin")
+    id("com.google.gms.google-services")
+}
+
+appmetrica {
+    postApiKey = { applicationVariant -> "3aadb1b1-5508-44d4-acb9-155531c36fbc" }
+    enable = { applicationVariant -> true }    // Optional.
+    setMappingBuildTypes(listOf("release"))            // Optional.
+    setOffline(false)                            // Optional.
+    mappingFile = { applicationVariant -> null }   // Optional.
+    enableAnalytics = true                     // Optional.
+    allowTwoAppMetricas = { applicationVariant -> false }  // Optional.
 }
 
 android {
@@ -24,7 +36,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isShrinkResources = true
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -60,6 +73,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.common)
     implementation(libs.translate)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,14 +86,29 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     //Dagger - Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation("com.google.dagger:hilt-android:2.50")
+    ksp("com.google.dagger:hilt-android-compiler:2.50")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     //lifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+
+    // AppMetrica SDK.
+    implementation("io.appmetrica.analytics:analytics:6.1.0")
+    implementation("io.appmetrica.analytics:push:3.0.0")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+
+    // Poolakey
+    implementation("com.github.cafebazaar.Poolakey:poolakey:2.2.0")
+
 
 }

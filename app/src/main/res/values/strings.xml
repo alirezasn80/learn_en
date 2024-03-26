@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">learn_en</string>
+    <string name="unknown_error">خطای نامشخص</string>
+    <string name="http_error">ارتباط با سرور دچار مشکل شده، لطفا بعدا تلاش کنید</string>
+    <string name="network_error">خطا در اتصال به سرور، لطفا اینترنت خود را چک کنید</string>
+    <string name="network_data_null">داده ای از سرور دریافت نشد</string>
+    <string name="timeout">درخواست، بیش از اندازه طول کشیده است. لطفا مجددا تلاش کنید</string>
+    <string name="data_is_not_exist">داده ای وجود ندارد</string>
+    <string name="try_again">تلاش مجدد</string>
+
 </resources>
