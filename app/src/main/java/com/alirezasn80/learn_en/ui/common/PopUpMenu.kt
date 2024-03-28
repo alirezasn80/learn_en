@@ -42,9 +42,9 @@ fun PopUpMenu(
     lockItemIndex: Int = -1,
     titleMenuItems: List<Any>,
     iconMenuItems: List<Any>? = null,
-    mainTitleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    mainTitleStyle: TextStyle = MaterialTheme.typography.titleSmall,
     menuItemTitleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    iconColor: Color = MaterialTheme.colorScheme.onSurface,
+    iconColor: Color = MaterialTheme.colorScheme.onPrimary,
     selectedItem: (id: Int) -> Unit,
 ) {
 
@@ -84,7 +84,8 @@ fun PopUpMenu(
                         indication = rememberRipple(bounded = false, radius = 24.dp)
                     ) {
                         expanded = !expanded
-                    }
+                    },
+                color = iconColor
             )
         else
             return
@@ -140,7 +141,9 @@ fun PopUpMenu(
                     }
 
                     if (index == lockItemIndex)
-                    Icon(imageVector = Icons.Rounded.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp).align(Alignment.CenterEnd))
+                        Icon(imageVector = Icons.Rounded.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.CenterEnd))
                 }
 
             }
@@ -149,3 +152,4 @@ fun PopUpMenu(
     }
 
 }
+

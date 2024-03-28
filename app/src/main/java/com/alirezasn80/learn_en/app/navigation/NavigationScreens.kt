@@ -26,15 +26,14 @@ sealed class Screen(val route: String) {
 
     data object OnBoarding : Screen("OnBoarding")
 
-    data object Cleanup : Screen("Cleanup")
-
-    data object SearchId : Screen("SearchId")
 
     data object AboutUs : Screen("AboutUs")
 
     data object Payment : Screen("Payment/{${Arg.Key}}")
 
-    data object Items : Screen("Items/{${Arg.ScreenType}}")
+    data object Stories : Screen("Stories/{${Arg.CATEGORY_ID}}/{${Arg.TITLE}}")
+
+    data object Content : Screen("Content/{${Arg.CATEGORY_ID}}/{${Arg.CONTENT_ID}}")
 
     data object Home : Screen("Home")
 }

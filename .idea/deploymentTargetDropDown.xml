@@ -9,13 +9,24 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="adb-VGSSINIJ95LR8XDY-AkEjOa._adb-tls-connect._tcp." />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\seyed\.android\avd\Pixel_4_API_34_android_14_.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-03-28T06:53:22.631399600Z" />
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\seyed\.android\avd\Pixel_4_API_34_android_14_.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-03-28T13:22:02.717727Z" />
         </State>
       </entry>
     </value>

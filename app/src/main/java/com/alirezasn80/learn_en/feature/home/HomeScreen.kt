@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -58,9 +60,9 @@ import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.randomColor
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @Composable
 fun HomeScreen(
@@ -105,7 +107,10 @@ fun HomeScreen(
                 )
                 LazyColumn {
                     items(state.categories) {
-                        ItemSection(it)
+                        ItemSection(
+                            item = it,
+                            onClick = { debug("id = ${it.categoryId}, title = ${it.title}"); navigationState.navToStories(it.categoryId!!, it.title) }
+                        )
                     }
                 }
             }
@@ -114,7 +119,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ItemSection(item: CategoryEntity) {
+private fun ItemSection(item: CategoryEntity, onClick: () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -122,7 +127,11 @@ private fun ItemSection(item: CategoryEntity) {
 
     ) {
 
-        Row(Modifier.padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier
+                .clickable { onClick() }
+                .fillMaxWidth()
+                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
             // Number
             Box(
                 modifier = Modifier
@@ -131,13 +140,13 @@ private fun ItemSection(item: CategoryEntity) {
                     .background(randomColor()),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = item.categoryId.toString(), style = MaterialTheme.typography.titleSmall)
+                Text(text = item.categoryId.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
             SmallSpacer()
             Column {
-                Text(text = "Story ${item.categoryId}", style = MaterialTheme.typography.labelSmall)
+                Text(text = "Story ${item.categoryId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
                 SmallSpacer()
-                Text(text = item.title, style = MaterialTheme.typography.titleSmall)
+                Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
         }
         Divider(modifier = Modifier.fillMaxWidth())
@@ -151,7 +160,7 @@ private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: ()
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
     ) {
-        IconButton(onClick = onMenuClick) {
+        IconButton(onClick = onMenuClick, modifier = Modifier.align(Alignment.CenterEnd)) {
             Icon(imageVector = Icons.Rounded.Menu, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
         TextButton(onClick = onLevelClick, modifier = Modifier.align(Alignment.Center)) {
@@ -174,24 +183,29 @@ private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: ()
 private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
     val modalBottomSheetState = rememberModalBottomSheetState()
 
+
     ModalBottomSheet(
-        shape = MaterialTheme.shapes.small,
+        shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
         onDismissRequest = { onDismiss() },
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
+        windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
     ) {
         Rtl {
-            Column(modifier = Modifier.padding(horizontal = dimension.medium)) {
+            Column {
                 categories.forEach {
                     Row(
                         Modifier
                             .clickable { onClick(it) }
                             .fillMaxWidth()
-                            .padding(vertical = dimension.medium)) {
+                            .padding(vertical = 1.dp)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(dimension.medium)
+                    ) {
                         Text(text = stringResource(id = it.name))
-
                     }
-                    Divider(Modifier.fillMaxWidth())
+
+
                 }
             }
         }

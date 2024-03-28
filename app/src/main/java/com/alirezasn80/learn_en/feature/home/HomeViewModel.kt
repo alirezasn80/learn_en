@@ -7,6 +7,7 @@ import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.debug
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject

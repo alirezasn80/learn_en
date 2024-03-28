@@ -1,0 +1,121 @@
+package com.alirezasn80.learn_en.feature.stories
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alirezasn80.learn_en.app.navigation.NavigationState
+import com.alirezasn80.learn_en.core.domain.entity.Items
+import com.alirezasn80.learn_en.ui.common.UI
+import com.alirezasn80.learn_en.ui.theme.SmallSpacer
+import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.randomColor
+
+
+@Composable
+fun StoriesScreen(
+    navigationState: NavigationState,
+    viewmodel: StoriesViewModel = hiltViewModel()
+) {
+    val state by viewmodel.state.collectAsStateWithLifecycle()
+
+    UI {
+        Column(Modifier.fillMaxSize()) {
+            Header(state.title, upPress = navigationState::upPress)
+
+            LazyColumn {
+                items(state.items) {
+                    ItemSection(item = it, onClick = { navigationState.navToContent(it.categoryId!!, it.contentId!!) })
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun Header(title: String, upPress: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterEnd)) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+        Text(
+            text = title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.Center)
+        )
+
+    }
+}
+
+@Composable
+private fun ItemSection(item: Items, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimension.medium)
+    ) {
+
+        Row(
+            Modifier
+                .clickable { onClick() }
+                .fillMaxWidth()
+                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
+            // Number
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(randomColor()),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = item.contentId.toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            SmallSpacer()
+            Column {
+                Text(text = "Story ${item.contentId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+                SmallSpacer()
+                Text(
+                    text = item.title, style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
+        Divider(modifier = Modifier.fillMaxWidth())
+    }
+}

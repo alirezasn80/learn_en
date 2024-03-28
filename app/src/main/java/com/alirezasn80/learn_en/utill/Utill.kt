@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
@@ -139,8 +140,10 @@ fun String.arguments(): Sequence<MatchResult> {
 inline val String.argumentCount: Int get() = arguments().count()
 
 object Arg {
-    const val ScreenType = "TYPE"
     const val Key = "Key"
+    const val CATEGORY_ID = "CATEGORY_ID"
+    const val CONTENT_ID = "CONTENT_ID"
+    const val TITLE = "TITLE"
 }
 
 suspend fun withDuration(title: String = "", content: suspend () -> Unit) {
@@ -337,13 +340,13 @@ fun SavedStateHandle.getInt(key: String): Int? {
 
 fun SavedStateHandle.getString(key: String) = this.get<String>(key)
 
-
+@Composable
 fun randomColor(): Color {
     val alpha = Random.nextInt(200, 256)
     val red = Random.nextInt(256)
     val green = Random.nextInt(256)
     val blue = Random.nextInt(256)
-    return Color(red, green, blue, alpha)
+    return MaterialTheme.colorScheme.primary.copy(alpha = Random.nextDouble(0.2f.toDouble(), 1f.toDouble()).toFloat())
 }
 
 @Composable
