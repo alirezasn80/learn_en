@@ -3,6 +3,7 @@ package com.alirezasn80.learn_en.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,8 +20,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        LocaleUtils.updateResources(this)
+        LocaleUtils.updateResources(this,"en")
         setContent {
+
             val navigationState = rememberNavigationState()
 
             Learn_enTheme {

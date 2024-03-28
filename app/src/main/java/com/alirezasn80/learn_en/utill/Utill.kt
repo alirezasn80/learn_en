@@ -13,7 +13,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavBackStackEntry
@@ -23,6 +27,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import java.io.IOException
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
@@ -65,6 +70,7 @@ object Key {
     const val SAF_PERMISSION = "SAF_PERMISSION"
     const val STORAGE_PERMISSION = "StoragePermission"
 }
+
 sealed interface WidgetType {
     object Toast : WidgetType
     object Snackbar : WidgetType
@@ -72,7 +78,7 @@ sealed interface WidgetType {
 
 sealed interface Destination {
     object Home : Destination
-    object OnBoarding:Destination
+    object OnBoarding : Destination
 }
 
 sealed interface MessageState {
@@ -93,7 +99,7 @@ fun Throwable.toRemoteError() = when (this) {
 
     is IOException -> RemoteError(com.alirezasn80.learn_en.R.string.network_error)
 
-   // is HttpException -> RemoteError(R.string.http_error, this.code())
+    // is HttpException -> RemoteError(R.string.http_error, this.code())
 
     is TimeoutCancellationException -> RemoteError(R.string.timeout)
 
@@ -122,7 +128,6 @@ interface MessageType {
     fun setMessageBySnackbar(message: Any, messageState: MessageState = MessageState.Error)
 
 }
-
 
 
 @Suppress("RegExpRedundantEscape")
@@ -331,3 +336,26 @@ fun SavedStateHandle.getInt(key: String): Int? {
 }
 
 fun SavedStateHandle.getString(key: String) = this.get<String>(key)
+
+
+fun randomColor(): Color {
+    val alpha = Random.nextInt(200, 256)
+    val red = Random.nextInt(256)
+    val green = Random.nextInt(256)
+    val blue = Random.nextInt(256)
+    return Color(red, green, blue, alpha)
+}
+
+@Composable
+fun Rtl(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        content()
+    }
+}
+
+@Composable
+fun Ltr(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        content()
+    }
+}

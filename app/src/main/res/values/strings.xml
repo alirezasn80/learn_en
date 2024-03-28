@@ -7,5 +7,11 @@
     <string name="timeout">درخواست، بیش از اندازه طول کشیده است. لطفا مجددا تلاش کنید</string>
     <string name="data_is_not_exist">داده ای وجود ندارد</string>
     <string name="try_again">تلاش مجدد</string>
+    <string name="elementary">ابتدایی</string>
+    <string name="medium">متوسط</string>
+    <string name="advance">پیشرفته</string>
+    <string name="all">همه</string>
+    <string name="favorite">مورد علاقه</string>
+    <string name="created">ساخته شده</string>
 
 </resources>
