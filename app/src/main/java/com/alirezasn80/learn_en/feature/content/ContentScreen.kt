@@ -1,18 +1,24 @@
 package com.alirezasn80.learn_en.feature.content
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material3.Icon
@@ -22,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,11 +52,19 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.ui.common.PopUpMenu
 import com.alirezasn80.learn_en.ui.common.UI
+import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.debug
-import com.google.mlkit.nl.translate.Translator
+import kotlin.random.Random
+
+
+data class ReadMode(
+    val key: String,
+    val icon: Int
+)
 
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
@@ -69,25 +84,83 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
             },
             bottomBar = {
                 BottomBar(
+                    isPlay = state.isPlay,
                     onSpeedClick = viewModel::onSpeedClick,
-                    onPlayClick = viewModel::onPlayClick
+                    onPlayClick = viewModel::readParagraph,
+                    onBackwardClick = viewModel::onBackwardClick,
+                    onForwardClick = viewModel::onForwardClick,
+                    onReadModeClick = viewModel::onReadModeClick
                 )
             }
         ) {
-            LazyColumn(Modifier.padding(it)) {
-                items(state.paragraphs) { paragraph ->
 
-                    ParagraphSection(paragraph, state.isVisibleTranslate, viewModel::onWordClick)
+            if (viewModel.progress[""] is Progress.Loading) {
+                LoadingSection(it)
+            } else
+                LazyColumn(Modifier.padding(it)) {
+                    itemsIndexed(state.paragraphs) { index, paragraph ->
+                        ParagraphSection(
+                            isFocus = state.readableIndex == index,
+                            paragraph = paragraph,
+                            isVisibleTranslate = state.isVisibleTranslate,
+                            onWordClick = viewModel::onWordClick,
+                            onClick = { viewModel.onParagraphClick(index) }
+                        )
+                    }
                 }
-            }
         }
     }
 
 }
 
 @Composable
-private fun BottomBar(onSpeedClick: (Float) -> Unit, onPlayClick: (Boolean) -> Unit) {
-    var isPlay by remember { mutableStateOf(false) }
+private fun LoadingSection(paddingValues: PaddingValues) {
+    Column(
+        Modifier
+            .padding(paddingValues)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        repeat(15) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 1.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(dimension.medium),
+                verticalArrangement = Arrangement.spacedBy(dimension.extraSmall)
+            ) {
+                repeat(3) { LoadingLine() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingLine() {
+    Box(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.extraSmall)
+            .fillMaxWidth(
+                Random
+                    .nextDouble(0.20, 0.99)
+                    .toFloat()
+            )
+            .height(13.dp)
+            .shimmerEffect()
+            .background(Color.LightGray.copy(alpha = 0.5f))
+    )
+}
+
+@Composable
+private fun BottomBar(
+    isPlay: Boolean,
+    onSpeedClick: (Float) -> Unit,
+    onPlayClick: (Boolean) -> Unit,
+    onForwardClick: () -> Unit,
+    onBackwardClick: () -> Unit,
+    onReadModeClick: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,28 +169,79 @@ private fun BottomBar(onSpeedClick: (Float) -> Unit, onPlayClick: (Boolean) -> U
             .padding(vertical = dimension.extraSmall)
     ) {
         SpeedSection(onSpeedClick)
-        Row(Modifier.align(Alignment.Center), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_backward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+
+        MediaControllerSection(onBackwardClick, onForwardClick, onPlayClick, isPlay)
+
+        ReadableStateSection(onClick = onReadModeClick)
+    }
+}
+
+var selectedIndex = 0
+
+@Composable
+fun BoxScope.ReadableStateSection(onClick: (String) -> Unit) {
+    var selectedIcon by remember { mutableStateOf(ReadMode("default", R.drawable.ic_default_read)) }
+    var clicked by remember { mutableStateOf(false) }
+
+    if (clicked) {
+        selectedIcon = when (selectedIndex) {
+            0 -> {
+                ReadMode("default", R.drawable.ic_default_read)
             }
-            SmallSpacer()
-            IconButton(
-                onClick = {
-                    onPlayClick(isPlay)
-                    isPlay = !isPlay
-                }, modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
-            ) {
-                Icon(imageVector = ImageVector.vectorResource(if (isPlay) R.drawable.ic_stop else R.drawable.ic_play), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+
+            1 -> {
+                ReadMode("repeat", R.drawable.ic_repeat)
             }
-            SmallSpacer()
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_forward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
-            }
+
+            2 -> ReadMode("play_stop", R.drawable.ic_play_stop)
+
+            else -> ReadMode("default", R.drawable.ic_default_read)
+        }
+        onClick(selectedIcon.key)
+        clicked = false
+    }
+
+
+
+    IconButton(
+        modifier = Modifier
+            .align(Alignment.CenterStart),
+        onClick = {
+            if (selectedIndex < 2) selectedIndex++ else selectedIndex = 0
+            clicked = true
+
+        }) {
+        Icon(imageVector = ImageVector.vectorResource(selectedIcon.icon), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+    }
+}
+
+@Composable
+fun BoxScope.MediaControllerSection(onBackwardClick: () -> Unit, onForwardClick: () -> Unit, onPlayClick: (Boolean) -> Unit, isPlay: Boolean) {
+    Row(
+        Modifier.align(Alignment.Center),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBackwardClick) {
+            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_backward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        }
+        SmallSpacer()
+        IconButton(
+            onClick = {
+                onPlayClick(!isPlay)
+            }, modifier = Modifier
+                .clip(CircleShape)
+                .background(Color.White)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+        ) {
+            Icon(imageVector = ImageVector.vectorResource(if (isPlay) R.drawable.ic_stop else R.drawable.ic_play), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        }
+        SmallSpacer()
+        IconButton(onClick = onForwardClick) {
+            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_forward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
     }
+
 }
 
 @Composable
@@ -163,20 +287,22 @@ private fun BoxScope.SpeedSection(onClick: (Float) -> Unit) {
 
 @Composable
 private fun ParagraphSection(
+    isFocus: Boolean,
     paragraph: Paragraph,
     isVisibleTranslate: Boolean,
     onWordClick: (String) -> Unit,
+    onClick: () -> Unit
 ) {
     Column(
         Modifier
+            .clickable { onClick() }
             .fillMaxWidth()
             .padding(vertical = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
+            .background(if (isFocus) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Unspecified)
             .padding(dimension.medium)
     ) {
-        ClickableWordsText(
-            paragraph.text, onClick = onWordClick
-        )
+        ClickableWordsText(text = paragraph.text, onClick = onWordClick)
         SmallSpacer()
 
         if (isVisibleTranslate)

@@ -9,6 +9,8 @@ data class Paragraph(
 
 data class ContentState(
     val isVisibleTranslate: Boolean = false,
-    val title:String = "",
+    val title: String = "",
     val paragraphs: List<Paragraph> = emptyList(),
+    val readableIndex: Int = 0,
+    val isPlay:Boolean =false,
 )

@@ -5,12 +5,14 @@ import android.content.Intent
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.google.mlkit.nl.translate.TranslateLanguage
@@ -18,11 +20,11 @@ import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
+
 
 @HiltViewModel
 class ContentViewModel @Inject constructor(
@@ -30,26 +32,51 @@ class ContentViewModel @Inject constructor(
     private val database: AppDB,
     private val application: Application
 ) : BaseViewModel<ContentState>(ContentState()) {
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var speechIntent: Intent
     private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
     private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
-    var readJob: Job? = null
+    private val translator: Translator by lazy { initTranslator() }
+    private var maxReadableIndex = 0
 
-    val translator: Translator by lazy {
+
+    private val tts: TextToSpeech = TextToSpeech(application) { status ->
+        if (status == TextToSpeech.SUCCESS) ttsSetting()
+    }
+
+    private fun ttsSetting() {
+        tts.language = Locale.US
+        tts.setPitch(1f)
+        tts.setSpeechRate(1f)
+
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+
+            override fun onStart(utteranceId: String?) {}
+
+            override fun onDone(utteranceId: String?) {
+                if (utteranceId == "text") {
+                    val nextIndex = state.value.readableIndex + 1
+                    if (nextIndex <= maxReadableIndex) {
+                        state.update { it.copy(readableIndex = nextIndex) }
+                        readParagraph(true)
+                    } else {
+                        state.update { it.copy(readableIndex = 0, isPlay = false) }
+                    }
+                }
+
+            }
+
+            override fun onError(utteranceId: String?) {}
+
+        })
+    }
+
+    private fun initTranslator(): Translator {
         val options = TranslatorOptions.Builder()
             .setSourceLanguage(TranslateLanguage.ENGLISH)
             .setTargetLanguage(TranslateLanguage.PERSIAN)
             .build()
-        Translation.getClient(options)
-    }
-
-    private val textToSpeech: TextToSpeech = TextToSpeech(application) { status ->
-        if (status == TextToSpeech.SUCCESS) initLanguageAndSpeed()
-    }
-
-    private fun initLanguageAndSpeed() {
-        textToSpeech.language = Locale.US
-        textToSpeech.setPitch(1f) // Higher values will increase the pitch
-        textToSpeech.setSpeechRate(1f) // Higher values will increase the speed rate
+        return Translation.getClient(options)
     }
 
     private fun initSpeechToText() {
@@ -59,8 +86,24 @@ class ContentViewModel @Inject constructor(
         speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fa-IR")
     }
 
-    private lateinit var speechRecognizer: SpeechRecognizer
-    private lateinit var speechIntent: Intent
+    fun onForwardClick() {
+        val nextIndex = state.value.readableIndex + 1
+        if (nextIndex <= maxReadableIndex) {
+            state.update { it.copy(readableIndex = nextIndex) }
+            if (tts.isSpeaking) tts.stop()
+            if (state.value.isPlay) readParagraph(true)
+        }
+    }
+
+    fun onBackwardClick() {
+        val previousIndex = state.value.readableIndex - 1
+        if (previousIndex >= 0) {
+            state.update { it.copy(readableIndex = previousIndex) }
+            if (tts.isSpeaking) tts.stop()
+            if (state.value.isPlay) readParagraph(true)
+        }
+    }
+
 
     init {
         checkDownloadTranslate()
@@ -68,11 +111,19 @@ class ContentViewModel @Inject constructor(
         getContent()
     }
 
+    private fun loadingStatus(value: Progress) {
+        progress[""] = value
+    }
+
     private fun getContent() {
+
+        loadingStatus(Progress.Loading)
+
         viewModelScope.launch {
             val contentEntity = database.contentDao.getContent(categoryId, contentId)
             val title = contentEntity.title
             val contents = contentEntity.content.trim().split(".").filter { it.isNotBlank() }
+            maxReadableIndex = contents.size - 1
             val paragraphs = mutableListOf<Paragraph>()
 
             contents.forEachIndexed { index, paragraph ->
@@ -80,14 +131,15 @@ class ContentViewModel @Inject constructor(
                 translator.translate(paragraph)
                     .addOnSuccessListener { translated ->
                         paragraphs.add(Paragraph(paragraph, translated))
-                        debug("add")
                     }
                     .addOnFailureListener { exception ->
                         debug("failed translate" + exception.message)
                     }
                     .addOnCompleteListener {
-                        if (index + 1 == contents.size)
+                        if (index + 1 == contents.size) {
+                            loadingStatus(Progress.Idle)
                             state.update { it.copy(title = title, paragraphs = paragraphs) }
+                        }
                     }
             }
         }
@@ -110,13 +162,14 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun speakText(value: String) {
-        textToSpeech.speak(value, TextToSpeech.QUEUE_FLUSH, null, "")
+        tts.speak(value, TextToSpeech.QUEUE_FLUSH, null, "word")
     }
 
     fun onWordClick(word: String) {
         translator.translate(word)
             .addOnSuccessListener {
-                speakText(word)
+                if (!state.value.isPlay)
+                    speakText(word)
                 Toast.makeText(application, it, Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { exception ->
@@ -125,25 +178,45 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onSpeedClick(speed: Float) {
-        textToSpeech.setSpeechRate(speed)
+        tts.setSpeechRate(speed)
     }
 
-    fun onPlayClick(isPlay: Boolean) {
+    fun readParagraph(isPlay: Boolean) {
+        state.update { it.copy(isPlay = isPlay) }
         if (isPlay) {
-            readJob = viewModelScope.launch {
-                textToSpeech.speak(state.value.paragraphs[0].text, TextToSpeech.QUEUE_FLUSH, null, "")
-
-            }
+            val index = state.value.readableIndex
+            tts.speak(state.value.paragraphs[index].text, TextToSpeech.QUEUE_FLUSH, null, "text")
         } else {
-            readJob?.cancel()
+            if (tts.isSpeaking)
+                tts.stop()
         }
     }
 
     override fun onCleared() {
         debug("cleared")
         super.onCleared()
-        textToSpeech.stop()
-        textToSpeech.shutdown()
+        tts.stop()
+        tts.shutdown()
 
+    }
+
+    fun onParagraphClick(index: Int) {
+        state.update { it.copy(readableIndex = index) }
+    }
+
+    fun onReadModeClick(mode: String) {
+        when (mode) {
+            "default" -> {
+                //todo()
+            }
+
+            "repeat" -> {
+                //todo()
+            }
+
+            "play_stop" -> {
+                //todo()
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ abstract class BaseViewModel<State>(state: State) : ViewModel(), MessageType {
 
     val uiComponents = _message.asSharedFlow()
 
-    var newProgress: MutableMap<String, Progress> = mutableStateMapOf()
+    var progress: MutableMap<String, Progress> = mutableStateMapOf()
 
 
 
@@ -67,7 +67,7 @@ abstract class BaseViewModel<State>(state: State) : ViewModel(), MessageType {
                     if (manualHandleError == null) {
 
 
-                        newProgress[loadingKey] = Progress.Idle
+                        progress[loadingKey] = Progress.Idle
 
                         setMessageBySnackbar(dataState.remoteError.message, MessageState.Error)
                     } else
@@ -81,7 +81,7 @@ abstract class BaseViewModel<State>(state: State) : ViewModel(), MessageType {
 
 
 
-                    newProgress[loadingKey] = Progress.Loading
+                    progress[loadingKey] = Progress.Loading
                 }
 
                 is DataState.Success -> {
@@ -95,7 +95,7 @@ abstract class BaseViewModel<State>(state: State) : ViewModel(), MessageType {
 
 
 
-                    newProgress[loadingKey] = Progress.Idle
+                    progress[loadingKey] = Progress.Idle
                 }
 
             }
