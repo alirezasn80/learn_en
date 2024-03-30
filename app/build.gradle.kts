@@ -32,6 +32,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        ndk {
+
+               // abiFilters += listOf("x86", "armeabi-v7a", "x86_64")
+
+        }
     }
 
     buildTypes {
