@@ -1,5 +1,11 @@
 package com.alirezasn80.learn_en.feature.stories
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -81,6 +87,14 @@ private fun Header(title: String, upPress: () -> Unit) {
 
 @Composable
 private fun ItemSection(item: Items, onClick: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val color by infiniteTransition.animateColor(
+        initialValue = MaterialTheme.colorScheme.primary, targetValue = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
     Column(
         Modifier
             .fillMaxWidth()
@@ -97,7 +111,7 @@ private fun ItemSection(item: Items, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(randomColor()),
+                    .background(MaterialTheme.colorScheme.primary.copy(0.8f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

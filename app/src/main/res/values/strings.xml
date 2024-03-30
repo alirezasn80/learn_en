@@ -13,5 +13,6 @@
     <string name="all">همه</string>
     <string name="favorite">مورد علاقه</string>
     <string name="created">ساخته شده</string>
+    <string name="add_to_bookmark">به علاقه مندی ها اضافه شد</string>
 
 </resources>

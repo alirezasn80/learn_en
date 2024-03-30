@@ -9,12 +9,14 @@ import android.speech.tts.UtteranceProgressListener
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
+import com.alirezasn80.learn_en.utill.showToast
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -38,6 +40,7 @@ class ContentViewModel @Inject constructor(
     private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
     private val translator: Translator by lazy { initTranslator() }
     private var maxReadableIndex = 0
+    private var readMode = "default"
 
 
     private val tts: TextToSpeech = TextToSpeech(application) { status ->
@@ -55,13 +58,26 @@ class ContentViewModel @Inject constructor(
 
             override fun onDone(utteranceId: String?) {
                 if (utteranceId == "text") {
-                    val nextIndex = state.value.readableIndex + 1
-                    if (nextIndex <= maxReadableIndex) {
-                        state.update { it.copy(readableIndex = nextIndex) }
-                        readParagraph(true)
-                    } else {
-                        state.update { it.copy(readableIndex = 0, isPlay = false) }
+
+                    when (readMode) {
+
+                        "default" -> {
+                            val nextIndex = state.value.readableIndex + 1
+                            if (nextIndex <= maxReadableIndex) {
+                                state.update { it.copy(readableIndex = nextIndex) }
+                                readParagraph(true)
+                            } else {
+                                state.update { it.copy(readableIndex = 0, isPlay = false) }
+                            }
+                        }
+
+                        "repeat" -> readParagraph(true)
+
+
+                        "play_stop" -> readParagraph(false)
+
                     }
+
                 }
 
             }
@@ -161,6 +177,10 @@ class ContentViewModel @Inject constructor(
         state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
     }
 
+    fun onMuteClick() {
+        state.update { it.copy(isMute = !state.value.isMute) }
+    }
+
     private fun speakText(value: String) {
         tts.speak(value, TextToSpeech.QUEUE_FLUSH, null, "word")
     }
@@ -168,8 +188,7 @@ class ContentViewModel @Inject constructor(
     fun onWordClick(word: String) {
         translator.translate(word)
             .addOnSuccessListener {
-                if (!state.value.isPlay)
-                    speakText(word)
+                if (!state.value.isPlay && !state.value.isMute) speakText(word)
                 Toast.makeText(application, it, Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { exception ->
@@ -202,21 +221,25 @@ class ContentViewModel @Inject constructor(
 
     fun onParagraphClick(index: Int) {
         state.update { it.copy(readableIndex = index) }
+        if (tts.isSpeaking) tts.stop()
+        if (state.value.isPlay) readParagraph(true)
     }
 
     fun onReadModeClick(mode: String) {
-        when (mode) {
-            "default" -> {
-                //todo()
-            }
+        readMode = mode
+    }
 
-            "repeat" -> {
-                //todo()
-            }
+    fun onBookmarkClick() {
+        val isBookmark = !state.value.isBookmark
+        if (isBookmark)
+            addToBookmark()
+        state.update { it.copy(isBookmark = isBookmark) }
+    }
 
-            "play_stop" -> {
-                //todo()
-            }
+    private fun addToBookmark() {
+        viewModelScope.launch {
+            database.contentDao.addToBookmark(contentId, categoryId)
         }
+        application.showToast(R.string.add_to_bookmark)
     }
 }

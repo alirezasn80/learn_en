@@ -53,6 +53,7 @@ import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.ui.common.PopUpMenu
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
+import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Progress
@@ -76,21 +77,26 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                 Header(
                     title = state.title,
                     isVisibleTranslate = state.isVisibleTranslate,
+                    isMute = state.isMute,
+                    isBookmark = state.isBookmark,
                     upPress = navigationState::upPress,
-                    onTranslateClick = viewModel::onTranslateClick
+                    onTranslateClick = viewModel::onTranslateClick,
+                    onMuteClick = viewModel::onMuteClick,
+                    onBookmarkClick = viewModel::onBookmarkClick
 
 
                 )
             },
             bottomBar = {
-                BottomBar(
-                    isPlay = state.isPlay,
-                    onSpeedClick = viewModel::onSpeedClick,
-                    onPlayClick = viewModel::readParagraph,
-                    onBackwardClick = viewModel::onBackwardClick,
-                    onForwardClick = viewModel::onForwardClick,
-                    onReadModeClick = viewModel::onReadModeClick
-                )
+                if (!state.isMute)
+                    BottomBar(
+                        isPlay = state.isPlay,
+                        onSpeedClick = viewModel::onSpeedClick,
+                        onPlayClick = viewModel::readParagraph,
+                        onBackwardClick = viewModel::onBackwardClick,
+                        onForwardClick = viewModel::onForwardClick,
+                        onReadModeClick = viewModel::onReadModeClick
+                    )
             }
         ) {
 
@@ -312,29 +318,81 @@ private fun ParagraphSection(
 }
 
 @Composable
-private fun Header(title: String, isVisibleTranslate: Boolean, upPress: () -> Unit, onTranslateClick: () -> Unit) {
+private fun Header(
+    isMute: Boolean,
+    title: String,
+    isVisibleTranslate: Boolean,
+    isBookmark:Boolean,
+    upPress: () -> Unit,
+    onTranslateClick: () -> Unit,
+    onMuteClick: () -> Unit,
+    onBookmarkClick:()->Unit
+) {
     Row(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.primary),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onTranslateClick,
-            modifier = Modifier
-                .clip(CircleShape)
-                .background(
-                    if (isVisibleTranslate)
-                        Color.White.copy(alpha = 0.3f)
-                    else
-                        Color.Unspecified
-                )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = dimension.medium)
         ) {
+
+            // Bookmark
             Icon(
+                modifier = Modifier
+                    .clickable { onBookmarkClick() }
+                    .clip(CircleShape)
+                    .background(
+                        if (isBookmark)
+                            Color.White.copy(alpha = 0.3f)
+                        else
+                            Color.Unspecified
+                    )
+                    .padding(dimension.extraSmall),
+                imageVector = ImageVector.vectorResource(if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+
+
+            // Translate
+            Icon(
+                modifier = Modifier
+                    .clickable { onTranslateClick() }
+                    .clip(CircleShape)
+                    .background(
+                        if (isVisibleTranslate)
+                            Color.White.copy(alpha = 0.3f)
+                        else
+                            Color.Unspecified
+                    )
+                    .padding(dimension.extraSmall),
                 imageVector = ImageVector.vectorResource(R.drawable.ic_translate),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+            SmallSpacer()
+
+            // Mute
+            Icon(
+                modifier = Modifier
+                    .clickable { onMuteClick() }
+                    .clip(CircleShape)
+                    .background(
+                        if (isMute)
+                            Color.White.copy(alpha = 0.3f)
+                        else
+                            Color.Unspecified
+                    )
+                    .padding(dimension.extraSmall),
+                imageVector = ImageVector.vectorResource(if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
+
 
         Text(
             text = title, modifier = Modifier

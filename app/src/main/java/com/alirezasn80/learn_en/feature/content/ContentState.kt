@@ -13,4 +13,6 @@ data class ContentState(
     val paragraphs: List<Paragraph> = emptyList(),
     val readableIndex: Int = 0,
     val isPlay:Boolean =false,
+    val isMute:Boolean =false,
+    val isBookmark:Boolean=false
 )
