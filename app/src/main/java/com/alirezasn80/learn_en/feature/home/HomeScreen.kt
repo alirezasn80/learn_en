@@ -63,6 +63,9 @@ import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.randomColor
 import kotlinx.coroutines.launch
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
 
 @Composable
 fun HomeScreen(

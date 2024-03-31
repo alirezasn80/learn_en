@@ -140,6 +140,7 @@ class ContentViewModel @Inject constructor(
             val title = contentEntity.title
             val contents = contentEntity.content.trim().split(".").filter { it.isNotBlank() }
             maxReadableIndex = contents.size - 1
+
             val paragraphs = mutableListOf<Paragraph>()
 
             contents.forEachIndexed { index, paragraph ->
