@@ -7,8 +7,8 @@ import kotlinx.coroutines.*
 
 class TranslationTasks(
     private var text: String,
-    private var toLang: String?,
-    private var fromLang: String?,
+    private var toLang: String = "fa",
+    private var fromLang: String = "en",
     private var resultCallback: (translation: String) -> Unit,
 ) {
     private val handler = CoroutineExceptionHandler { _, exception ->

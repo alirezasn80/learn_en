@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import org.jsoup.Jsoup
 import java.util.Locale
 import javax.inject.Inject
@@ -157,15 +158,11 @@ class ContentViewModel @Inject constructor(
 
     private fun translate(text: String, from: String = "en", to: String = "fa") {
         loadingStatus(Progress.Loading)
-        //debug(text)
-
         viewModelScope.launch(Dispatchers.IO) {
             //todo(check max 5,000 char)
 
             var newContent = text.replace("\"", "").replace(".", "*").replace("!", "*")
             if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title*")
-
-            //TranslationTasks(newContent,to,from){ debug(it) }
 
             val url = createUrl(from, to, newContent)
 
@@ -268,8 +265,12 @@ class ContentViewModel @Inject constructor(
         tts.speak(value, TextToSpeech.QUEUE_FLUSH, null, "word")
     }
 
+
+
+
     fun onWordClick(word: String) {
-        //todo()
+        TranslationTasks(word){}
+
         /*
         *
         *      if (!state.value.isPlay && !state.value.isMute) speakText(word)

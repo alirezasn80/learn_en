@@ -3,7 +3,6 @@ package com.alirezasn80.learn_en.di
 import android.app.Application
 import androidx.room.Room
 import com.alirezasn80.learn_en.core.data.database.AppDB
-import com.alirezasn80.learn_en.utill.debug
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,7 +23,7 @@ object DBModule {
 
         } else {
             Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")
-                .createFromAsset("database/story.db")
+                .createFromAsset("database/learn_en.db")
                 .build()
         }
 

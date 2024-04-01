@@ -81,6 +81,37 @@ object TranslationConnection {
         return response.toString()
     }
 
+    fun convertJson(jsonString: String): String {
+        val jsonObject = JSONObject(jsonString)
+        val jsonArray = jsonObject.getJSONArray("1").getJSONArray(1)
+        val result = StringBuilder()
+        result.append("\"verb :\\n      [\\n")
+
+        for (i in 0 until jsonArray.length()) {
+            val verbArray = jsonArray.getJSONArray(i)
+            val verb = verbArray.getString(0)
+            val meanings = verbArray.getJSONArray(1)
+
+            result.append("        \"${verb} : ( ")
+
+            for (j in 0 until meanings.length()) {
+                result.append("\"${meanings.getString(j)}\"")
+                if (j < meanings.length() - 1) {
+                    result.append(",\\n            ")
+                }
+            }
+
+            result.append(")\"")
+            if (i < jsonArray.length() - 1) {
+                result.append(",\\n")
+            }
+        }
+
+        result.append("\\n      ]\\n\"")
+        return result.toString()
+    }
+
+
     fun translateHttpURLConnection(
         to_translate: String?,
         to_language: String?,
@@ -100,18 +131,25 @@ object TranslationConnection {
             try {
                 val sb = java.lang.StringBuilder()
                 val url = String.format(
-                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=t",
+                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd",
                     sl,
                     hl,
                     q
                 )
-
+                debug(url)
                 var text = getTextHttpURLConnection(url)
-//                Returns true if the string is null or 0-length.
-                /*
-                 TextUtils is simply a set of utility functions to do operations on String objects.
-                   Let's take an example which I usually see in the projects, it's a simple example
-                    like we all do, the string null check and empty check.*/
+                val jsonArray = JSONArray(text).getJSONArray(1).getJSONArray(0)// 0 is just as first type. maybe exist multi type. i should calc length and use it in loop
+                val type = jsonArray.get(0)
+                val translations = jsonArray.getJSONArray(1)
+                val totalSimilar = jsonArray.getJSONArray(2)
+               debug("type : $type")
+                for (i in 0 until translations.length()) {
+                    val similar = totalSimilar.getJSONArray(i).getJSONArray(1)
+                    debug("${translations.get(i)} = ${similar.toString()}")
+                }
+
+                //todo()
+                return ""
 
                 if (TextUtils.isEmpty(text)) {
                     text =
