@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
@@ -53,8 +54,12 @@ fun StoriesScreen(
             Header(state.title, upPress = navigationState::upPress)
 
             LazyColumn {
-                items(state.items) {
-                    ItemSection(item = it, onClick = { navigationState.navToContent(it.categoryId!!, it.contentId!!) })
+                itemsIndexed(state.items) { index, item ->
+                    ItemSection(
+                        index = index,
+                        item = item,
+                        onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
+                    )
                 }
             }
         }
@@ -86,7 +91,11 @@ private fun Header(title: String, upPress: () -> Unit) {
 }
 
 @Composable
-private fun ItemSection(item: Items, onClick: () -> Unit) {
+private fun ItemSection(
+    index: Int,
+    item: Items,
+    onClick: () -> Unit
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val color by infiniteTransition.animateColor(
         initialValue = MaterialTheme.colorScheme.primary, targetValue = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
@@ -115,7 +124,7 @@ private fun ItemSection(item: Items, onClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = item.contentId.toString(),
+                    text = (index + 1).toString(),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onBackground
                 )

@@ -8,6 +8,7 @@ import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.getString
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,8 +27,9 @@ class StoriesViewModel @Inject constructor(
     }
 
     private fun getStories() {
-        viewModelScope.launch {
-            val items = database.contentDao.getContents(categoryId).map { it.toItems() }
+        viewModelScope.launch(Dispatchers.IO) {
+            val items = database.contentDao.getItems(categoryId)
+
             state.update { it.copy(items = items) }
         }
 

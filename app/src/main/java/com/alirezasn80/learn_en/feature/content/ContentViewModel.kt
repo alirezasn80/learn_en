@@ -6,24 +6,25 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.feature.home.TranslationTasks
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
+import com.alirezasn80.learn_en.utill.removeBlankLines
 import com.alirezasn80.learn_en.utill.showToast
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.Translator
-import com.google.mlkit.nl.translate.TranslatorOptions
+import com.alirezasn80.learn_en.utill.withDuration
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import java.util.Locale
 import javax.inject.Inject
 
@@ -38,13 +39,17 @@ class ContentViewModel @Inject constructor(
     private lateinit var speechIntent: Intent
     private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
     private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
-    private val translator: Translator by lazy { initTranslator() }
     private var maxReadableIndex = 0
     private var readMode = "default"
-
+    private var title = ""
 
     private val tts: TextToSpeech = TextToSpeech(application) { status ->
         if (status == TextToSpeech.SUCCESS) ttsSetting()
+    }
+
+    init {
+        initSpeechToText()
+        getContent()
     }
 
     private fun ttsSetting() {
@@ -87,14 +92,6 @@ class ContentViewModel @Inject constructor(
         })
     }
 
-    private fun initTranslator(): Translator {
-        val options = TranslatorOptions.Builder()
-            .setSourceLanguage(TranslateLanguage.ENGLISH)
-            .setTargetLanguage(TranslateLanguage.PERSIAN)
-            .build()
-        return Translation.getClient(options)
-    }
-
     private fun initSpeechToText() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(application)
         speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -121,57 +118,142 @@ class ContentViewModel @Inject constructor(
     }
 
 
-    init {
-        checkDownloadTranslate()
-        initSpeechToText()
-        getContent()
-    }
-
     private fun loadingStatus(value: Progress) {
-        progress[""] = value
+        viewModelScope.launch(Dispatchers.Main) {
+            progress[""] = value
+        }
+
     }
 
     private fun getContent() {
 
         loadingStatus(Progress.Loading)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val contentEntity = database.contentDao.getContent(categoryId, contentId)
-            val title = contentEntity.title
-            val contents = contentEntity.content.trim().split(".").filter { it.isNotBlank() }
-            maxReadableIndex = contents.size - 1
-
-            val paragraphs = mutableListOf<Paragraph>()
-
-            contents.forEachIndexed { index, paragraph ->
-
-                translator.translate(paragraph)
-                    .addOnSuccessListener { translated ->
-                        paragraphs.add(Paragraph(paragraph, translated))
-                    }
-                    .addOnFailureListener { exception ->
-                        debug("failed translate" + exception.message)
-                    }
-                    .addOnCompleteListener {
-                        if (index + 1 == contents.size) {
-                            loadingStatus(Progress.Idle)
-                            state.update { it.copy(title = title, paragraphs = paragraphs) }
-                        }
-                    }
-            }
+            title = contentEntity.title
+            val content = contentEntity.content.trimIndent().removeBlankLines()
+            translate(content)
         }
     }
 
-    private fun checkDownloadTranslate() {
-        // val conditions = DownloadConditions.Builder().requireWifi().build()
+    fun cleanAndSeparateText(text: String): List<String> {
+        // Replace any sequence of whitespace characters with a single space
+        val cleanedText = text.replace("\\s+".toRegex(), " ")
 
-        translator.downloadModelIfNeeded()
-            .addOnSuccessListener {
-                debug("success can translate")
+        // Split the text into paragraphs using two or more newline characters
+        return cleanedText.split("\\r?\\n{2,}".toRegex())
+    }
+
+    private fun createUrl(from: String, to: String, text: String): String {
+        return "https://translate.google.com/m?hl=en" +
+                "&sl=$from" +
+                "&tl=$to" +
+                "&ie=UTF-8&prev=_m" +
+                "&q=$text"
+
+    }
+
+
+    private fun translate(text: String, from: String = "en", to: String = "fa") {
+        loadingStatus(Progress.Loading)
+        //debug(text)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            //todo(check max 5,000 char)
+
+            var newContent = text.replace("\"", "").replace(".", "*").replace("!", "*")
+            if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title*")
+
+            //TranslationTasks(newContent,to,from){ debug(it) }
+
+            val url = createUrl(from, to, newContent)
+
+            try {
+                val doc = Jsoup.connect(url).get()
+                val element = doc.getElementsByClass("result-container")
+
+                if (element.isNotEmpty()) {
+                    val result = element[0].text()
+                    val translations = result.split("*").map { it.trim() }
+                    val contents = newContent.split("*").map { it.trim() }
+
+                    if (translations.size >= contents.size) {
+                        val paragraphs = mutableListOf<Paragraph>()
+                        maxReadableIndex = contents.size - 1
+
+                        translations.forEachIndexed { index, translated ->
+                            val main = try {
+                                contents[index]
+                            } catch (e: Exception) {
+                                ""
+                            }
+
+                            paragraphs.add(Paragraph(main, translated))
+                        }
+                        state.update { it.copy(paragraphs = paragraphs, title = title) }
+                        loadingStatus(Progress.Idle)
+
+                    } else {
+                        debug("Index are different: maxChar(${newContent.length}) content(${contents.size}),translation(${translations.size})")
+                        loadingStatus(Progress.Idle)
+                    }
+
+                } else {
+                    debug("Empty Translation!")
+                    loadingStatus(Progress.Idle)
+                }
+
+            } catch (e: Exception) {
+                debug("Error in Translation : ${e.message}")
+                loadingStatus(Progress.Idle)
             }
-            .addOnFailureListener { exception ->
-                debug("failed can translate${exception.message}")
+
+        }
+    }
+
+
+    fun translate2() {
+        val fromLanguage = "en"
+        val toLanguage = "fa"
+        val text = "kind"
+        viewModelScope.launch(Dispatchers.IO) {
+            withDuration {
+                val url = "https://translate.google.com/m?hl=en" +
+                        "&sl=$fromLanguage" +
+                        "&tl=$toLanguage" +
+                        "&ie=UTF-8&prev=_m" +
+                        "&q=$text"
+
+                val url2 = "https://translate.google.com/translate_a/single?&client=gtx&m?hl=en" +
+                        "&sl=$fromLanguage" +
+                        "&tl=$toLanguage" +
+                        "&ie=UTF-8&prev=_m" +
+                        "&q=$text" +
+                        "&dt=bd"
+
+
+                //simple translate :  https://translate.google.com/m?sl=en&tl=fa&hl=en&q=size&dt=a
+                //dictionary :  https://translate.google.com/translate_a/single?&client=gtx&sl=en&tl=fa&q=kind&dt=at&dt=bd&dt=md&dt=ss&dt=ex
+                TranslationTasks(text, toLanguage, fromLanguage) { debug("translate1 : $it") }
+
+                val doc = Jsoup.connect(url)
+                    .timeout(6000)
+                    .get()
+
+                withContext(Dispatchers.Main) {
+                    val element = doc.getElementsByClass("result-container")
+                    val textIs: String
+                    if (element.isNotEmpty()) {
+                        textIs = element[0].text()
+                        debug("translate2 : $textIs")
+                    } else {
+                        debug("is empty")
+                    }
+                }
             }
+
+        }
     }
 
     fun onTranslateClick() {
@@ -187,14 +269,13 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
-        translator.translate(word)
-            .addOnSuccessListener {
-                if (!state.value.isPlay && !state.value.isMute) speakText(word)
+        //todo()
+        /*
+        *
+        *      if (!state.value.isPlay && !state.value.isMute) speakText(word)
                 Toast.makeText(application, it, Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                debug("failed translate" + exception.message)
-            }
+        *
+        * */
     }
 
     fun onSpeedClick(speed: Float) {
@@ -213,7 +294,7 @@ class ContentViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        debug("cleared")
+
         super.onCleared()
         tts.stop()
         tts.shutdown()
@@ -238,9 +319,11 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun addToBookmark() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             database.contentDao.addToBookmark(contentId, categoryId)
         }
         application.showToast(R.string.add_to_bookmark)
     }
+
+    //--------------------------------------------
 }

@@ -362,3 +362,5 @@ fun Ltr(content: @Composable () -> Unit) {
         content()
     }
 }
+
+fun String.removeBlankLines() = this.lines().filter { it.isNotBlank() }.joinToString("\n")

@@ -105,7 +105,6 @@ object TranslationConnection {
                     hl,
                     q
                 )
-                debug("url : $url")
 
                 var text = getTextHttpURLConnection(url)
 //                Returns true if the string is null or 0-length.

@@ -112,7 +112,7 @@ fun HomeScreen(
                     items(state.categories) {
                         ItemSection(
                             item = it,
-                            onClick = { debug("id = ${it.categoryId}, title = ${it.title}"); navigationState.navToStories(it.categoryId!!, it.title) }
+                            onClick = {  navigationState.navToStories(it.categoryId!!, it.title) }
                         )
                     }
                 }

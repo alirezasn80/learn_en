@@ -19,6 +19,7 @@ data class ContentEntity(
     val categoryId: Int?,
     val title: String,
     val content: String,
+    val translation: String?,
     val favorite: Int
 )
 

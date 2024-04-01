@@ -20,12 +20,11 @@ object DBModule {
         val databaseFile = app.getDatabasePath("learn_en.db")
 
         return if (databaseFile.exists()) {
-            debug("success create")
             Room.databaseBuilder(app, AppDB::class.java, "learn_en.db").build()
 
         } else {
             Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")
-                .createFromAsset("database/my_db.db")
+                .createFromAsset("database/story.db")
                 .build()
         }
 
