@@ -86,7 +86,6 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
     )
 
-
     UI {
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
@@ -99,6 +98,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
+                            .verticalScroll(rememberScrollState())
                     ) {
 
                         state.sheetModel!!.apply {
@@ -122,21 +122,23 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                                     .wrapContentHeight(align = Alignment.Top),
                                                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                                                 verticalArrangement = Arrangement.spacedBy(4.dp),
-                                             //   maxItemsInEachRow = 3
+                                                //   maxItemsInEachRow = 3
                                             ) {
                                                 it.synonyms.forEach { word ->
-                                                    Text(text = word, modifier = Modifier
-                                                        .padding(horizontal = 2.dp)
-                                                        .background(
-                                                            MaterialTheme.colorScheme.primary, MaterialTheme.shapes
-                                                                .extraSmall
-                                                        )
-                                                        .padding
-                                                            (
-                                                            horizontal
-                                                            = dimension
-                                                                .extraSmall
-                                                        ))
+                                                    Text(
+                                                        text = word, modifier = Modifier
+                                                            .padding(horizontal = 2.dp)
+                                                            .background(
+                                                                MaterialTheme.colorScheme.primary, MaterialTheme.shapes
+                                                                    .extraSmall
+                                                            )
+                                                            .padding
+                                                                (
+                                                                horizontal
+                                                                = dimension
+                                                                    .extraSmall
+                                                            )
+                                                    )
                                                 }
 
                                             }

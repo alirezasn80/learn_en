@@ -4,10 +4,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -60,12 +60,7 @@ import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Rtl
-import com.alirezasn80.learn_en.utill.debug
-import com.alirezasn80.learn_en.utill.randomColor
 import kotlinx.coroutines.launch
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
 
 @Composable
 fun HomeScreen(
@@ -91,6 +86,7 @@ fun HomeScreen(
         )
 
     UI {
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -112,7 +108,7 @@ fun HomeScreen(
                     items(state.categories) {
                         ItemSection(
                             item = it,
-                            onClick = {  navigationState.navToStories(it.categoryId!!, it.title) }
+                            onClick = { navigationState.navToStories(it.categoryId!!, it.title) }
                         )
                     }
                 }
@@ -192,10 +188,10 @@ private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
         onDismissRequest = { onDismiss() },
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
+     //   windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
     ) {
         Rtl {
-            Column {
+            Column(Modifier.background(MaterialTheme.colorScheme.background).padding(bottom =25.dp )) {
                 categories.forEach {
                     Row(
                         Modifier
@@ -203,9 +199,17 @@ private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
                             .fillMaxWidth()
                             .padding(vertical = 1.dp)
                             .background(MaterialTheme.colorScheme.surface)
-                            .padding(dimension.medium)
+                            .padding(dimension.medium),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = stringResource(id = it.name))
+                        if (it is Category.Created)
+                            Text(
+                                text = stringResource(id = R.string.create_story),
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable {  }
+                            )
+
                     }
 
 
