@@ -10,6 +10,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.domain.local.Define
+import com.alirezasn80.learn_en.core.domain.local.SheetModel
+import com.alirezasn80.learn_en.core.domain.local.Translation
 import com.alirezasn80.learn_en.feature.home.TranslationTasks
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
@@ -18,13 +21,14 @@ import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.removeBlankLines
 import com.alirezasn80.learn_en.utill.showToast
+import com.alirezasn80.learn_en.utill.toStringList
 import com.alirezasn80.learn_en.utill.withDuration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
+import org.json.JSONArray
 import org.jsoup.Jsoup
 import java.util.Locale
 import javax.inject.Inject
@@ -119,9 +123,9 @@ class ContentViewModel @Inject constructor(
     }
 
 
-    private fun loadingStatus(value: Progress) {
+    private fun loadingStatus(value: Progress, key: String = "") {
         viewModelScope.launch(Dispatchers.Main) {
-            progress[""] = value
+            progress[key] = value
         }
 
     }
@@ -266,17 +270,44 @@ class ContentViewModel @Inject constructor(
     }
 
 
-
-
     fun onWordClick(word: String) {
-        TranslationTasks(word){}
+        clearPrevSheet()
+        loadingStatus(Progress.Loading, "sheet")
 
-        /*
-        *
-        *      if (!state.value.isPlay && !state.value.isMute) speakText(word)
-                Toast.makeText(application, it, Toast.LENGTH_SHORT).show()
-        *
-        * */
+        TranslationTasks(word) { json ->
+            val sheetModel = createSheetModel(JSONArray(json))
+            state.update { it.copy(sheetModel = sheetModel) }
+            loadingStatus(Progress.Idle, "sheet")
+            if (!state.value.isPlay && !state.value.isMute) speakText(word)
+        }
+    }
+
+    private fun createSheetModel(jsonArray: JSONArray): SheetModel {
+        val translationsModel = mutableListOf<Translation>()
+        val definesModel = mutableListOf<Define>()
+        val definition = jsonArray.getJSONArray(0).getJSONArray(0).getString(0)
+
+        for (i in 0 until jsonArray.getJSONArray(1).length()) {
+            val bdJsonArray = jsonArray.getJSONArray(1).getJSONArray(i)
+            val type = bdJsonArray.getString(0)
+            val totalSimilar = bdJsonArray.getJSONArray(2)
+
+            for (j in 0 until totalSimilar.length()) {
+                val similarTranslate = totalSimilar.getJSONArray(j).getString(0)
+                val synonyms = totalSimilar.getJSONArray(j).getJSONArray(1)
+                val define = Define(similarTranslate, synonyms.toStringList())
+                definesModel.add(define)
+            }
+
+            val translation = Translation(type, definesModel)
+            translationsModel.add(translation)
+        }
+
+        return SheetModel(definition, translationsModel)
+    }
+
+    private fun clearPrevSheet() {
+        state.update { it.copy(sheetModel = null) }
     }
 
     fun onSpeedClick(speed: Float) {

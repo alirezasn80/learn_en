@@ -45,15 +45,16 @@ fun Learn_enTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val colorScheme = DarkColorScheme
+    /* when {
+     dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+         val context = LocalContext.current
+         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+     }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+     darkTheme -> DarkColorScheme
+     else -> LightColorScheme
+ }*/
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

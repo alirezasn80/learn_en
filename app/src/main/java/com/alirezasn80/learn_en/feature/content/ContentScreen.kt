@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -21,16 +24,21 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,11 +62,13 @@ import com.alirezasn80.learn_en.ui.common.PopUpMenu
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
+import com.alirezasn80.learn_en.ui.theme.Line
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.debug
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
@@ -67,60 +77,180 @@ data class ReadMode(
     val icon: Int
 )
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
+    )
+
 
     UI {
-        Scaffold(
-            topBar = {
-                Header(
-                    title = state.title,
-                    isVisibleTranslate = state.isVisibleTranslate,
-                    isMute = state.isMute,
-                    isBookmark = state.isBookmark,
-                    upPress = navigationState::upPress,
-                    onTranslateClick = viewModel::onTranslateClick,
-                    onMuteClick = viewModel::onMuteClick,
-                    onBookmarkClick = viewModel::onBookmarkClick
+        BottomSheetScaffold(
+            scaffoldState = bottomSheetState,
+            sheetPeekHeight = 0.dp,
+            sheetContent = {
+                if (state.sheetModel == null)
+                    SheetLoading()
+                else {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
+
+                        state.sheetModel!!.apply {
+                            SingleDefineSection(define)
+                            Line()
+                            more.forEach { translation ->
+                                ExtraSmallSpacer()
+                                TypeSection(translation.type)
+                                ExtraSmallSpacer()
+                                Column {
+                                    translation.defines.forEach {
+                                        Row(
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .padding(dimension.medium), horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            FlowRow(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .wrapContentHeight(align = Alignment.Top),
+                                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                             //   maxItemsInEachRow = 3
+                                            ) {
+                                                it.synonyms.forEach { word ->
+                                                    Text(text = word, modifier = Modifier
+                                                        .padding(horizontal = 2.dp)
+                                                        .background(
+                                                            MaterialTheme.colorScheme.primary, MaterialTheme.shapes
+                                                                .extraSmall
+                                                        )
+                                                        .padding
+                                                            (
+                                                            horizontal
+                                                            = dimension
+                                                                .extraSmall
+                                                        ))
+                                                }
+
+                                            }
+
+                                            SmallSpacer()
+                                            Text(text = it.word)
+
+                                        }
+                                        Line(thickness = 2.dp)
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
 
 
-                )
-            },
-            bottomBar = {
-                if (!state.isMute)
-                    BottomBar(
-                        isPlay = state.isPlay,
-                        onSpeedClick = viewModel::onSpeedClick,
-                        onPlayClick = viewModel::readParagraph,
-                        onBackwardClick = viewModel::onBackwardClick,
-                        onForwardClick = viewModel::onForwardClick,
-                        onReadModeClick = viewModel::onReadModeClick
-                    )
+                }
+
+
             }
         ) {
+            Scaffold(
+                topBar = {
+                    Header(
+                        title = state.title,
+                        isVisibleTranslate = state.isVisibleTranslate,
+                        isMute = state.isMute,
+                        isBookmark = state.isBookmark,
+                        upPress = navigationState::upPress,
+                        onTranslateClick = viewModel::onTranslateClick,
+                        onMuteClick = viewModel::onMuteClick,
+                        onBookmarkClick = viewModel::onBookmarkClick
 
-            if (viewModel.progress[""] is Progress.Loading) {
-                LoadingSection(it)
-            } else
-                LazyColumn(Modifier.padding(it)) {
-                    itemsIndexed(state.paragraphs) { index, paragraph ->
-                        ParagraphSection(
-                            isFocus = state.readableIndex == index,
-                            paragraph = paragraph,
-                            isVisibleTranslate = state.isVisibleTranslate,
-                            onWordClick = viewModel::onWordClick,
-                            onClick = { viewModel.onParagraphClick(index) }
+
+                    )
+                },
+                bottomBar = {
+                    if (!state.isMute)
+                        BottomBar(
+                            isPlay = state.isPlay,
+                            onSpeedClick = viewModel::onSpeedClick,
+                            onPlayClick = viewModel::readParagraph,
+                            onBackwardClick = viewModel::onBackwardClick,
+                            onForwardClick = viewModel::onForwardClick,
+                            onReadModeClick = viewModel::onReadModeClick
                         )
-                    }
                 }
+            ) { scaffoldPadding ->
+
+                if (viewModel.progress[""] is Progress.Loading) {
+                    MainLoading(scaffoldPadding)
+                } else
+                    LazyColumn(Modifier.padding(scaffoldPadding)) {
+                        itemsIndexed(state.paragraphs) { index, paragraph ->
+                            ParagraphSection(
+                                isFocus = state.readableIndex == index,
+                                paragraph = paragraph,
+                                isVisibleTranslate = state.isVisibleTranslate,
+                                onWordClick = {
+                                    scope.launch { bottomSheetState.bottomSheetState.expand() }
+                                    viewModel.onWordClick(it)
+                                },
+                                onClick = { viewModel.onParagraphClick(index) }
+                            )
+                        }
+                    }
+            }
         }
     }
 
 }
 
 @Composable
-private fun LoadingSection(paddingValues: PaddingValues) {
+fun TypeSection(value: String) {
+    Text(
+        text = value, modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dimension.medium),
+        textAlign = TextAlign.End
+    )
+}
+
+@Composable
+private fun SingleDefineSection(value: String) {
+    Text(
+        text = value, modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(dimension.medium),
+        textAlign = TextAlign.End
+    )
+}
+
+@Composable
+fun SheetLoading() {
+    repeat(3) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 1.dp)
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(dimension.medium),
+            verticalArrangement = Arrangement.spacedBy(dimension.extraSmall)
+        ) {
+            repeat(3) { LoadingLine() }
+        }
+    }
+
+}
+
+@Composable
+private fun MainLoading(paddingValues: PaddingValues) {
     Column(
         Modifier
             .padding(paddingValues)
@@ -322,11 +452,11 @@ private fun Header(
     isMute: Boolean,
     title: String,
     isVisibleTranslate: Boolean,
-    isBookmark:Boolean,
+    isBookmark: Boolean,
     upPress: () -> Unit,
     onTranslateClick: () -> Unit,
     onMuteClick: () -> Unit,
-    onBookmarkClick:()->Unit
+    onBookmarkClick: () -> Unit
 ) {
     Row(
         modifier = Modifier

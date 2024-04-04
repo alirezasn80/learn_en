@@ -25,6 +25,7 @@ import androidx.navigation.NavBackStackEntry
 import com.alirezasn80.learn_en.R
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.TimeoutCancellationException
+import org.json.JSONArray
 import java.io.IOException
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -364,3 +365,11 @@ fun Ltr(content: @Composable () -> Unit) {
 }
 
 fun String.removeBlankLines() = this.lines().filter { it.isNotBlank() }.joinToString("\n")
+
+fun JSONArray.toStringList(): List<String> {
+    val list = mutableListOf<String>()
+    for (i in 0 until this.length()) {
+        list.add(this.getString(i))
+    }
+    return list
+}

@@ -3,8 +3,13 @@ package com.alirezasn80.learn_en.ui.theme
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
@@ -60,3 +65,23 @@ fun RowScope.LargeSpacer() = Spacer(modifier = Modifier.width(32.dp))
 
 @Composable
 fun RowScope.ExtraLargeSpacer() = Spacer(modifier = Modifier.width(90.dp))
+
+//------------------------------------ Divider
+
+@Composable
+fun ColumnScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp) = Divider(
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = padding),
+    color = MaterialTheme.colorScheme.background,
+    thickness = thickness
+)
+
+@Composable
+fun RowScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp) = Divider(
+    modifier = Modifier
+        .fillMaxHeight()
+        .padding(horizontal = padding),
+    color = MaterialTheme.colorScheme.background,
+    thickness = thickness
+)

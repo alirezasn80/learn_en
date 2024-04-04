@@ -140,7 +140,7 @@ private fun ItemSection(item: CategoryEntity, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(randomColor()),
+                    .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = item.categoryId.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
