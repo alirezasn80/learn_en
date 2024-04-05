@@ -35,11 +35,13 @@ class NavigationState(
 
     fun navToAboutUs() = navController.navigate(Screen.AboutUs.route)
 
+    fun navToCreate() = navController.navigate(Screen.Create.route)
+
     fun navToPayment(key: String) = navController.navigate(Screen.Payment.route(key))
 
     fun navToStories(categoryId: Int, title: String) = navController.navigate(Screen.Stories.route(categoryId, title))
 
-    fun navToContent(categoryId: Int, contentId:Int) = navController.navigate(Screen.Content.route(categoryId, contentId))
+    fun navToContent(categoryId: Int, contentId: Int) = navController.navigate(Screen.Content.route(categoryId, contentId))
 
     fun navToOnBoarding() = navController.navigate(Screen.OnBoarding.route) { popUpTo(0) }
 

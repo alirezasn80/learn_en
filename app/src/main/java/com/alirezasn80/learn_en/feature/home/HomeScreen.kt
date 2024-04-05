@@ -82,7 +82,8 @@ fun HomeScreen(
     if (showSheet)
         BottomSheet(
             onDismiss = { showSheet = false },
-            onClick = { viewModel.setSelectedCategory(it);showSheet = false }
+            onClick = { viewModel.setSelectedCategory(it);showSheet = false },
+            onCreateClick = navigationState::navToCreate
         )
 
     UI {
@@ -179,7 +180,11 @@ private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: ()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
+private fun BottomSheet(
+    onDismiss: () -> Unit,
+    onClick: (Category) -> Unit,
+    onCreateClick: () -> Unit,
+) {
     val modalBottomSheetState = rememberModalBottomSheetState()
 
 
@@ -188,10 +193,14 @@ private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
         onDismissRequest = { onDismiss() },
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-     //   windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
+        //   windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
     ) {
         Rtl {
-            Column(Modifier.background(MaterialTheme.colorScheme.background).padding(bottom =25.dp )) {
+            Column(
+                Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 25.dp)
+            ) {
                 categories.forEach {
                     Row(
                         Modifier
@@ -207,7 +216,7 @@ private fun BottomSheet(onDismiss: () -> Unit, onClick: (Category) -> Unit) {
                             Text(
                                 text = stringResource(id = R.string.create_story),
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable {  }
+                                modifier = Modifier.clickable { onCreateClick() }
                             )
 
                     }

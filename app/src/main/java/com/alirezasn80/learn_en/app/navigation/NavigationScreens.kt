@@ -29,6 +29,8 @@ sealed class Screen(val route: String) {
 
     data object AboutUs : Screen("AboutUs")
 
+    data object Create : Screen("Create")
+
     data object Payment : Screen("Payment/{${Arg.Key}}")
 
     data object Stories : Screen("Stories/{${Arg.CATEGORY_ID}}/{${Arg.TITLE}}")
