@@ -24,6 +24,7 @@ class HomeViewModel @Inject constructor(
     private val appDB: AppDB
 ) : BaseViewModel<HomeState>(HomeState()) {
 
+
     init { getCategories() }
 
 

@@ -125,4 +125,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.13.1")
 
     implementation(libs.kotlinx.serialization.json)
+
+    // To recognize Latin script
+    implementation ("com.google.mlkit:text-recognition:16.0.0")
 }
