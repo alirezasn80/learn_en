@@ -48,7 +48,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,10 +58,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
+import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.createImageBitmap
 import kotlinx.coroutines.launch
 
 @Composable
@@ -101,15 +105,16 @@ fun HomeScreen(
         ) {
             Column(Modifier.fillMaxSize()) {
                 Header(
-                    selectedLevel = state.selectedCategory.name,
+                    selectedLevel = state.selectedSection.name,
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    onLevelClick = { showSheet = true }
+                    onLevelClick = { showSheet = true },
+                    onCreateClick = navigationState::navToCreate
                 )
                 LazyColumn {
                     items(state.categories) {
                         ItemSection(
                             item = it,
-                            onClick = { navigationState.navToStories(it.categoryId!!, it.title) }
+                            onClick = { navigationState.navToStories(it.id, it.title) }
                         )
                     }
                 }
@@ -119,7 +124,9 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ItemSection(item: CategoryEntity, onClick: () -> Unit) {
+private fun ItemSection(item: CategoryModel, onClick: () -> Unit) {
+    val context = LocalContext.current
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -133,18 +140,30 @@ private fun ItemSection(item: CategoryEntity, onClick: () -> Unit) {
                 .fillMaxWidth()
                 .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
             // Number
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = item.categoryId.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+            if (item.image == null)
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = item.id.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+                }
+            else {
+                Image(
+                    bitmap = createImageBitmap(context, item.image),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+
             }
             SmallSpacer()
             Column {
-                Text(text = "Story ${item.categoryId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text(text = "Story ${item.id}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
                 SmallSpacer()
                 Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
@@ -154,7 +173,12 @@ private fun ItemSection(item: CategoryEntity, onClick: () -> Unit) {
 }
 
 @Composable
-private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: () -> Unit) {
+private fun Header(
+    selectedLevel: Int,
+    onMenuClick: () -> Unit,
+    onLevelClick: () -> Unit,
+    onCreateClick: () -> Unit
+) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -174,6 +198,10 @@ private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: ()
 
         }
 
+        IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterStart)) {
+            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_add_circle), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        }
+
     }
 }
 
@@ -182,7 +210,7 @@ private fun Header(selectedLevel: Int, onMenuClick: () -> Unit, onLevelClick: ()
 @Composable
 private fun BottomSheet(
     onDismiss: () -> Unit,
-    onClick: (Category) -> Unit,
+    onClick: (Section) -> Unit,
     onCreateClick: () -> Unit,
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState()
@@ -212,7 +240,7 @@ private fun BottomSheet(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = stringResource(id = it.name))
-                        if (it is Category.Created)
+                        if (it is Section.Created)
                             Text(
                                 text = stringResource(id = R.string.create_story),
                                 color = MaterialTheme.colorScheme.primary,

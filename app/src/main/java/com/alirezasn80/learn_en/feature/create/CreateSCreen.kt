@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,8 +59,6 @@ fun CreateScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isKeyboardOpen by keyboardAsState()
     val (focusContent, onFocusContentChange) = remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
 
     val enSttResult = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -110,7 +109,11 @@ fun CreateScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                Header(R.string.create_story, navigationState::upPress)
+                Header(
+                    titleId = R.string.create_story,
+                    upPress = navigationState::upPress,
+                    onSaveClick = {/*todo()*/ }
+                )
                 SmallSpacer()
                 TitleSection(state.title, viewModel::onTitleChange)
                 SmallSpacer()
@@ -235,7 +238,8 @@ private fun TitleSection(value: String, onValueChange: (String) -> Unit) {
 @Composable
 private fun Header(
     titleId: Int,
-    upPress: () -> Unit
+    upPress: () -> Unit,
+    onSaveClick: () -> Unit
 ) {
     Box(
         Modifier
@@ -257,6 +261,15 @@ private fun Header(
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.align(Alignment.Center)
         )
+
+        IconButton(
+            onClick = onSaveClick,
+            modifier = Modifier.align(Alignment.CenterStart)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
 
     }
 }
