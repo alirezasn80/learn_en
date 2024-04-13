@@ -62,31 +62,37 @@ fun ContentWithMessageBar(
     horizontalPadding: Dp = 12.dp,
     content: @Composable () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = contentBackgroundColor)
-    ) {
-        content()
-        MessageBarComponent(
-            messageBarState = messageBarState,
-            position = position,
-            visibilityDuration = visibilityDuration,
-            successIcon = successIcon,
-            errorIcon = errorIcon,
-            errorMaxLines = errorMaxLines,
-            successMaxLines = successMaxLines,
-            successContainerColor = successContainerColor,
-            successContentColor = successContentColor,
-            errorContainerColor = errorContainerColor,
-            errorContentColor = errorContentColor,
-            enterAnimation = enterAnimation,
-            exitAnimation = exitAnimation,
-            verticalPadding = verticalPadding,
-            horizontalPadding = horizontalPadding,
-            showToastOnCopy = showToastOnCopy
-        )
-    }
+
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = contentBackgroundColor)
+        ) {
+            content()
+            Rtl {
+                MessageBarComponent(
+                    messageBarState = messageBarState,
+                    position = position,
+                    visibilityDuration = visibilityDuration,
+                    successIcon = successIcon,
+                    errorIcon = errorIcon,
+                    errorMaxLines = errorMaxLines,
+                    successMaxLines = successMaxLines,
+                    successContainerColor = successContainerColor,
+                    successContentColor = successContentColor,
+                    errorContainerColor = errorContainerColor,
+                    errorContentColor = errorContentColor,
+                    enterAnimation = enterAnimation,
+                    exitAnimation = exitAnimation,
+                    verticalPadding = verticalPadding,
+                    horizontalPadding = horizontalPadding,
+                    showToastOnCopy = showToastOnCopy
+                )
+            }
+
+        }
+
+
 }
 
 @Composable

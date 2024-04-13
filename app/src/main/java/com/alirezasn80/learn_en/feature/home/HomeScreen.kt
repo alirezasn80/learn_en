@@ -14,32 +14,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,8 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
-import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
 import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
+import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
@@ -66,14 +64,18 @@ import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.createImageBitmap
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigationState: NavigationState,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var showSheet by remember { mutableStateOf(false) }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
+    )
     val scope = rememberCoroutineScope()
 
     // Close drawer
@@ -82,13 +84,11 @@ fun HomeScreen(
             scope.launch { drawerState.close() }
     }
 
-    // Show Sheet
-    if (showSheet)
-        BottomSheet(
-            onDismiss = { showSheet = false },
-            onClick = { viewModel.setSelectedCategory(it);showSheet = false },
-            onCreateClick = navigationState::navToCreate
-        )
+    // Close Bottom Sheet
+    BackHandler(bottomSheetState.bottomSheetState.isVisible) {
+        if (bottomSheetState.bottomSheetState.isVisible)
+            scope.launch { bottomSheetState.bottomSheetState.hide() }
+    }
 
     UI {
 
@@ -103,42 +103,76 @@ fun HomeScreen(
                 }
             }
         ) {
-            Column(Modifier.fillMaxSize()) {
-                Header(
-                    selectedLevel = state.selectedSection.name,
-                    onMenuClick = { scope.launch { drawerState.open() } },
-                    onLevelClick = { showSheet = true },
-                    onCreateClick = navigationState::navToCreate
-                )
-                LazyColumn {
-                    items(state.categories) {
-                        ItemSection(
-                            item = it,
-                            onClick = { navigationState.navToStories(it.id, it.title) }
-                        )
+            BottomSheetScaffold(
+                scaffoldState = bottomSheetState,
+                sheetPeekHeight = 0.dp,
+                sheetContent = {
+                    BottomSheet(
+                        onClick = {
+                            viewModel.setSelectedLevel(it)
+                            scope.launch { bottomSheetState.bottomSheetState.hide() }
+                        },
+                        onCreateClick = navigationState::navToCreate
+                    )
+                }
+            ) {
+                Column(Modifier.fillMaxSize()) {
+                    Header(
+                        selectedLevel = state.selectedSection.name,
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onLevelClick = {
+                            scope.launch {
+                                if (bottomSheetState.bottomSheetState.isVisible)
+                                    bottomSheetState.bottomSheetState.hide()
+                                else
+
+                                    bottomSheetState.bottomSheetState.expand()
+                            }
+                        },
+                        onCreateClick = navigationState::navToCreate
+                    )
+                    LazyColumn {
+                        if (state.selectedSection.key == "favorite") {
+                            itemsIndexed(state.favorites) { index, item ->
+                                FavoriteItemSection(
+                                    index = index + 1,
+                                    item = item,
+                                    onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
+                                )
+                            }
+                        } else
+                            items(state.categories) {
+                                CategoryItemSection(
+                                    item = it,
+                                    onClick = { navigationState.navToStories(it.id, it.title) }
+                                )
+                            }
                     }
                 }
             }
+
         }
     }
 }
 
 @Composable
-private fun ItemSection(item: CategoryModel, onClick: () -> Unit) {
+private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
     val context = LocalContext.current
 
     Column(
         Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(horizontal = dimension.medium)
 
     ) {
 
         Row(
             Modifier
-                .clickable { onClick() }
+
                 .fillMaxWidth()
-                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
+                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically
+        ) {
             // Number
             if (item.image == null)
                 Box(
@@ -171,6 +205,51 @@ private fun ItemSection(item: CategoryModel, onClick: () -> Unit) {
         Divider(modifier = Modifier.fillMaxWidth())
     }
 }
+
+
+@Composable
+private fun FavoriteItemSection(
+    index: Int,
+    item: Items,
+    onClick: () -> Unit
+) {
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = dimension.medium)
+
+    ) {
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            // Number
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = index.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+            }
+
+            SmallSpacer()
+            Column {
+                Text(text = "Story ${item.contentId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+                SmallSpacer()
+                Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+            }
+        }
+        Divider(modifier = Modifier.fillMaxWidth())
+    }
+}
+
 
 @Composable
 private fun Header(
@@ -209,51 +288,37 @@ private fun Header(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheet(
-    onDismiss: () -> Unit,
     onClick: (Section) -> Unit,
     onCreateClick: () -> Unit,
 ) {
-    val modalBottomSheetState = rememberModalBottomSheetState()
-
-
-    ModalBottomSheet(
-        shape = RoundedCornerShape(topEnd = 5.dp, topStart = 5.dp),
-        onDismissRequest = { onDismiss() },
-        sheetState = modalBottomSheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() },
-        //   windowInsets = WindowInsets(bottom = BottomSheetDefaults.SheetPeekHeight)
-    ) {
-        Rtl {
-            Column(
-                Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(bottom = 25.dp)
-            ) {
-                categories.forEach {
-                    Row(
-                        Modifier
-                            .clickable { onClick(it) }
-                            .fillMaxWidth()
-                            .padding(vertical = 1.dp)
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(dimension.medium),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(id = it.name))
-                        if (it is Section.Created)
-                            Text(
-                                text = stringResource(id = R.string.create_story),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable { onCreateClick() }
-                            )
-
-                    }
-
+    Rtl {
+        Column(
+            Modifier
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            sections.forEach {
+                Row(
+                    Modifier
+                        .clickable { onClick(it) }
+                        .fillMaxWidth()
+                        .padding(vertical = 1.dp)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(dimension.medium),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = stringResource(id = it.name))
+                    if (it is Section.Document)
+                        Text(
+                            text = stringResource(id = R.string.create),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { onCreateClick() }
+                        )
 
                 }
+
+
             }
         }
-
     }
 }
 

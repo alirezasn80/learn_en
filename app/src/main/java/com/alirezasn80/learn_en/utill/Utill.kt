@@ -92,6 +92,7 @@ sealed interface WidgetType {
 sealed interface Destination {
     object Home : Destination
     object OnBoarding : Destination
+    object Back:Destination
 }
 
 sealed interface MessageState {

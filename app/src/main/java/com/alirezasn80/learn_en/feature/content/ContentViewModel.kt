@@ -165,8 +165,11 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             //todo(check max 5,000 char)
 
-            var newContent = text.replace("\"", "").replace(".", "*").replace("!", "*")
+            var newContent = text
+            //.replace("\"", "").replace(".", "*").replace("!", "*")
             if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title*")
+
+            debug(newContent)//1111111111111111111111111111111111111111111111111111111
 
             val url = createUrl(from, to, newContent)
 
@@ -176,10 +179,19 @@ class ContentViewModel @Inject constructor(
 
                 if (element.isNotEmpty()) {
                     val result = element[0].text()
+
+                    //debug(result)//2222222222222222222222222222222222222222222222222222222
+
                     val translations = result.split("*").map { it.trim() }
                     val contents = newContent.split("*").map { it.trim() }
 
-                    if (translations.size >= contents.size) {
+
+                    TranslationTasks(newContent) {
+                        debug(JSONArray(it).toString(1))
+                        debug("main : ${contents.size}, translate : ${it.split("*").map { it.trim() }.size}")
+                    }
+
+                    if (translations.size == contents.size) {
                         val paragraphs = mutableListOf<Paragraph>()
                         maxReadableIndex = contents.size - 1
 
@@ -347,6 +359,8 @@ class ContentViewModel @Inject constructor(
         val isBookmark = !state.value.isBookmark
         if (isBookmark)
             addToBookmark()
+        else
+            deleteFromBookmark()
         state.update { it.copy(isBookmark = isBookmark) }
     }
 
@@ -355,6 +369,13 @@ class ContentViewModel @Inject constructor(
             database.contentDao.addToBookmark(contentId, categoryId)
         }
         application.showToast(R.string.add_to_bookmark)
+    }
+
+    private fun deleteFromBookmark() {
+        viewModelScope.launch(Dispatchers.IO) {
+            database.contentDao.deleteFromBookmark(contentId, categoryId)
+        }
+        application.showToast(R.string.delete_from_bookmark)
     }
 
     //--------------------------------------------

@@ -56,15 +56,24 @@ object TranslationConnection {
             val sl = URLEncoder.encode(from_language, charset)
             val q = URLEncoder.encode(to_translate, charset)
             try {
-                val sb = java.lang.StringBuilder()
+                val urlFake = String.format(
+                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=t",
+                    sl,
+                    hl,
+                    q
+                )
+
+
+
+
+
                 val url = String.format(
                     "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t",
                     sl,
                     hl,
                     q
                 )
-                debug(url)
-                var text = getTextHttpURLConnection(url)
+                var text = getTextHttpURLConnection(urlFake)
                 return text
 
             } catch (ignored: java.lang.Exception) {

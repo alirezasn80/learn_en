@@ -1,5 +1,6 @@
 package com.alirezasn80.learn_en.feature.content
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +73,6 @@ import com.alirezasn80.learn_en.utill.debug
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-
 data class ReadMode(
     val key: String,
     val icon: Int
@@ -85,6 +86,14 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
     )
+
+
+    // Close Bottom Sheet
+    BackHandler(bottomSheetState.bottomSheetState.isVisible) {
+        if (bottomSheetState.bottomSheetState.isVisible)
+            scope.launch { bottomSheetState.bottomSheetState.hide() }
+    }
+
 
     UI {
         BottomSheetScaffold(

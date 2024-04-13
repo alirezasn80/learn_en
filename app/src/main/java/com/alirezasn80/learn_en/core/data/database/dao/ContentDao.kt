@@ -25,8 +25,15 @@ interface ContentDao {
     @Query("UPDATE CONTENTENTITY SET favorite = 1 WHERE contentId = :contentId AND categoryId = :categoryId")
     fun addToBookmark(contentId:Int, categoryId: Int)
 
+    @Query("UPDATE CONTENTENTITY SET favorite = 0 WHERE contentId = :contentId AND categoryId = :categoryId")
+    fun deleteFromBookmark(contentId:Int, categoryId: Int)
+
     @Query("SELECT categoryId,contentId,title FROM CONTENTENTITY WHERE categoryId = :categoryId")
     suspend fun getItems(categoryId: Int): List<Items>
+
+
+    @Query("SELECT categoryId,contentId,title FROM CONTENTENTITY WHERE favorite = 1")
+    suspend fun getFavorites(): List<Items>
 
     @Query("SELECT * FROM CONTENTENTITY WHERE categoryId = :categoryId AND contentId = :contentId")
     suspend fun getContent(categoryId: Int, contentId: Int): ContentEntity

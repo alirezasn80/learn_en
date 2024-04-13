@@ -1,17 +1,23 @@
 package com.alirezasn80.learn_en.feature.create
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import com.alirezasn80.learn_en.feature.content.Paragraph
+import com.alirezasn80.learn_en.R
+import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
+import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
+import com.alirezasn80.learn_en.core.domain.entity.toCategoryModel
 import com.alirezasn80.learn_en.utill.BaseViewModel
-import com.alirezasn80.learn_en.utill.Progress
+import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.MessageState
 import com.alirezasn80.learn_en.utill.debug
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -27,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateViewModel @Inject constructor(
     private val context: Application,
+    private val db: AppDB,
 ) : BaseViewModel<CreateState>(CreateState()) {
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechIntent: Intent
@@ -35,6 +42,14 @@ class CreateViewModel @Inject constructor(
 
     init {
         initSpeechToText()
+        initCreatedCategories()
+    }
+
+    private fun initCreatedCategories() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val createdCategories = db.categoryDao.getCategories("created").map { it.toCategoryModel() }
+            state.update { it.copy(createdCategories = createdCategories) }
+        }
     }
 
     private fun initSpeechToText() {
@@ -110,6 +125,29 @@ class CreateViewModel @Inject constructor(
                 }
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    fun createStory(categoryId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.contentDao.insertContent(
+                ContentEntity(
+                    categoryId = categoryId,
+                    content = state.value.content.text,
+                    title = state.value.title,
+                    favorite = 0,
+                    translation = null
+                )
+            )
+            setMessageByToast(R.string.story_save, MessageState.Success)
+            setDestination(Destination.Back)
+        }
+    }
+
+    fun createCategory(title: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val categoryId = db.categoryDao.insertCategory(CategoryEntity(title = title, type = "created"))
+            createStory(categoryId.toInt())
         }
     }
 
