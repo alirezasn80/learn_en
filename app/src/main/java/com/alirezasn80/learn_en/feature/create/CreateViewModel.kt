@@ -18,6 +18,7 @@ import com.alirezasn80.learn_en.core.domain.entity.toCategoryModel
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.MessageState
+import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -140,6 +141,7 @@ class CreateViewModel @Inject constructor(
                 )
             )
             setMessageByToast(R.string.story_save, MessageState.Success)
+            Reload.created = true
             setDestination(Destination.Back)
         }
     }

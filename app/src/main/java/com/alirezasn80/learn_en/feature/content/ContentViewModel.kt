@@ -13,23 +13,23 @@ import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Translation
-import com.alirezasn80.learn_en.feature.home.TranslationTasks
+import com.alirezasn80.learn_en.feature.home.DictionaryTask
+import com.alirezasn80.learn_en.feature.home.TranslationTask
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Progress
+import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.removeBlankLines
 import com.alirezasn80.learn_en.utill.showToast
+import com.alirezasn80.learn_en.utill.toBoolean
 import com.alirezasn80.learn_en.utill.toStringList
-import com.alirezasn80.learn_en.utill.withDuration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import org.jsoup.Jsoup
 import java.util.Locale
 import javax.inject.Inject
 
@@ -136,19 +136,13 @@ class ContentViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             val contentEntity = database.contentDao.getContent(categoryId, contentId)
+            state.update { it.copy(isBookmark = contentEntity.favorite.toBoolean()) }
             title = contentEntity.title
             val content = contentEntity.content.trimIndent().removeBlankLines()
             translate(content)
         }
     }
 
-    fun cleanAndSeparateText(text: String): List<String> {
-        // Replace any sequence of whitespace characters with a single space
-        val cleanedText = text.replace("\\s+".toRegex(), " ")
-
-        // Split the text into paragraphs using two or more newline characters
-        return cleanedText.split("\\r?\\n{2,}".toRegex())
-    }
 
     private fun createUrl(from: String, to: String, text: String): String {
         return "https://translate.google.com/m?hl=en" +
@@ -156,7 +150,6 @@ class ContentViewModel @Inject constructor(
                 "&tl=$to" +
                 "&ie=UTF-8&prev=_m" +
                 "&q=$text"
-
     }
 
 
@@ -164,56 +157,28 @@ class ContentViewModel @Inject constructor(
         loadingStatus(Progress.Loading)
         viewModelScope.launch(Dispatchers.IO) {
             //todo(check max 5,000 char)
-
             var newContent = text
-            //.replace("\"", "").replace(".", "*").replace("!", "*")
-            if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title*")
-
-            debug(newContent)//1111111111111111111111111111111111111111111111111111111
-
-            val url = createUrl(from, to, newContent)
+            if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title.\n")
 
             try {
-                val doc = Jsoup.connect(url).get()
-                val element = doc.getElementsByClass("result-container")
 
-                if (element.isNotEmpty()) {
-                    val result = element[0].text()
+                TranslationTask(newContent) {
+                    val allText = JSONArray(it).getJSONArray(0)
+                    val paragraphs = mutableListOf<Paragraph>()
 
-                    //debug(result)//2222222222222222222222222222222222222222222222222222222
-
-                    val translations = result.split("*").map { it.trim() }
-                    val contents = newContent.split("*").map { it.trim() }
+                    maxReadableIndex = allText.length()
 
 
-                    TranslationTasks(newContent) {
-                        debug(JSONArray(it).toString(1))
-                        debug("main : ${contents.size}, translate : ${it.split("*").map { it.trim() }.size}")
+                    for (i in 0 until allText.length()) {
+                        val json = allText.getJSONArray(i)
+                        val translate = json.get(0).toString().trim()
+                        val main = json.get(1).toString().trim()
+
+                        paragraphs.add(Paragraph(main, translate))
                     }
 
-                    if (translations.size == contents.size) {
-                        val paragraphs = mutableListOf<Paragraph>()
-                        maxReadableIndex = contents.size - 1
 
-                        translations.forEachIndexed { index, translated ->
-                            val main = try {
-                                contents[index]
-                            } catch (e: Exception) {
-                                ""
-                            }
-
-                            paragraphs.add(Paragraph(main, translated))
-                        }
-                        state.update { it.copy(paragraphs = paragraphs, title = title) }
-                        loadingStatus(Progress.Idle)
-
-                    } else {
-                        debug("Index are different: maxChar(${newContent.length}) content(${contents.size}),translation(${translations.size})")
-                        loadingStatus(Progress.Idle)
-                    }
-
-                } else {
-                    debug("Empty Translation!")
+                    state.update { it.copy(paragraphs = paragraphs, title = title) }
                     loadingStatus(Progress.Idle)
                 }
 
@@ -225,49 +190,6 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-
-    fun translate2() {
-        val fromLanguage = "en"
-        val toLanguage = "fa"
-        val text = "kind"
-        viewModelScope.launch(Dispatchers.IO) {
-            withDuration {
-                val url = "https://translate.google.com/m?hl=en" +
-                        "&sl=$fromLanguage" +
-                        "&tl=$toLanguage" +
-                        "&ie=UTF-8&prev=_m" +
-                        "&q=$text"
-
-                val url2 = "https://translate.google.com/translate_a/single?&client=gtx&m?hl=en" +
-                        "&sl=$fromLanguage" +
-                        "&tl=$toLanguage" +
-                        "&ie=UTF-8&prev=_m" +
-                        "&q=$text" +
-                        "&dt=bd"
-
-
-                //simple translate :  https://translate.google.com/m?sl=en&tl=fa&hl=en&q=size&dt=a
-                //dictionary :  https://translate.google.com/translate_a/single?&client=gtx&sl=en&tl=fa&q=kind&dt=at&dt=bd&dt=md&dt=ss&dt=ex
-                TranslationTasks(text, toLanguage, fromLanguage) { debug("translate1 : $it") }
-
-                val doc = Jsoup.connect(url)
-                    .timeout(6000)
-                    .get()
-
-                withContext(Dispatchers.Main) {
-                    val element = doc.getElementsByClass("result-container")
-                    val textIs: String
-                    if (element.isNotEmpty()) {
-                        textIs = element[0].text()
-                        debug("translate2 : $textIs")
-                    } else {
-                        debug("is empty")
-                    }
-                }
-            }
-
-        }
-    }
 
     fun onTranslateClick() {
         state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
@@ -286,7 +208,7 @@ class ContentViewModel @Inject constructor(
         clearPrevSheet()
         loadingStatus(Progress.Loading, "sheet")
 
-        TranslationTasks(word) { json ->
+        DictionaryTask(word) { json ->
             val sheetModel = createSheetModel(JSONArray(json))
             state.update { it.copy(sheetModel = sheetModel) }
             loadingStatus(Progress.Idle, "sheet")
@@ -359,8 +281,10 @@ class ContentViewModel @Inject constructor(
         val isBookmark = !state.value.isBookmark
         if (isBookmark)
             addToBookmark()
-        else
+        else {
             deleteFromBookmark()
+            Reload.favorite = true
+        }
         state.update { it.copy(isBookmark = isBookmark) }
     }
 

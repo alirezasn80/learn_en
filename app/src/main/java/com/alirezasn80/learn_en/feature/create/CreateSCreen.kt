@@ -46,7 +46,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -55,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.ui.common.UI
@@ -326,7 +324,7 @@ private fun KeyboardBar(
             }
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.bb),
+                imageVector = ImageVector.vectorResource(R.drawable.voice_fa_en),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground,
             )

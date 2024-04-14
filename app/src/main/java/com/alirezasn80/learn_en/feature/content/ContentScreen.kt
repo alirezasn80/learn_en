@@ -496,6 +496,7 @@ private fun Header(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+            SmallSpacer()
 
 
             // Translate

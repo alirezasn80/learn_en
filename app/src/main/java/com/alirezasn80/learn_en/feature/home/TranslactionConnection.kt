@@ -1,12 +1,9 @@
 package com.alirezasn80.learn_en.feature.home
 
 
-import android.text.TextUtils
-import android.util.Log
 import com.alirezasn80.learn_en.utill.debug
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
@@ -46,6 +43,57 @@ object TranslationConnection {
         return response.toString()
     }
 
+    suspend fun getJsonFromUrl(urlString: String): String? {
+        var connection: HttpURLConnection? = null
+      return  try {
+            val url = URL(urlString)
+            connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connect()
+
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                connection.inputStream.bufferedReader().use { reader ->
+                    reader.readText()
+                }
+            } else {
+                null // Handle error response
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null // Handle the IOException
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
+
+    fun dictionaryHttpURLConnection(
+        to_translate: String?,
+        to_language: String?,
+        from_language: String?,
+    ): String {
+        try {
+            val hl = URLEncoder.encode(to_language, charset)
+            val sl = URLEncoder.encode(from_language, charset)
+            val q = URLEncoder.encode(to_translate, charset)
+            try {
+                val url = String.format(
+                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t",
+                    sl,
+                    hl,
+                    q
+                )
+                return getTextHttpURLConnection(url)
+
+            } catch (ignored: java.lang.Exception) {
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return ""
+    }
+
     fun translateHttpURLConnection(
         to_translate: String?,
         to_language: String?,
@@ -56,25 +104,13 @@ object TranslationConnection {
             val sl = URLEncoder.encode(from_language, charset)
             val q = URLEncoder.encode(to_translate, charset)
             try {
-                val urlFake = String.format(
+                val url = String.format(
                     "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=t",
                     sl,
                     hl,
                     q
                 )
-
-
-
-
-
-                val url = String.format(
-                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t",
-                    sl,
-                    hl,
-                    q
-                )
-                var text = getTextHttpURLConnection(urlFake)
-                return text
+                return getTextHttpURLConnection(url)
 
             } catch (ignored: java.lang.Exception) {
             }

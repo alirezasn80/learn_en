@@ -419,3 +419,5 @@ fun keyboardAsState(): State<Keyboard> {
 fun createImageBitmap(context: Context, path: String): ImageBitmap {
     return BitmapFactory.decodeStream(context.assets.open(path)).asImageBitmap()
 }
+
+fun Int.toBoolean() = if (this == 1) true else false

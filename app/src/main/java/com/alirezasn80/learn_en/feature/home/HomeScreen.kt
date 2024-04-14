@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,6 +38,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -58,8 +61,11 @@ import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
 import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.ui.common.UI
+import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.Progress
+import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.createImageBitmap
 import kotlinx.coroutines.launch
@@ -88,6 +94,19 @@ fun HomeScreen(
     BackHandler(bottomSheetState.bottomSheetState.isVisible) {
         if (bottomSheetState.bottomSheetState.isVisible)
             scope.launch { bottomSheetState.bottomSheetState.hide() }
+    }
+
+    // Check Reload
+    LaunchedEffect(Unit) {
+        if (Reload.created) {
+            if (state.selectedSection.key == "created") {
+                viewModel.reloadData()
+            } else {
+                viewModel.setSelectedLevel(Section.Created)
+            }
+        } else if (Reload.favorite) {
+            if (state.selectedSection.key == "favorite") viewModel.reloadData()
+        }
     }
 
     UI {
@@ -131,27 +150,103 @@ fun HomeScreen(
                         },
                         onCreateClick = navigationState::navToCreate
                     )
-                    LazyColumn {
+                    if (viewModel.progress[""] is Progress.Loading) {
+                        LoadingLayout()
+                    } else {
                         if (state.selectedSection.key == "favorite") {
-                            itemsIndexed(state.favorites) { index, item ->
-                                FavoriteItemSection(
-                                    index = index + 1,
-                                    item = item,
-                                    onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
-                                )
+                            if (state.favorites.isEmpty()) {
+                                EmptyLayout()
+                            } else {
+                                LazyColumn {
+                                    itemsIndexed(state.favorites) { index, item ->
+                                        FavoriteItemSection(
+                                            index = index + 1,
+                                            item = item,
+                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
+                                        )
+                                    }
+                                }
                             }
-                        } else
-                            items(state.categories) {
-                                CategoryItemSection(
-                                    item = it,
-                                    onClick = { navigationState.navToStories(it.id, it.title) }
-                                )
+                        } else {
+                            if (state.categories.isEmpty()) {
+                                EmptyLayout()
+                            } else LazyColumn {
+                                items(state.categories) {
+                                    CategoryItemSection(
+                                        item = it,
+                                        onClick = { navigationState.navToStories(it.id, it.title) }
+                                    )
+                                }
                             }
+
+                        }
                     }
+
+
                 }
             }
 
         }
+    }
+}
+
+@Composable
+private fun LoadingLayout() {
+    repeat(15) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimension.medium)
+        ) {
+
+            Row(
+                Modifier
+
+                    .fillMaxWidth()
+                    .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Number
+
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .shimmerEffect(),
+                )
+
+                SmallSpacer()
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(6.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .shimmerEffect()
+                    )
+                    SmallSpacer()
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(8.dp)
+                            .clip(MaterialTheme.shapes.small)
+                            .shimmerEffect()
+                    )
+                }
+            }
+            Divider(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+private fun EmptyLayout() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Image(
+            imageVector = ImageVector.vectorResource(R.drawable.vector_no_data),
+            contentDescription = null,
+            modifier = Modifier.padding(dimension.large)
+        )
     }
 }
 
@@ -307,7 +402,7 @@ private fun BottomSheet(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = stringResource(id = it.name))
-                    if (it is Section.Document)
+                    if (it is Section.Created)
                         Text(
                             text = stringResource(id = R.string.create),
                             color = MaterialTheme.colorScheme.primary,
