@@ -1,7 +1,6 @@
 package com.alirezasn80.learn_en.feature.home
 
 
-import com.alirezasn80.learn_en.utill.debug
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -45,7 +44,7 @@ object TranslationConnection {
 
     suspend fun getJsonFromUrl(urlString: String): String? {
         var connection: HttpURLConnection? = null
-      return  try {
+        return try {
             val url = URL(urlString)
             connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
@@ -69,14 +68,14 @@ object TranslationConnection {
 
 
     fun dictionaryHttpURLConnection(
-        to_translate: String?,
-        to_language: String?,
-        from_language: String?,
+        text: String,
+        to: String = "fa",
+        from: String = "en",
     ): String {
         try {
-            val hl = URLEncoder.encode(to_language, charset)
-            val sl = URLEncoder.encode(from_language, charset)
-            val q = URLEncoder.encode(to_translate, charset)
+            val hl = URLEncoder.encode(to, charset)
+            val sl = URLEncoder.encode(from, charset)
+            val q = URLEncoder.encode(text, charset)
             try {
                 val url = String.format(
                     "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t",
@@ -95,14 +94,14 @@ object TranslationConnection {
     }
 
     fun translateHttpURLConnection(
-        to_translate: String?,
-        to_language: String?,
-        from_language: String?,
+        text: String,
+        to: String = "fa",
+        from: String = "en",
     ): String {
         try {
-            val hl = URLEncoder.encode(to_language, charset)
-            val sl = URLEncoder.encode(from_language, charset)
-            val q = URLEncoder.encode(to_translate, charset)
+            val hl = URLEncoder.encode(to, charset)
+            val sl = URLEncoder.encode(from, charset)
+            val q = URLEncoder.encode(text, charset)
             try {
                 val url = String.format(
                     "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=t",

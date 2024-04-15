@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Check
@@ -49,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -146,12 +149,17 @@ fun CreateScreen(
         BottomSheetScaffold(
             scaffoldState = bottomSheetScaffold,
             sheetPeekHeight = 0.dp,
+            sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
                 Rtl {
-                    Column(Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primary)
+                    ) {
                         SheetCell(
                             title = stringResource(id = R.string.create_category),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.secondary,
                             onClick = { createCategoryDialog = true }
                         )
                         state.createdCategories.forEach {
@@ -272,14 +280,14 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreateCategory: (String) -> Un
 fun SheetCell(
     title: String,
     onClick: () -> Unit,
-    color: Color = MaterialTheme.colorScheme.onSurface
+    color: Color = MaterialTheme.colorScheme.onBackground
 ) {
     Row(
         Modifier
             .clickable { onClick() }
             .fillMaxWidth()
             .padding(vertical = 1.dp)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .padding(dimension.medium),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -388,7 +396,9 @@ private fun TitleSection(value: String, onValueChange: (String) -> Unit) {
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedIndicatorColor = Color.Transparent
-        )
+        ),
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
 
     )
 }

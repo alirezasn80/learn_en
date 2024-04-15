@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -69,19 +70,19 @@ fun RowScope.ExtraLargeSpacer() = Spacer(modifier = Modifier.width(90.dp))
 //------------------------------------ Divider
 
 @Composable
-fun ColumnScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp) = Divider(
+fun ColumnScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp,color: Color = MaterialTheme.colorScheme.background) = Divider(
     modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = padding),
-    color = MaterialTheme.colorScheme.background,
+    color = color,
     thickness = thickness
 )
 
 @Composable
-fun RowScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp) = Divider(
+fun RowScope.Line(padding: Dp = 0.dp, thickness: Dp = 1.dp,color: Color = MaterialTheme.colorScheme.background) = Divider(
     modifier = Modifier
         .fillMaxHeight()
         .padding(horizontal = padding),
-    color = MaterialTheme.colorScheme.background,
+    color =color,
     thickness = thickness
 )

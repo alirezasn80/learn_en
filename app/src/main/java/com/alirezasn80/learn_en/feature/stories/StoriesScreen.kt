@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -96,37 +97,36 @@ private fun ItemSection(
     item: Items,
     onClick: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "")
+    /*val infiniteTransition = rememberInfiniteTransition(label = "")
     val color by infiniteTransition.animateColor(
-        initialValue = MaterialTheme.colorScheme.primary, targetValue = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        initialValue = MaterialTheme.colorScheme.primary, targetValue = MaterialTheme.colorScheme.secondary,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 2000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ), label = ""
-    )
+    )*/
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimension.medium)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-
         Row(
             Modifier
                 .clickable { onClick() }
                 .fillMaxWidth()
-                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically) {
+                .padding(dimension.medium), verticalAlignment = Alignment.CenterVertically) {
             // Number
             Box(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(0.8f)),
+                    .background(MaterialTheme.colorScheme.secondary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = (index + 1).toString(),
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
             }
             SmallSpacer()
@@ -139,6 +139,8 @@ private fun ItemSection(
                 )
             }
         }
-        Divider(modifier = Modifier.fillMaxWidth())
+        Divider(modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp), color = MaterialTheme.colorScheme.background)
     }
 }

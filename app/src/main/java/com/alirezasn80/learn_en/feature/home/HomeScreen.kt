@@ -125,6 +125,7 @@ fun HomeScreen(
             BottomSheetScaffold(
                 scaffoldState = bottomSheetState,
                 sheetPeekHeight = 0.dp,
+                sheetContainerColor = MaterialTheme.colorScheme.primary,
                 sheetContent = {
                     BottomSheet(
                         onClick = {
@@ -257,16 +258,12 @@ private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = dimension.medium)
-
-    ) {
-
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }) {
         Row(
             Modifier
-
                 .fillMaxWidth()
-                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically
+                .padding(dimension.medium), verticalAlignment = Alignment.CenterVertically
         ) {
             // Number
             if (item.image == null)
@@ -297,7 +294,10 @@ private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
                 Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
         }
-        Divider(modifier = Modifier.fillMaxWidth())
+
+        Divider(modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp), color = MaterialTheme.colorScheme.background)
     }
 }
 
@@ -313,14 +313,13 @@ private fun FavoriteItemSection(
         Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = dimension.medium)
-
+            .background(MaterialTheme.colorScheme.surface)
     ) {
 
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = dimension.medium), verticalAlignment = Alignment.CenterVertically
+                .padding(dimension.medium), verticalAlignment = Alignment.CenterVertically
         ) {
 
             // Number
@@ -328,10 +327,10 @@ private fun FavoriteItemSection(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(MaterialTheme.colorScheme.secondary),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = index.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text(text = index.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSecondary)
             }
 
             SmallSpacer()
@@ -341,7 +340,10 @@ private fun FavoriteItemSection(
                 Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
         }
-        Divider(modifier = Modifier.fillMaxWidth())
+
+        Divider(modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp), color = MaterialTheme.colorScheme.background)
     }
 }
 
@@ -389,27 +391,30 @@ private fun BottomSheet(
     Rtl {
         Column(
             Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.primary)
         ) {
             sections.forEach {
-                Row(
-                    Modifier
-                        .clickable { onClick(it) }
-                        .fillMaxWidth()
-                        .padding(vertical = 1.dp)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(dimension.medium),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = stringResource(id = it.name))
-                    if (it is Section.Created)
-                        Text(
-                            text = stringResource(id = R.string.create),
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { onCreateClick() }
-                        )
+                Column {
+                    Row(
+                        Modifier
+                            .clickable { onClick(it) }
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(dimension.medium),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
+                        if (it is Section.Created)
+                            Text(
+                                text = stringResource(id = R.string.create),
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.clickable { onCreateClick() }
+                            )
 
+                    }
+                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 0.7.dp)
                 }
+
 
 
             }

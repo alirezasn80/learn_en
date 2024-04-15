@@ -30,8 +30,6 @@ class HomeViewModel @Inject constructor(
             getFavorites(section)
             return
         }
-
-
         loading(Progress.Loading)
         viewModelScope.launch(Dispatchers.IO) {
             try {

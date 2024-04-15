@@ -99,6 +99,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
             sheetPeekHeight = 0.dp,
+            sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
                 if (state.sheetModel == null)
                     SheetLoading()
@@ -138,7 +139,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                                         text = word, modifier = Modifier
                                                             .padding(horizontal = 2.dp)
                                                             .background(
-                                                                MaterialTheme.colorScheme.primary, MaterialTheme.shapes
+                                                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f), MaterialTheme.shapes
                                                                     .extraSmall
                                                             )
                                                             .padding
@@ -153,7 +154,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                             }
 
                                             SmallSpacer()
-                                            Text(text = it.word)
+                                            Text(text = it.word, color = MaterialTheme.colorScheme.onSurface)
 
                                         }
                                         Line(thickness = 2.dp)
@@ -228,7 +229,8 @@ fun TypeSection(value: String) {
         text = value, modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = dimension.medium),
-        textAlign = TextAlign.End
+        textAlign = TextAlign.End,
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 
@@ -239,7 +241,8 @@ private fun SingleDefineSection(value: String) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(dimension.medium),
-        textAlign = TextAlign.End
+        textAlign = TextAlign.End,
+        color = MaterialTheme.colorScheme.onSurface
     )
 }
 
@@ -446,7 +449,7 @@ private fun ParagraphSection(
             .fillMaxWidth()
             .padding(vertical = 1.dp)
             .background(MaterialTheme.colorScheme.surface)
-            .background(if (isFocus) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Unspecified)
+            .background(if (isFocus) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Unspecified)
             .padding(dimension.medium)
     ) {
         ClickableWordsText(text = paragraph.text, onClick = onWordClick)

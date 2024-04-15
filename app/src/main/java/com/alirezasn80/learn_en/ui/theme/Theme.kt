@@ -17,44 +17,42 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xff5ea3de),
-    secondary = BlueGrayDrawer,
-    background = BlueGrayBackground,
-    onBackground = PurpleOnBackground,
+    primary = Color(0xFF26293A),
+    secondary = Color(0xFF7F92C0),
+    background = Color(0xFF191A26),
+    onBackground = Color(0xFFF9FCFE),
     onPrimary = Color.White,
     onSecondary = Color.White,
-    surface = Color(0xff222e3a),
-    onSurface = PurpleOnBackground
+    surface = Color(0xFF212332),
+    onSurface = Color(0xFFF9FCFE)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = OrangeTopBar,
-    secondary = OrangeDrawer,
-    background = Color(0xfffbfbfb),
-    onBackground = BlackOnBackground,
+    primary = Color(0xFF5B92B0),
+    secondary = Color(0xFF5EB0DC),
+    background = Color(0xFFF1F1F1),
+    onBackground = Color(0xFF171717),
     onPrimary = Color.White,
     onSecondary = Color.White,
     surface = Color.White,
-    onSurface = BlackOnBackground
+    onSurface = Color(0xFF171717)
 )
 
 @Composable
 fun Learn_enTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = DarkColorScheme
-    /* when {
-     dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-         val context = LocalContext.current
-         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-     }
+    val colorScheme = when {
+        /* dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+             val context = LocalContext.current
+             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+         }*/
 
-     darkTheme -> DarkColorScheme
-     else -> LightColorScheme
- }*/
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

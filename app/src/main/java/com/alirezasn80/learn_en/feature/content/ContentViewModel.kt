@@ -10,10 +10,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
+import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Translation
 import com.alirezasn80.learn_en.feature.home.DictionaryTask
+import com.alirezasn80.learn_en.feature.home.TranslationConnection
 import com.alirezasn80.learn_en.feature.home.TranslationTask
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
@@ -26,9 +29,11 @@ import com.alirezasn80.learn_en.utill.showToast
 import com.alirezasn80.learn_en.utill.toBoolean
 import com.alirezasn80.learn_en.utill.toStringList
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.util.Locale
 import javax.inject.Inject
@@ -122,72 +127,95 @@ class ContentViewModel @Inject constructor(
         }
     }
 
+    private fun loading(value: Progress, key: String = "") = viewModelScope.launch(Dispatchers.Main) { progress[key] = value }
 
-    private fun loadingStatus(value: Progress, key: String = "") {
-        viewModelScope.launch(Dispatchers.Main) {
-            progress[key] = value
+    private fun errorException(metricaMsg: String, e: Exception?, userMsg: Int = R.string.unknown_error) {
+        AppMetrica.reportError(metricaMsg, e)
+        setMessageByToast(userMsg)
+        loading(Progress.Idle)
+    }
+
+
+    private fun getContent() = viewModelScope.launch(Dispatchers.IO) {
+        loading(Progress.Loading)
+
+        val contentEntity = try {
+            database.contentDao.getContent(categoryId, contentId)
+        } catch (e: Exception) {
+            errorException("Error in get content entity", e)
+            return@launch
         }
 
-    }
+        state.update { it.copy(isBookmark = contentEntity.favorite.toBoolean()) }
+        title = contentEntity.title
 
-    private fun getContent() {
-
-        loadingStatus(Progress.Loading)
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val contentEntity = database.contentDao.getContent(categoryId, contentId)
-            state.update { it.copy(isBookmark = contentEntity.favorite.toBoolean()) }
-            title = contentEntity.title
-            val content = contentEntity.content.trimIndent().removeBlankLines()
-            translate(content)
+        val paragraphs = if (contentEntity.translation == null) {// remote
+            translateRemote(contentEntity)
+        } else { // locale
+            processTranslateJson(contentEntity.translation)
         }
+
+        state.update {
+            it.copy(
+                isBookmark = contentEntity.favorite.toBoolean(),
+                title = contentEntity.title,
+                paragraphs = paragraphs
+            )
+        }
+
+        loading(Progress.Idle)
+
+
     }
 
+    private suspend fun translateRemote(
+        contentEntity: ContentEntity,
+        from: String = "en",
+        to: String = "fa"
+    ): List<Paragraph> {
+        //todo(check max 5,000 char)
+        var newContent = contentEntity.content.trimIndent().removeBlankLines()
+        if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title.\n")
 
-    private fun createUrl(from: String, to: String, text: String): String {
-        return "https://translate.google.com/m?hl=en" +
-                "&sl=$from" +
-                "&tl=$to" +
-                "&ie=UTF-8&prev=_m" +
-                "&q=$text"
+        return try {
+            val translated = TranslationConnection.translateHttpURLConnection(
+                newContent,
+                to,
+                from
+            )
+            val result = processTranslateJson(translated)
+            database.contentDao.updateContent(contentEntity.copy(translation = translated))
+            result
+
+        } catch (e: Exception) {
+            errorException("Error in Translation", e)
+            emptyList()
+        }
+
+
     }
 
+    private fun processTranslateJson(value: String): List<Paragraph> {
+        return try {
+            val allText = JSONArray(value).getJSONArray(0)
+            val paragraphs = mutableListOf<Paragraph>()
 
-    private fun translate(text: String, from: String = "en", to: String = "fa") {
-        loadingStatus(Progress.Loading)
-        viewModelScope.launch(Dispatchers.IO) {
-            //todo(check max 5,000 char)
-            var newContent = text
-            if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title.\n")
-
-            try {
-
-                TranslationTask(newContent) {
-                    val allText = JSONArray(it).getJSONArray(0)
-                    val paragraphs = mutableListOf<Paragraph>()
-
-                    maxReadableIndex = allText.length()
+            maxReadableIndex = allText.length()
 
 
-                    for (i in 0 until allText.length()) {
-                        val json = allText.getJSONArray(i)
-                        val translate = json.get(0).toString().trim()
-                        val main = json.get(1).toString().trim()
+            for (i in 0 until allText.length()) {
+                val json = allText.getJSONArray(i)
+                val translate = json.get(0).toString().trim()
+                val main = json.get(1).toString().trim()
 
-                        paragraphs.add(Paragraph(main, translate))
-                    }
-
-
-                    state.update { it.copy(paragraphs = paragraphs, title = title) }
-                    loadingStatus(Progress.Idle)
-                }
-
-            } catch (e: Exception) {
-                debug("Error in Translation : ${e.message}")
-                loadingStatus(Progress.Idle)
+                paragraphs.add(Paragraph(main, translate))
             }
-
+            paragraphs
+        } catch (e: Exception) {
+            errorException("Error in Json translate process", e)
+            emptyList()
         }
+
     }
 
 
@@ -203,16 +231,24 @@ class ContentViewModel @Inject constructor(
         tts.speak(value, TextToSpeech.QUEUE_FLUSH, null, "word")
     }
 
-
     fun onWordClick(word: String) {
-        clearPrevSheet()
-        loadingStatus(Progress.Loading, "sheet")
+        viewModelScope.launch(Dispatchers.IO) {
+            clearPrevSheet()
+            loading(Progress.Loading, "sheet")
 
-        DictionaryTask(word) { json ->
-            val sheetModel = createSheetModel(JSONArray(json))
-            state.update { it.copy(sheetModel = sheetModel) }
-            loadingStatus(Progress.Idle, "sheet")
-            if (!state.value.isPlay && !state.value.isMute) speakText(word)
+            try {
+                var translated: String? = database.wordDao.getDefinition(word)
+                debug("result word : $translated")
+                if (translated == null) {
+                    translated = TranslationConnection.dictionaryHttpURLConnection(word)
+                    database.wordDao.insertWord(WordEntity(word, translated))
+                }
+                val sheetModel = createSheetModel(JSONArray(translated))
+                state.update { it.copy(sheetModel = sheetModel) }
+                if (!state.value.isPlay && !state.value.isMute) speakText(word)
+            } catch (e: Exception) {
+                errorException("Error in Word Click", e)
+            }
         }
     }
 
