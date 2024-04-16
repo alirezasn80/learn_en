@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.BottomSheetScaffold
@@ -34,13 +33,17 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,25 +53,39 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
 import com.alirezasn80.learn_en.core.domain.entity.Items
+import com.alirezasn80.learn_en.ui.common.BaseTextButton
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
+import com.alirezasn80.learn_en.ui.theme.ExitRed
+import com.alirezasn80.learn_en.ui.theme.LargeSpacer
+import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.createImageBitmap
+import com.alirezasn80.learn_en.utill.openBazaarComment
+import com.alirezasn80.learn_en.utill.rememberPermissionState
+import com.alirezasn80.learn_en.utill.shareText
+import com.alirezasn80.learn_en.utill.showToast
+import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,13 +93,73 @@ fun HomeScreen(
     navigationState: NavigationState,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var reqToExit by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val context = LocalContext.current
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
     )
     val scope = rememberCoroutineScope()
+
+    val permissionState = rememberPermissionState(
+        onGranted = {},
+        onDenied = {}
+    )
+
+    // Check to show witch dialog
+    when (state.dialogKey) {
+
+        HomeDialogKey.AskRate -> {
+            viewModel.resetOpenAppCounter()
+            AskRateDialog(
+                reqToExit = reqToExit,
+                onDismissRequest = {
+                    reqToExit = false
+                    viewModel.setDialogKey(HomeDialogKey.Hide)
+                },
+                onYesClick = {
+                    viewModel.setDialogKey(HomeDialogKey.Hide)
+                    viewModel.hideCommentItem(Key.POSITIVE)
+                    context.showToast(R.string.support_by_5_star)
+                    context.openBazaarComment()
+                },
+                onNoClick = {
+                    viewModel.setDialogKey(HomeDialogKey.BadRate)
+                    viewModel.hideCommentItem(Key.NEGATIVE)
+                },
+                onExitClick = {
+                    exitProcess(0)
+                }
+            )
+        }
+
+        HomeDialogKey.BadRate -> {
+            BadRateDialog(
+                onDismissRequest = {
+                    viewModel.setDialogKey(HomeDialogKey.Hide)
+                },
+                action = {
+                    viewModel.setDialogKey(HomeDialogKey.Hide)
+                    AppMetrica.reportError("BadRate", it)
+                    context.showToast(R.string.your_text_sent)
+                }
+            )
+        }
+
+        HomeDialogKey.Hide -> Unit
+
+    }
+
+
+    // Check Notification Permission
+    LaunchedEffect(key1 = Unit) {
+        if (state.showNotificationAlert) {
+            permissionState.requestNotification()
+            viewModel.hideNotificationAlert()
+        }
+    }
 
     // Close drawer
     BackHandler(drawerState.isOpen) {
@@ -118,7 +195,47 @@ fun HomeScreen(
                     drawerShape = RectangleShape,
                     drawerContainerColor = MaterialTheme.colorScheme.background,
                 ) {
-                    DrawerItem(label = R.string.app_name, icon = Icons.Rounded.AddCircle, onClick = {})
+                    HeaderDrawer()
+
+                    // VIP User
+                    DrawerItem(
+                        label = R.string.vip_user,
+                        icon = painterResource(id = R.drawable.img_vip),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+
+                            if (User.isVipUser)
+                                context.showToast(R.string.you_now_vip)
+                            else
+                                navigationState.navToPayment("DRAWER")
+                        }
+                    )
+
+                    // Invite Friends
+                    DrawerItem(
+                        label = R.string.invite_friends,
+                        icon = ImageVector.vectorResource(R.drawable.ic_person_add),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            context.shareText(R.string.send_app_to_other)
+                        }
+                    )
+
+                    DrawerItem(
+                        label = R.string.submit_comment,
+                        icon = ImageVector.vectorResource(R.drawable.ic_comment),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            viewModel.setDialogKey(HomeDialogKey.AskRate)
+                        }
+                    )
+
+                    DrawerItem(
+                        label = R.string.about_us,
+                        icon = ImageVector.vectorResource(R.drawable.ic_about),
+                        onClick = {}
+                    )
+
                 }
             }
         ) {
@@ -163,7 +280,7 @@ fun HomeScreen(
                                         FavoriteItemSection(
                                             index = index + 1,
                                             item = item,
-                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
+                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
                                         )
                                     }
                                 }
@@ -188,6 +305,22 @@ fun HomeScreen(
             }
 
         }
+    }
+}
+
+@Composable
+private fun HeaderDrawer() {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(dimension.medium)
+    ) {
+        Image(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = null)
+        SmallSpacer()
+        Text(text = stringResource(id = R.string.enlish_stories))
+        SmallSpacer()
+        Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -295,9 +428,11 @@ private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
             }
         }
 
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .height(3.dp), color = MaterialTheme.colorScheme.background)
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp), color = MaterialTheme.colorScheme.background
+        )
     }
 }
 
@@ -341,9 +476,11 @@ private fun FavoriteItemSection(
             }
         }
 
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .height(3.dp), color = MaterialTheme.colorScheme.background)
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp), color = MaterialTheme.colorScheme.background
+        )
     }
 }
 
@@ -360,7 +497,7 @@ private fun Header(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
     ) {
-        IconButton(onClick = onMenuClick, modifier = Modifier.align(Alignment.CenterEnd)) {
+        IconButton(onClick = onMenuClick, modifier = Modifier.align(Alignment.CenterStart)) {
             Icon(imageVector = Icons.Rounded.Menu, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
         TextButton(onClick = onLevelClick, modifier = Modifier.align(Alignment.Center)) {
@@ -374,7 +511,7 @@ private fun Header(
 
         }
 
-        IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterStart)) {
+        IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterEnd)) {
             Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_add_circle), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
 
@@ -382,7 +519,6 @@ private fun Header(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheet(
     onClick: (Section) -> Unit,
@@ -416,7 +552,6 @@ private fun BottomSheet(
                 }
 
 
-
             }
         }
     }
@@ -444,5 +579,134 @@ private fun DrawerItem(
         Text(text = stringResource(id = label), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleSmall)
 
 
+    }
+}
+
+
+@Composable
+private fun AskRateDialog(
+    reqToExit: Boolean,
+    onDismissRequest: () -> Unit,
+    onYesClick: () -> Unit,
+    onNoClick: () -> Unit,
+    onExitClick: () -> Unit,
+) {
+    Rtl {
+        Dialog(onDismissRequest = onDismissRequest) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
+                    .padding(dimension.medium),
+            ) {
+
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_comment),
+                        contentDescription = "Comment", tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(30.dp)
+                    )
+                    SmallSpacer()
+                    Text(
+                        text = stringResource(id = R.string.submit_comment),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+
+                SmallSpacer()
+
+                Text(text = stringResource(id = R.string.dialog_text_satisfied), color = MaterialTheme.colorScheme.onSurface)
+
+                LargeSpacer()
+
+
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+
+                    if (reqToExit) {
+                        BaseTextButton(
+                            text = R.string.exit,
+                            contentColor = ExitRed,
+                            onclick = onExitClick
+                        )
+                    } else
+                        MediumSpacer()
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+
+                        BaseTextButton(
+                            text = R.string.no,
+                            onclick = onNoClick
+                        )
+                        SmallSpacer()
+                        BaseTextButton(
+                            text = R.string.yes,
+                            onclick = onYesClick
+                        )
+
+                    }
+
+
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun BadRateDialog(
+    onDismissRequest: () -> Unit,
+    action: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf("") }
+    Dialog(onDismissRequest = onDismissRequest) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
+                .padding(dimension.medium),
+        ) {
+
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_comment),
+                    contentDescription = "", tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(30.dp)
+                )
+                SmallSpacer()
+                Text(
+                    text = stringResource(id = R.string.report),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+
+            SmallSpacer()
+
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.report_text), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
+                    )
+                }
+            )
+
+            LargeSpacer()
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                BaseTextButton(text = R.string.send, onclick = { action(text) })
+                SmallSpacer()
+                BaseTextButton(text = R.string.cancel, onclick = onDismissRequest)
+            }
+        }
     }
 }

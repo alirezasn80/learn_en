@@ -15,13 +15,13 @@ import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Translation
-import com.alirezasn80.learn_en.feature.home.DictionaryTask
 import com.alirezasn80.learn_en.feature.home.TranslationConnection
-import com.alirezasn80.learn_en.feature.home.TranslationTask
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
+import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.removeBlankLines
@@ -33,7 +33,6 @@ import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.util.Locale
 import javax.inject.Inject
@@ -49,6 +48,7 @@ class ContentViewModel @Inject constructor(
     private lateinit var speechIntent: Intent
     private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
     private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
+     val isTrial = savedStateHandle.getString(Arg.IS_TRIAL)!! == "trial"
     private var maxReadableIndex = 0
     private var readMode = "default"
     private var title = ""
@@ -58,6 +58,7 @@ class ContentViewModel @Inject constructor(
     }
 
     init {
+        debug("trial : ${isTrial}")
         initSpeechToText()
         getContent()
     }
@@ -220,7 +221,7 @@ class ContentViewModel @Inject constructor(
 
 
     fun onTranslateClick() {
-        state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
+            state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
     }
 
     fun onMuteClick() {
@@ -232,24 +233,24 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            clearPrevSheet()
-            loading(Progress.Loading, "sheet")
+            viewModelScope.launch(Dispatchers.IO) {
+                clearPrevSheet()
+                loading(Progress.Loading, "sheet")
 
-            try {
-                var translated: String? = database.wordDao.getDefinition(word)
-                debug("result word : $translated")
-                if (translated == null) {
-                    translated = TranslationConnection.dictionaryHttpURLConnection(word)
-                    database.wordDao.insertWord(WordEntity(word, translated))
+                try {
+                    var translated: String? = database.wordDao.getDefinition(word)
+                    debug("result word : $translated")
+                    if (translated == null) {
+                        translated = TranslationConnection.dictionaryHttpURLConnection(word)
+                        database.wordDao.insertWord(WordEntity(word, translated))
+                    }
+                    val sheetModel = createSheetModel(JSONArray(translated))
+                    state.update { it.copy(sheetModel = sheetModel) }
+                    if (!state.value.isPlay && !state.value.isMute) speakText(word)
+                } catch (e: Exception) {
+                    errorException("Error in Word Click", e)
                 }
-                val sheetModel = createSheetModel(JSONArray(translated))
-                state.update { it.copy(sheetModel = sheetModel) }
-                if (!state.value.isPlay && !state.value.isMute) speakText(word)
-            } catch (e: Exception) {
-                errorException("Error in Word Click", e)
             }
-        }
     }
 
     private fun createSheetModel(jsonArray: JSONArray): SheetModel {

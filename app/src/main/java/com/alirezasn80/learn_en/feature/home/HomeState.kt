@@ -16,8 +16,19 @@ val sections = listOf(
     Section.Created,
 )
 
+sealed interface HomeDialogKey {
+    data object AskRate : HomeDialogKey
+    data object BadRate : HomeDialogKey
+    data object Hide : HomeDialogKey
+}
+
 data class HomeState(
     val selectedSection: Section = Section.Default,
     val categories: List<CategoryModel> = emptyList(),
     val favorites: List<Items> = emptyList(),
-    )
+    val dialogKey: HomeDialogKey = HomeDialogKey.Hide,
+    val openAppCount: Int = 0,
+    val needUpdate: Boolean = false,
+    val showNotificationAlert: Boolean = true,
+    val showComment: Boolean = true
+)

@@ -28,5 +28,26 @@
     <string name="create_doc">ایجاد محتوا</string>
     <string name="create">ایجاد</string>
     <string name="delete_from_bookmark">از علاقه مندی ها حذف شد</string>
+    <string name="support_by_5_star">با ۵ ستاره حمایت کنید</string>
+    <string name="submit_comment">ثبت نظر</string>
+    <string name="dialog_text_satisfied">کاربر گرامی، آیا از عملکرد برنامه رضایت دارید؟</string>
+    <string name="exit">خروج</string>
+    <string name="no">خیر</string>
+    <string name="yes">بله</string>
+    <string name="report">گزارش</string>
+    <string name="send">ارسال</string>
+    <string name="enlish_stories">English Stories</string>
+    <string name="learn_english_with_story">آموزش زبان با داستان های انگلیسی</string>
+    <string name="vip_user">کاربر ویژه</string>
+    <string name="invite_friends">دعوت از دوستان</string>
+    <string name="send_app_to_other">اپلیکیشن یادگیری زبان با داستان های مختلف و داستان های خود!\\n link</string>
+    <string name="about_us">درباره ما</string>
+    <string name="report_text">متن گزارش</string>
+    <string name="your_text_sent">متن شما ارسال شد</string>
+    <string name="error_connect_bazaar">در اتصال به کافه بازار، مشکلی بوجود آمده است.لطفا پس از اطمینان از نصب بودن اپلیکیشن کافه بازار بر روی دیوایس خود، مجددا تلاش کنید</string>
+    <string name="error_payment_page_bazaar">متاسفانه مشکلی در اتصال به کافه بازار بوجود آمده است. لطفا مجددا تلاش کنید</string>
+    <string name="error_process_payment_bazaar">عملیات پرداخت ناموفق بود</string>
+    <string name="you_now_vip">تبریک! درحال حاضر شما کاربر ویژه هستید 🥳</string>
+    <string name="vip_payment">ارتقا دائمی به کاربر ویژه</string>
 
 </resources>

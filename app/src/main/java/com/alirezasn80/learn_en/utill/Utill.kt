@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -92,7 +91,8 @@ sealed interface WidgetType {
 sealed interface Destination {
     object Home : Destination
     object OnBoarding : Destination
-    object Back:Destination
+    object Back : Destination
+    object Payment : Destination
 }
 
 sealed interface MessageState {
@@ -153,6 +153,7 @@ fun String.arguments(): Sequence<MatchResult> {
 inline val String.argumentCount: Int get() = arguments().count()
 
 object Arg {
+    const val IS_TRIAL: String = "isTrial"
     const val Key = "Key"
     const val CATEGORY_ID = "CATEGORY_ID"
     const val CONTENT_ID = "CONTENT_ID"
@@ -279,7 +280,7 @@ fun Context.openBrowser(url: String?) {
 fun Context.openBazaarComment() {
     try {
         val intent = Intent(Intent.ACTION_EDIT)
-        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.eitaacleaner"))
+        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.learn_en"))
         intent.setPackage("com.farsitel.bazaar")
         startActivity(intent)
     } catch (e: Exception) {

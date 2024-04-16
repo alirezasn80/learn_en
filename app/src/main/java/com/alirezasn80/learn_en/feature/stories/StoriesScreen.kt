@@ -1,11 +1,5 @@
 package com.alirezasn80.learn_en.feature.stories
 
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -40,7 +33,6 @@ import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
-import com.alirezasn80.learn_en.utill.randomColor
 
 
 @Composable
@@ -56,10 +48,12 @@ fun StoriesScreen(
 
             LazyColumn {
                 itemsIndexed(state.items) { index, item ->
+                    val isTrial =  index <= 1
                     ItemSection(
+                        isFree = isTrial,
                         index = index,
                         item = item,
-                        onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!) }
+                        onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, if (isTrial)"trial" else "lock") }
                     )
                 }
             }
@@ -93,6 +87,7 @@ private fun Header(title: String, upPress: () -> Unit) {
 
 @Composable
 private fun ItemSection(
+    isFree: Boolean,
     index: Int,
     item: Items,
     onClick: () -> Unit
@@ -108,7 +103,7 @@ private fun ItemSection(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(if (isFree) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
     ) {
         Row(
             Modifier
@@ -139,8 +134,10 @@ private fun ItemSection(
                 )
             }
         }
-        Divider(modifier = Modifier
-            .fillMaxWidth()
-            .height(3.dp), color = MaterialTheme.colorScheme.background)
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(3.dp), color = MaterialTheme.colorScheme.background
+        )
     }
 }

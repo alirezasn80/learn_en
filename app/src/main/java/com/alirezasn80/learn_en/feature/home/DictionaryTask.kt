@@ -4,6 +4,7 @@ package com.alirezasn80.learn_en.feature.home
 import android.util.Log
 import kotlinx.coroutines.*
 
+/*
 class DictionaryTask(
     private var text: String,
     private var toLang: String = "fa",
@@ -58,4 +59,4 @@ class TranslationTask(
             }
         }
     }
-}
+}*/

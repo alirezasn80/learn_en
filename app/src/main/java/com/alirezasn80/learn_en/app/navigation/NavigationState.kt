@@ -41,7 +41,7 @@ class NavigationState(
 
     fun navToStories(categoryId: Int, title: String) = navController.navigate(Screen.Stories.route(categoryId, title))
 
-    fun navToContent(categoryId: Int, contentId: Int) = navController.navigate(Screen.Content.route(categoryId, contentId))
+    fun navToContent(categoryId: Int, contentId: Int, key: String) = navController.navigate(Screen.Content.route(categoryId, contentId, key))
 
     fun navToOnBoarding() = navController.navigate(Screen.OnBoarding.route) { popUpTo(0) }
 

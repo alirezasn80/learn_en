@@ -67,8 +67,10 @@ import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.debug
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -86,12 +88,17 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
     )
+    val destination = viewModel.destination
 
 
     // Close Bottom Sheet
     BackHandler(bottomSheetState.bottomSheetState.isVisible) {
         if (bottomSheetState.bottomSheetState.isVisible)
             scope.launch { bottomSheetState.bottomSheetState.hide() }
+    }
+
+    LaunchedEffect(destination) {
+        if (destination is Destination.Payment) navigationState.navToPayment("TRANSLATE")
     }
 
 
@@ -180,7 +187,12 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         isMute = state.isMute,
                         isBookmark = state.isBookmark,
                         upPress = navigationState::upPress,
-                        onTranslateClick = viewModel::onTranslateClick,
+                        onTranslateClick = {
+                            if (User.isVipUser || viewModel.isTrial)
+                                viewModel.onTranslateClick()
+                            else
+                                navigationState.navToPayment("TRANSLATE")
+                        },
                         onMuteClick = viewModel::onMuteClick,
                         onBookmarkClick = viewModel::onBookmarkClick
 
@@ -210,8 +222,12 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                 paragraph = paragraph,
                                 isVisibleTranslate = state.isVisibleTranslate,
                                 onWordClick = {
-                                    scope.launch { bottomSheetState.bottomSheetState.expand() }
-                                    viewModel.onWordClick(it)
+                                    if (User.isVipUser || viewModel.isTrial) {
+                                        scope.launch { bottomSheetState.bottomSheetState.expand() }
+                                        viewModel.onWordClick(it)
+                                    } else {
+                                        navigationState.navToPayment("DICT")
+                                    }
                                 },
                                 onClick = { viewModel.onParagraphClick(index) }
                             )

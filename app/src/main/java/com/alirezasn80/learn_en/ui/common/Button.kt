@@ -57,7 +57,7 @@ fun BaseButton(
 fun BaseTextButton(
     modifier: Modifier = Modifier,
     text: Any,
-    contentColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.secondary,
     fontSize: TextUnit = TextUnit.Unspecified,
     onclick: () -> Unit,
 ) {
