@@ -19,7 +19,8 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun providePayment(application: Application): Payment {
-        val rsaKey = ""
+        val rsaKey =
+            "MIHNMA0GCSqGSIb3DQEBAQUAA4G7ADCBtwKBrwCmMVUPbJvRLn7HmfNX6D0xDg5CLEIA9kgUjDkKtCR+jjuvAFnHLyxkgcO2mVZusRFtXbOzvPYxpAHu74MO4+uXTSkc2nCIYi+od6TTTrb1qS8IQ5BGyQ/etySb7a8sUn68zt6YTutS61qMJztxXxUjDaQcpKKJ3PwP7IG0fJKw6KLpJ6pDLmpoNGctENgo1+qc0V5HcpDLnC6Ao2POJ2dbsBXI+z6ZsZIdMeUqdnkCAwEAAQ=="
 
         val localSecurityCheck =
             SecurityCheck.Enable(rsaPublicKey = rsaKey)

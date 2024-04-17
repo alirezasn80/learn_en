@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        LocaleUtils.updateResources(this, "en")
+        LocaleUtils.updateResources(this, "fa")
         setContent {
 
             val navigationState = rememberNavigationState()

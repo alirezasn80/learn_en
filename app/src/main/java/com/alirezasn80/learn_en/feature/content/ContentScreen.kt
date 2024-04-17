@@ -68,6 +68,7 @@ import com.alirezasn80.learn_en.ui.theme.Line
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
@@ -131,37 +132,39 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                             Modifier
                                                 .fillMaxWidth()
                                                 .background(MaterialTheme.colorScheme.surface)
-                                                .padding(dimension.medium), horizontalArrangement = Arrangement.SpaceBetween
+                                                .padding(dimension.medium)
                                         ) {
-                                            FlowRow(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .wrapContentHeight(align = Alignment.Top),
-                                                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                                                //   maxItemsInEachRow = 3
-                                            ) {
-                                                it.synonyms.forEach { word ->
-                                                    Text(
-                                                        text = word, modifier = Modifier
-                                                            .padding(horizontal = 2.dp)
-                                                            .background(
-                                                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f), MaterialTheme.shapes
-                                                                    .extraSmall
-                                                            )
-                                                            .padding
-                                                                (
-                                                                horizontal
-                                                                = dimension
-                                                                    .extraSmall
-                                                            )
-                                                    )
-                                                }
+                                            Text(text = it.word, color = MaterialTheme.colorScheme.onSurface)
+                                            SmallSpacer()
+                                            Ltr {
+                                                FlowRow(
+                                                    modifier = Modifier.weight(1f),
+                                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                                    //   maxItemsInEachRow = 3
+                                                ) {
+                                                    it.synonyms.forEach { word ->
+                                                        Text(
+                                                            text = word, modifier = Modifier
+                                                                .padding(horizontal = 2.dp)
+                                                                .background(
+                                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f), MaterialTheme.shapes
+                                                                        .extraSmall
+                                                                )
+                                                                .padding
+                                                                    (
+                                                                    horizontal
+                                                                    = dimension
+                                                                        .extraSmall
+                                                                )
+                                                        )
 
+
+                                                    }
+
+                                                }
                                             }
 
-                                            SmallSpacer()
-                                            Text(text = it.word, color = MaterialTheme.colorScheme.onSurface)
 
                                         }
                                         Line(thickness = 2.dp)
@@ -211,28 +214,31 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         )
                 }
             ) { scaffoldPadding ->
-
-                if (viewModel.progress[""] is Progress.Loading) {
-                    MainLoading(scaffoldPadding)
-                } else
-                    LazyColumn(Modifier.padding(scaffoldPadding)) {
-                        itemsIndexed(state.paragraphs) { index, paragraph ->
-                            ParagraphSection(
-                                isFocus = state.readableIndex == index,
-                                paragraph = paragraph,
-                                isVisibleTranslate = state.isVisibleTranslate,
-                                onWordClick = {
-                                    if (User.isVipUser || viewModel.isTrial) {
-                                        scope.launch { bottomSheetState.bottomSheetState.expand() }
-                                        viewModel.onWordClick(it)
-                                    } else {
-                                        navigationState.navToPayment("DICT")
-                                    }
-                                },
-                                onClick = { viewModel.onParagraphClick(index) }
-                            )
+                Ltr {
+                    if (viewModel.progress[""] is Progress.Loading) {
+                        MainLoading(scaffoldPadding)
+                    } else
+                        LazyColumn(Modifier.padding(scaffoldPadding)) {
+                            itemsIndexed(state.paragraphs) { index, paragraph ->
+                                ParagraphSection(
+                                    isFocus = state.readableIndex == index,
+                                    paragraph = paragraph,
+                                    isVisibleTranslate = state.isVisibleTranslate,
+                                    onWordClick = {
+                                        if (User.isVipUser || viewModel.isTrial) {
+                                            scope.launch { bottomSheetState.bottomSheetState.expand() }
+                                            viewModel.onWordClick(it)
+                                        } else {
+                                            navigationState.navToPayment("DICT")
+                                        }
+                                    },
+                                    onClick = { viewModel.onParagraphClick(index) }
+                                )
+                            }
                         }
-                    }
+                }
+
+
             }
         }
     }
@@ -257,7 +263,6 @@ private fun SingleDefineSection(value: String) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(dimension.medium),
-        textAlign = TextAlign.End,
         color = MaterialTheme.colorScheme.onSurface
     )
 }
@@ -388,8 +393,8 @@ fun BoxScope.MediaControllerSection(onBackwardClick: () -> Unit, onForwardClick:
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackwardClick) {
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_backward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        IconButton(onClick = onForwardClick) {
+            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_forward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
         SmallSpacer()
         IconButton(
@@ -403,8 +408,8 @@ fun BoxScope.MediaControllerSection(onBackwardClick: () -> Unit, onForwardClick:
             Icon(imageVector = ImageVector.vectorResource(if (isPlay) R.drawable.ic_stop else R.drawable.ic_play), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
         SmallSpacer()
-        IconButton(onClick = onForwardClick) {
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_forward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        IconButton(onClick = onBackwardClick) {
+            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_backward), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
         }
     }
 
@@ -471,8 +476,11 @@ private fun ParagraphSection(
         ClickableWordsText(text = paragraph.text, onClick = onWordClick)
         SmallSpacer()
 
-        if (isVisibleTranslate)
-            Rtl { Text(text = paragraph.translated, modifier = Modifier.fillMaxWidth()) }
+        Rtl {
+            if (isVisibleTranslate)
+                Text(text = paragraph.translated, modifier = Modifier.fillMaxWidth())
+        }
+
 
     }
 }
@@ -494,27 +502,46 @@ private fun Header(
             .background(MaterialTheme.colorScheme.primary),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        IconButton(onClick = upPress) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        }
+
+        Text(
+            text = title, modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically), textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleSmall
+        )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = dimension.medium)
         ) {
 
-            // Bookmark
+
+            // Mute
             Icon(
                 modifier = Modifier
-                    .clickable { onBookmarkClick() }
+                    .clickable { onMuteClick() }
                     .clip(CircleShape)
                     .background(
-                        if (isBookmark)
+                        if (isMute)
                             Color.White.copy(alpha = 0.3f)
                         else
                             Color.Unspecified
                     )
                     .padding(dimension.extraSmall),
-                imageVector = ImageVector.vectorResource(if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark),
+                imageVector = ImageVector.vectorResource(if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+
             SmallSpacer()
 
 
@@ -534,42 +561,28 @@ private fun Header(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+
             SmallSpacer()
 
-            // Mute
+            // Bookmark
             Icon(
                 modifier = Modifier
-                    .clickable { onMuteClick() }
+                    .clickable { onBookmarkClick() }
                     .clip(CircleShape)
                     .background(
-                        if (isMute)
+                        if (isBookmark)
                             Color.White.copy(alpha = 0.3f)
                         else
                             Color.Unspecified
                     )
                     .padding(dimension.extraSmall),
-                imageVector = ImageVector.vectorResource(if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max),
+                imageVector = ImageVector.vectorResource(if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+
         }
 
-
-        Text(
-            text = title, modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically), textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleSmall
-        )
-
-        IconButton(onClick = upPress) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowForward,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-            )
-        }
     }
 }
 

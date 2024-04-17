@@ -74,6 +74,7 @@ import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Key
+import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.Rtl
@@ -187,7 +188,6 @@ fun HomeScreen(
     }
 
     UI {
-
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -268,37 +268,40 @@ fun HomeScreen(
                         },
                         onCreateClick = navigationState::navToCreate
                     )
-                    if (viewModel.progress[""] is Progress.Loading) {
-                        LoadingLayout()
-                    } else {
-                        if (state.selectedSection.key == "favorite") {
-                            if (state.favorites.isEmpty()) {
-                                EmptyLayout()
+                    Ltr {
+                        if (viewModel.progress[""] is Progress.Loading) {
+                            LoadingLayout()
+                        } else {
+                            if (state.selectedSection.key == "favorite") {
+                                if (state.favorites.isEmpty()) {
+                                    EmptyLayout()
+                                } else {
+                                    LazyColumn {
+                                        itemsIndexed(state.favorites) { index, item ->
+                                            FavoriteItemSection(
+                                                index = index + 1,
+                                                item = item,
+                                                onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
+                                            )
+                                        }
+                                    }
+                                }
                             } else {
-                                LazyColumn {
-                                    itemsIndexed(state.favorites) { index, item ->
-                                        FavoriteItemSection(
-                                            index = index + 1,
-                                            item = item,
-                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
+                                if (state.categories.isEmpty()) {
+                                    EmptyLayout()
+                                } else LazyColumn {
+                                    items(state.categories) {
+                                        CategoryItemSection(
+                                            item = it,
+                                            onClick = { navigationState.navToStories(it.id, it.title) }
                                         )
                                     }
                                 }
-                            }
-                        } else {
-                            if (state.categories.isEmpty()) {
-                                EmptyLayout()
-                            } else LazyColumn {
-                                items(state.categories) {
-                                    CategoryItemSection(
-                                        item = it,
-                                        onClick = { navigationState.navToStories(it.id, it.title) }
-                                    )
-                                }
-                            }
 
+                            }
                         }
                     }
+
 
 
                 }
@@ -524,7 +527,7 @@ private fun BottomSheet(
     onClick: (Section) -> Unit,
     onCreateClick: () -> Unit,
 ) {
-    Rtl {
+
         Column(
             Modifier
                 .background(MaterialTheme.colorScheme.primary)
@@ -554,7 +557,7 @@ private fun BottomSheet(
 
             }
         }
-    }
+
 }
 
 @Composable
@@ -591,7 +594,7 @@ private fun AskRateDialog(
     onNoClick: () -> Unit,
     onExitClick: () -> Unit,
 ) {
-    Rtl {
+
         Dialog(onDismissRequest = onDismissRequest) {
             Column(
                 Modifier
@@ -652,7 +655,7 @@ private fun AskRateDialog(
                 }
             }
         }
-    }
+
 
 }
 

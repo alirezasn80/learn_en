@@ -66,37 +66,26 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 
-private data class PagerModel(
+private data class PaymentSliderModel(
     val image: Int,
     val title: Int,
     val desc: Int
 )
 
-private val items1 = listOf(
-    PagerModel(
-        image = R.drawable.img_vip,
-        title = R.string.unknown_error,
-        desc = R.string.documents
-
+private val payment_slider = listOf(
+    PaymentSliderModel(
+        image = R.drawable.img_translate,
+        title = R.string.auto_translate,
+        desc = R.string.auto_translate_desc
     ),
-    PagerModel(
-        image = R.drawable.img_vip,
-        title = R.string.unknown_error,
-        desc = R.string.documents
-    ),
-    PagerModel(
-        image = R.drawable.img_vip,
-        title = R.string.unknown_error,
-        desc = R.string.documents
-    ),
-    PagerModel(
-        image = R.drawable.img_vip,
-        title = R.string.unknown_error,
-        desc = R.string.documents
+    PaymentSliderModel(
+        image = R.drawable.img_dictionary,
+        title = R.string.dictionary,
+        desc = R.string.dictionary_desc
     )
 )
 
-private val pagerItems by lazy { items1 }
+private val pagerItems by lazy { payment_slider }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -137,20 +126,15 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             },
-            bottomBar = {
+            /*bottomBar = {
                 Row(Modifier.padding(dimension.medium)) {
-
                     PaymentButton(
                         text = R.string.vip_payment,
                         textColor = MaterialTheme.colorScheme.primary,
                         backgroundColor = MaterialTheme.colorScheme.onPrimary
-                    ) {
-                        viewModel.buyProduct(registry, "VIP1")
-                    }
-
+                    ) { viewModel.buyProduct(registry, "VIP1") }
                 }
-
-            }
+            }*/
         ) {
             Column(
                 Modifier
@@ -178,31 +162,26 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
                 LargeSpacer()
                 DescSection()
 
-                /*if (ABOVE_Q && state.testCleaner != null)
-                    CheckValidVersion(
-                        cleaner = state.testCleaner!!,
-                        setValidSAFPermission = viewModel::setValidSAFPermission
-                    )*/
-
-                /*LargeSpacer()
+                LargeSpacer()
                 PaymentButton(
                     text = R.string.mounch_12,
                     textColor = MaterialTheme.colorScheme.primary,
                     backgroundColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    val productId = if (BELOW_R) "VIP1_12" else "VIP2_12"
-                    viewModel.buy(registry, productId)
+                    viewModel.buySubscribe(registry, "TEST")
                 }
+
                 MediumSpacer()
+
                 PaymentButton(text = R.string.mounch_6) {
-                    val productId = if (BELOW_R) "VIP1_6" else "VIP2_6"
-                    viewModel.buy(registry, productId)
+                    viewModel.buySubscribe(registry, "VIP_6")
                 }
+
                 MediumSpacer()
+
                 PaymentButton(text = R.string.mounch_3) {
-                    val productId = if (BELOW_R) "VIP1_3" else "VIP2_3"
-                    viewModel.buy(registry, productId)
-                }*/
+                    viewModel.buySubscribe(registry, "VIP_3")
+                }
             }
         }
 
@@ -282,7 +261,7 @@ private fun DescCell(desc: Int) {
 
 
 @Composable
-private fun PagerCell(item: PagerModel) {
+private fun PagerCell(item: PaymentSliderModel) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth(),
@@ -291,7 +270,7 @@ private fun PagerCell(item: PagerModel) {
         Image(
             painter = painterResource(id = item.image),
             contentDescription = null,
-            modifier = Modifier.size(120.dp),
+            modifier = Modifier.size(85.dp),
             contentScale = ContentScale.Fit
         )
         MediumSpacer()

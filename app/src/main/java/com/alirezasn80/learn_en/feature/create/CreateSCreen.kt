@@ -65,6 +65,7 @@ import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Keyboard
+import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.keyboardAsState
 import kotlinx.coroutines.launch
@@ -151,7 +152,7 @@ fun CreateScreen(
             sheetPeekHeight = 0.dp,
             sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
-                Rtl {
+
                     Column(
                         Modifier
                             .fillMaxWidth()
@@ -166,7 +167,7 @@ fun CreateScreen(
                             SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
                         }
                     }
-                }
+
 
             }
         ) {
@@ -206,16 +207,20 @@ fun CreateScreen(
                             )
                         }
                     )
-                    SmallSpacer()
-                    TitleSection(state.title, viewModel::onTitleChange)
-                    SmallSpacer()
-                    ContentSection(
-                        value = state.content,
-                        onValueChange = viewModel::onContentChange,
-                        onFocusChanged = { isFocus ->
-                            onFocusContentChange(isFocus)
-                        }
-                    )
+
+                    Ltr {
+                        SmallSpacer()
+                        TitleSection(state.title, viewModel::onTitleChange)
+                        SmallSpacer()
+                        ContentSection(
+                            value = state.content,
+                            onValueChange = viewModel::onContentChange,
+                            onFocusChanged = { isFocus ->
+                                onFocusContentChange(isFocus)
+                            }
+                        )
+                    }
+
                 }
             }
         }
@@ -419,12 +424,10 @@ private fun Header(
     ) {
 
         IconButton(
-            onClick = {
-                onSaveClick()
-            },
+            onClick = upPress
         ) {
             Icon(
-                imageVector = Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
+                imageVector = Icons.Rounded.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -435,12 +438,15 @@ private fun Header(
         )
 
         IconButton(
-            onClick = upPress
+            onClick = {
+                onSaveClick()
+            },
         ) {
             Icon(
-                imageVector = Icons.Rounded.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
+                imageVector = Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
             )
         }
+
 
 
     }

@@ -33,6 +33,8 @@ import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.Ltr
+import com.alirezasn80.learn_en.utill.User
 
 
 @Composable
@@ -46,17 +48,20 @@ fun StoriesScreen(
         Column(Modifier.fillMaxSize()) {
             Header(state.title, upPress = navigationState::upPress)
 
-            LazyColumn {
-                itemsIndexed(state.items) { index, item ->
-                    val isTrial =  index <= 1
-                    ItemSection(
-                        isFree = isTrial,
-                        index = index,
-                        item = item,
-                        onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, if (isTrial)"trial" else "lock") }
-                    )
+            Ltr {
+                LazyColumn {
+                    itemsIndexed(state.items) { index, item ->
+                        val isTrial = index <= 1 || User.isVipUser
+                        ItemSection(
+                            isFree = isTrial,
+                            index = index,
+                            item = item,
+                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, if (isTrial) "trial" else "lock") }
+                        )
+                    }
                 }
             }
+
         }
     }
 }
@@ -69,7 +74,7 @@ private fun Header(title: String, upPress: () -> Unit) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary)
     ) {
-        IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterEnd)) {
+        IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterStart)) {
             Icon(
                 imageVector = Icons.Rounded.ArrowForward,
                 contentDescription = null,

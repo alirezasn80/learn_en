@@ -69,7 +69,7 @@ fun ContentWithMessageBar(
                 .background(color = contentBackgroundColor)
         ) {
             content()
-            Rtl {
+
                 MessageBarComponent(
                     messageBarState = messageBarState,
                     position = position,
@@ -88,7 +88,7 @@ fun ContentWithMessageBar(
                     horizontalPadding = horizontalPadding,
                     showToastOnCopy = showToastOnCopy
                 )
-            }
+
 
         }
 
