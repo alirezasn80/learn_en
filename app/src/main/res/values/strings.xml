@@ -56,5 +56,7 @@
     <string name="auto_translate_desc">امکان ترجمه خودکار تمامی داستان های برنامه و اسناد(داستان،مقاله،یادداشت و…) های ساخته شده ی شما</string>
     <string name="dictionary">دیکشنری</string>
     <string name="dictionary_desc">امکان نمایش دیکشنری با کلیک بر روی هر لغت از داستان ها و اسناد ساخته شده</string>
+    <string name="support">پشتیبانی</string>
+    <string name="onboarding_desc">توضیحات انبوردینگ</string>
 
 </resources>

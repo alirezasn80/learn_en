@@ -11,6 +11,7 @@ import com.alirezasn80.learn_en.app.navigation.rememberNavigationState
 import com.alirezasn80.learn_en.feature.content.ContentScreen
 import com.alirezasn80.learn_en.feature.create.CreateScreen
 import com.alirezasn80.learn_en.feature.home.HomeScreen
+import com.alirezasn80.learn_en.feature.onboarding.OnBoardingScreen
 import com.alirezasn80.learn_en.feature.payment.PaymentScreen
 import com.alirezasn80.learn_en.feature.splash.SplashScreen
 import com.alirezasn80.learn_en.feature.stories.StoriesScreen
@@ -33,6 +34,11 @@ class MainActivity : ComponentActivity() {
                     navController = navigationState.navController,
                     startDestination = Screen.Splash.route,
                 ) {
+
+
+                    composable(Screen.OnBoarding.route) {
+                        OnBoardingScreen(navigationState)
+                    }
 
                     composable(Screen.Splash.route) {
                         SplashScreen(navigationState)

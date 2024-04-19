@@ -43,15 +43,16 @@ fun SplashScreen(
 
     //Check Destination
     LaunchedEffect(key1 = destination) {
-
         when (destination) {
 
-            is Destination.Home -> navigationState.navToHome()
+            Destination.Home -> navigationState.navToHome()
+
+            Destination.Offline -> navigationState.navToOffline()
+
+            Destination.OnBoarding -> navigationState.navToOnBoarding()
 
             else -> Unit
-
         }
-
     }
 
     UI {

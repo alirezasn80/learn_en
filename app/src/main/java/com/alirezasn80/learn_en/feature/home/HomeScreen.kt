@@ -81,6 +81,7 @@ import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.createImageBitmap
 import com.alirezasn80.learn_en.utill.openBazaarComment
+import com.alirezasn80.learn_en.utill.openGmail
 import com.alirezasn80.learn_en.utill.rememberPermissionState
 import com.alirezasn80.learn_en.utill.shareText
 import com.alirezasn80.learn_en.utill.showToast
@@ -230,11 +231,26 @@ fun HomeScreen(
                         }
                     )
 
+                    // Support
                     DrawerItem(
+                        label = R.string.support,
+                        icon = ImageVector.vectorResource(R.drawable.ic_support),
+                        color = Color(0xFFB08876),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            try {
+                                context.openGmail(false)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    )
+
+                    /*DrawerItem(
                         label = R.string.about_us,
                         icon = ImageVector.vectorResource(R.drawable.ic_about),
                         onClick = {}
-                    )
+                    )*/
 
                 }
             }
@@ -301,7 +317,6 @@ fun HomeScreen(
                             }
                         }
                     }
-
 
 
                 }
@@ -528,35 +543,35 @@ private fun BottomSheet(
     onCreateClick: () -> Unit,
 ) {
 
-        Column(
-            Modifier
-                .background(MaterialTheme.colorScheme.primary)
-        ) {
-            sections.forEach {
-                Column {
-                    Row(
-                        Modifier
-                            .clickable { onClick(it) }
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(dimension.medium),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
-                        if (it is Section.Created)
-                            Text(
-                                text = stringResource(id = R.string.create),
-                                color = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.clickable { onCreateClick() }
-                            )
+    Column(
+        Modifier
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        sections.forEach {
+            Column {
+                Row(
+                    Modifier
+                        .clickable { onClick(it) }
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(dimension.medium),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
+                    if (it is Section.Created)
+                        Text(
+                            text = stringResource(id = R.string.create),
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.clickable { onCreateClick() }
+                        )
 
-                    }
-                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 0.7.dp)
                 }
-
-
+                Divider(color = MaterialTheme.colorScheme.primary, thickness = 0.7.dp)
             }
+
+
         }
+    }
 
 }
 
@@ -595,66 +610,66 @@ private fun AskRateDialog(
     onExitClick: () -> Unit,
 ) {
 
-        Dialog(onDismissRequest = onDismissRequest) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
-                    .padding(dimension.medium),
-            ) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.small)
+                .padding(dimension.medium),
+        ) {
 
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_comment),
-                        contentDescription = "Comment", tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(30.dp)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_comment),
+                    contentDescription = "Comment", tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(30.dp)
+                )
+                SmallSpacer()
+                Text(
+                    text = stringResource(id = R.string.submit_comment),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            SmallSpacer()
+
+            Text(text = stringResource(id = R.string.dialog_text_satisfied), color = MaterialTheme.colorScheme.onSurface)
+
+            LargeSpacer()
+
+
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+
+                if (reqToExit) {
+                    BaseTextButton(
+                        text = R.string.exit,
+                        contentColor = ExitRed,
+                        onclick = onExitClick
+                    )
+                } else
+                    MediumSpacer()
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+
+
+                    BaseTextButton(
+                        text = R.string.no,
+                        onclick = onNoClick
                     )
                     SmallSpacer()
-                    Text(
-                        text = stringResource(id = R.string.submit_comment),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.secondary
+                    BaseTextButton(
+                        text = R.string.yes,
+                        onclick = onYesClick
                     )
-                }
-
-                SmallSpacer()
-
-                Text(text = stringResource(id = R.string.dialog_text_satisfied), color = MaterialTheme.colorScheme.onSurface)
-
-                LargeSpacer()
-
-
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-
-
-                    if (reqToExit) {
-                        BaseTextButton(
-                            text = R.string.exit,
-                            contentColor = ExitRed,
-                            onclick = onExitClick
-                        )
-                    } else
-                        MediumSpacer()
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-
-
-                        BaseTextButton(
-                            text = R.string.no,
-                            onclick = onNoClick
-                        )
-                        SmallSpacer()
-                        BaseTextButton(
-                            text = R.string.yes,
-                            onclick = onYesClick
-                        )
-
-                    }
-
 
                 }
+
+
             }
         }
+    }
 
 
 }

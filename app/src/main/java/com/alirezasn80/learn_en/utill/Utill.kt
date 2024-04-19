@@ -92,6 +92,7 @@ sealed interface Destination {
     object Home : Destination
     object OnBoarding : Destination
     object Back : Destination
+    object Offline : Destination
     object Payment : Destination
 }
 
@@ -258,13 +259,13 @@ fun Context.openGmail(isFeedBack: Boolean = true) {
     try {
         val intent = Intent(Intent.ACTION_SENDTO)
         intent.data = Uri.parse("mailto:")
-        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("eitaacleaner@gmail.com"))
+        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("sn80.learnen@gmail.com"))
         if (isFeedBack)
             intent.putExtra(Intent.EXTRA_SUBJECT, "بازخورد برنامه")
         this.startActivity(Intent.createChooser(intent, ""))
     } catch (e: Exception) {
         AppMetrica.reportError("can't open Gmail", e)
-        Toast.makeText(this, "لطفا نظر خود را به ادرس eitaacleaner@gmail.com ارسال کنید", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "لطفا نظر خود را به ادرس sn80.learnen@gmail.com ارسال کنید", Toast.LENGTH_SHORT).show()
     }
 
 }

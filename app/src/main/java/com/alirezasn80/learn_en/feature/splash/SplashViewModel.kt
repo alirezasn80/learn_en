@@ -23,18 +23,51 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val payment: Payment,
-    private val dataStore: AppDataStore
+    private val dataStore: AppDataStore,
+    private val application: Application
 ) : BaseViewModel<SplashState>(SplashState()) {
     private var paymentConnection: Connection? = null
 
     init {
+
         viewModelScope.launch {
-            delay(1000)
-            setDestination(Destination.Home)
+            delay(100) // should be here for offline mode
+            val isVip = dataStore.isVIP(Key.IS_VIP)
+
+            when (isVip) {
+
+                true -> {
+                    User.isVipUser = true
+                    setDestination(Destination.Home)
+                }
+
+                false -> {
+
+                    if (isOnline(application)) {
+                        setDestination(Destination.Home)
+                    } else {
+                        setDestination(Destination.Offline)
+                    }
+
+                }
+
+                null -> {
+
+                    if (isOnline(application)) {
+                        connectBazaar()
+                    } else {
+                        setDestination(Destination.Offline)
+                    }
+
+                }
+            }
         }
+
+
     }
 
     private fun checkSubscribedProduct() {
+
 
         payment.getSubscribedProducts {
 
@@ -42,8 +75,11 @@ class SplashViewModel @Inject constructor(
                 if (purchasedProducts.isEmpty()) {
                     checkOnBoarding()
                 } else {
-                    User.isVipUser = true
-                    setDestination(Destination.Home)
+                    viewModelScope.launch {
+                        dataStore.isVIP(Key.IS_VIP, true)
+                        User.isVipUser = true
+                        setDestination(Destination.Home)
+                    }
                 }
             }
 
@@ -109,5 +145,6 @@ class SplashViewModel @Inject constructor(
         }
 
     }
+
 
 }
