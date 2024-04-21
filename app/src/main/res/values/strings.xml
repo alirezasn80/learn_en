@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">learn_en</string>
+    <string name="app_name">داستان های انگلیسی</string>
     <string name="unknown_error">خطای نامشخص</string>
     <string name="http_error">ارتباط با سرور دچار مشکل شده، لطفا بعدا تلاش کنید</string>
     <string name="network_error">خطا در اتصال به سرور، لطفا اینترنت خود را چک کنید</string>

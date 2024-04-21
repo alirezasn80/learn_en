@@ -173,7 +173,7 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
                     textColor = MaterialTheme.colorScheme.primary,
                     backgroundColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    viewModel.buySubscribe(registry, "TEST")
+                    viewModel.buySubscribe(registry, "VIP_12")
                 }
 
                 MediumSpacer()
