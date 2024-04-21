@@ -67,6 +67,7 @@ import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Keyboard
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.keyboardAsState
 import kotlinx.coroutines.launch
 
@@ -195,6 +196,7 @@ fun CreateScreen(
                         upPress = navigationState::upPress,
                         onSaveClick = {
                             keyboardController?.hide()
+                            if (User.isVipUser)
                             validation(
                                 title = state.title,
                                 content = state.content.text,
@@ -205,6 +207,8 @@ fun CreateScreen(
                                     viewModel.setMessageBySnackbar(error)
                                 }
                             )
+                            else
+                                navigationState.navToPayment("CREATE_STORY")
                         }
                     )
 

@@ -53,10 +53,21 @@
     <string name="mounch_6">۶ ماهه</string>
     <string name="mounch_3">۳ ماهه</string>
     <string name="auto_translate">ترجمه خودکار</string>
-    <string name="auto_translate_desc">امکان ترجمه خودکار تمامی داستان های برنامه و اسناد(داستان،مقاله،یادداشت و…) های ساخته شده ی شما</string>
+    <string name="auto_translate_desc">امکان ترجمه خودکار تمامی داستان های برنامه</string>
     <string name="dictionary">دیکشنری</string>
-    <string name="dictionary_desc">امکان نمایش دیکشنری با کلیک بر روی هر لغت از داستان ها و اسناد ساخته شده</string>
+    <string name="dictionary_desc">امکان نمایش دیکشنری با کلیک بر روی هر لغت از داستان ها</string>
     <string name="support">پشتیبانی</string>
     <string name="onboarding_desc">توضیحات انبوردینگ</string>
+    <string name="various_stories">کشف دنیای داستان‌های انگلیسی با دسته‌بندی‌های مختلف! هر داستانی که می‌خوانید، قدمی به سوی تسلط بر زبان انگلیسی است.</string>
+    <string name="translate_and_dectionary_onboarding">با ترجمه خودکار هر داستان و دیکشنری هدفمند، معانی لغات را به سرعت درک کنید و دایره لغات خود را گسترش دهید</string>
+    <string name="create_story_onbloarding">برنامه فقط به داستان‌های درونی محدود نمی‌شود. شما می‌توانید داستان‌های انگلیسی مورد علاقه‌تان را از منابع مختلف به برنامه اضافه کنید و از امکانات
+        ترجمه و دیکشنری برنامه برای فهم بهتر آن ها استفاده نمایید.</string>
+    <string name="create_story_desc">امکان ایجاد درست کردن داستان ها و محتوای خود داخل برنامه</string>
+    <string name="mounch_1">یک ماهه</string>
+    <string name="your_subscribe_is_finished">اعتبار اشتراک ویژه شما تمام شده :(</string>
+    <string name="check_subscribe_status">بررسی وضعیت اشتراک</string>
+    <string name="problem_connection_bazaar">اتصال به کافه بازار با مشکل مواجه شد!</string>
+    <string name="no_any_subscribe">درحال حاضر اشتراکی ندارید</string>
+    <string name="tip_free_state">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
 
 </resources>

@@ -188,7 +188,7 @@ fun HomeScreen(
         }
     }
 
-    UI {
+    UI(uiComponent = viewModel.uiComponents, progress = viewModel.progress["bazaar"]) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -209,6 +209,16 @@ fun HomeScreen(
                                 context.showToast(R.string.you_now_vip)
                             else
                                 navigationState.navToPayment("DRAWER")
+                        }
+                    )
+
+                    // Check Subscribe
+                    DrawerItem(
+                        label = R.string.check_subscribe_status,
+                        icon = painterResource(id = R.drawable.img_check_subscribe),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            viewModel.checkSubscribeStatus()
                         }
                     )
 
@@ -420,8 +430,8 @@ private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
             if (item.image == null)
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
+                        .size(60.dp)
+                        .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
@@ -432,8 +442,8 @@ private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
                     bitmap = createImageBitmap(context, item.image),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape),
+                        .size(60.dp)
+                        .clip(MaterialTheme.shapes.medium),
                     contentScale = ContentScale.Crop
                 )
 

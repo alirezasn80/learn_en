@@ -10,6 +10,7 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.Key
+import com.alirezasn80.learn_en.utill.ProductId
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.showToast
@@ -22,6 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -72,6 +75,7 @@ class PaymentViewModel @Inject constructor(
                         // Success Payment
                         purchaseSucceed {
                             AppMetrica.reportEvent("S.P", mapOf(key to productId))
+                            saveExpireDate(productId.toMonth())
                             User.isVipUser = true
                             state.update { it.copy(successPayment = true) }
                         }
@@ -104,6 +108,24 @@ class PaymentViewModel @Inject constructor(
             }
 
         }
+    }
+
+    private fun saveExpireDate(month: Int?) {
+        if (month == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            // Get the current date
+            val currentDate = Date()
+
+            // Get the date 3 months from now
+            val calendar = Calendar.getInstance()
+            calendar.time = currentDate
+            calendar.add(Calendar.MONTH, month)
+            val expireDate = calendar.time
+
+            dataStore.setExpireDate(Key.EXPIRE_DATE, expireDate.time)
+        }
+
     }
 
     fun buyProduct(registry: ActivityResultRegistry?, productId: String) {
@@ -186,4 +208,14 @@ class PaymentViewModel @Inject constructor(
         super.onCleared()
     }
 
+}
+
+ fun String.toMonth(): Int? {
+    return when (this) {
+        ProductId.MONTH1 -> 1
+        ProductId.MONTH3 -> 3
+        ProductId.MONTH12 -> 12
+        "TEST"->1
+        else -> null
+    }
 }

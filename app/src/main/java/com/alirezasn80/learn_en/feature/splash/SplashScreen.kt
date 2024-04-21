@@ -31,6 +31,7 @@ import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getVersionName
 
 @Composable
@@ -38,21 +39,12 @@ fun SplashScreen(
     navigationState: NavigationState,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
-    val destination = viewModel.destination
     val context = LocalContext.current
 
     //Check Destination
-    LaunchedEffect(key1 = destination) {
-        when (destination) {
+    LaunchedEffect(key1 = Unit) {
+        viewModel.checkStatus(navigationState)
 
-            Destination.Home -> navigationState.navToHome()
-
-            Destination.Offline -> navigationState.navToOffline()
-
-            Destination.OnBoarding -> navigationState.navToOnBoarding()
-
-            else -> Unit
-        }
     }
 
     UI {

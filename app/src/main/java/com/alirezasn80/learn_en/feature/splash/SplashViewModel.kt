@@ -1,23 +1,25 @@
 package com.alirezasn80.learn_en.feature.splash
 
 import android.app.Application
-import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alirezasn80.learn_en.R
+import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
-import com.alirezasn80.learn_en.utill.BaseViewModel
-import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.User
+import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.isOnline
+import com.alirezasn80.learn_en.utill.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.appmetrica.analytics.AppMetrica
 import ir.cafebazaar.poolakey.Connection
 import ir.cafebazaar.poolakey.Payment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,71 +27,41 @@ class SplashViewModel @Inject constructor(
     private val payment: Payment,
     private val dataStore: AppDataStore,
     private val application: Application
-) : BaseViewModel<SplashState>(SplashState()) {
+) : ViewModel() {
     private var paymentConnection: Connection? = null
 
-    init {
+    fun checkStatus(navigationState: NavigationState) {
+        viewModelScope.launch(Dispatchers.IO) {
 
-        viewModelScope.launch {
-            delay(100) // should be here for offline mode
-            val isVip = dataStore.isVIP(Key.IS_VIP)
+            if (!isOnline(application)) {
+                navigationState.navToOffline()
+            } else {
+                val expireDate = dataStore.getExpireDate(Key.EXPIRE_DATE)
+                val isVip = if (expireDate == null || expireDate == -1L) null else Date().before(Date(expireDate))
 
-            when (isVip) {
+                debug("is vip : ${isVip}")
 
-                true -> {
-                    User.isVipUser = true
-                    setDestination(Destination.Home)
-                }
+                when (isVip) {
 
-                false -> {
-
-                    if (isOnline(application)) {
-                        setDestination(Destination.Home)
-                    } else {
-                        setDestination(Destination.Offline)
-                    }
-
-                }
-
-                null -> {
-
-                    if (isOnline(application)) {
-                        connectBazaar()
-                    } else {
-                        setDestination(Destination.Offline)
-                    }
-
-                }
-            }
-        }
-
-
-    }
-
-    private fun checkSubscribedProduct() {
-
-
-        payment.getSubscribedProducts {
-
-            querySucceed { purchasedProducts ->
-                if (purchasedProducts.isEmpty()) {
-                    checkOnBoarding()
-                } else {
-                    viewModelScope.launch {
-                        dataStore.isVIP(Key.IS_VIP, true)
+                    true -> {
+                        passiveCheckSubscribe()
                         User.isVipUser = true
-                        setDestination(Destination.Home)
+                        withContext(Dispatchers.Main) { navigationState.navToHome() }
+
+                    }
+
+                    false -> checkSubscribe { viewModelScope.launch(Dispatchers.Main) { navigationState.navToHome() } }
+
+
+                    null -> {
+                        checkOnBoarding(navigationState)
                     }
                 }
-            }
-
-            queryFailed {
-                checkOnBoarding()
             }
         }
     }
 
-    private fun checkPurchaseProduct() {
+    /*private fun checkPurchaseProduct() {
 
         payment.getPurchasedProducts {
 
@@ -111,22 +83,50 @@ class SplashViewModel @Inject constructor(
             }
         }
 
-    }
+    }*/
 
-    private fun connectBazaar() {
+    private fun checkSubscribe(navToHome: () -> Unit) {
+
         paymentConnection = payment.connect {
 
             //Success Connection To Cafe Bazaar
             connectionSucceed {
-                checkPurchaseProduct()
+                payment.getSubscribedProducts {
+
+                    querySucceed { purchasedProducts ->
+                        viewModelScope.launch {
+                            if (purchasedProducts.isEmpty()) {
+                                User.isVipUser = false
+                                dataStore.setExpireDate(Key.EXPIRE_DATE, -1L)
+                                withContext(Dispatchers.Main) {
+                                    application.showToast(R.string.your_subscribe_is_finished)
+                                    navToHome()
+                                }
+                            } else {
+                                viewModelScope.launch {
+                                    AppMetrica.reportError("local vip is false but bazaar is true!", "SubscribeError")
+                                    User.isVipUser = true
+                                    navToHome()
+                                }
+                            }
+                        }
+
+
+                    }
+
+                    queryFailed {
+
+                        navToHome()
+                    }
+                }
             }
 
             connectionFailed {
-                checkOnBoarding()
+                navToHome()
             }
 
             disconnected {
-                checkOnBoarding()
+                navToHome()
             }
 
 
@@ -134,15 +134,62 @@ class SplashViewModel @Inject constructor(
 
     }
 
-    private fun checkOnBoarding() {
-        viewModelScope.launch {
-            dataStore.isVIP(Key.IS_VIP, false)
-            val showOnBoarding = dataStore.showOnboarding(Key.ONBOARDING)
-            if (showOnBoarding)
-                setDestination(Destination.OnBoarding)
-            else
-                setDestination(Destination.Home)
+    private suspend fun passiveCheckSubscribe() {
+        debug("here")
+        GlobalScope.launch(Dispatchers.IO) {
+            paymentConnection = payment.connect {
+                debug("connect")
+
+
+                //Success Connection To Cafe Bazaar
+                connectionSucceed {
+                    payment.getSubscribedProducts {
+
+                        querySucceed { purchasedProducts ->
+
+                            if (purchasedProducts.isEmpty()) {
+                                User.isVipUser = false
+                                debug("set it as false")
+                                GlobalScope.launch(Dispatchers.IO) { dataStore.setExpireDate(Key.EXPIRE_DATE, -1L) }
+
+                            } else {
+                                debug("set it as true")
+
+                                User.isVipUser = true
+                            }
+
+
+                        }
+
+                        queryFailed {}
+                    }
+                }
+
+                connectionFailed {}
+
+                disconnected {}
+
+
+            }
         }
+
+    }
+
+    private fun checkOnBoarding(navigationState: NavigationState) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val showOnBoarding = dataStore.showOnboarding(Key.ONBOARDING)
+
+            if (showOnBoarding) {
+                withContext(Dispatchers.Main) { navigationState.navToOnBoarding() }
+
+            } else {
+                withContext(Dispatchers.Main) {
+                    navigationState.navToHome()
+                }
+            }
+        }
+
 
     }
 

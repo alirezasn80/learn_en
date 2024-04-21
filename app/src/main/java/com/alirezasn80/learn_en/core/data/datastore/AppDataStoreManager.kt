@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
@@ -27,6 +28,15 @@ class AppDataStoreManager(
             it[booleanPreferencesKey(key)] = value
         }
     }
+
+    private suspend fun setLongValue(key: String, value: Long) {
+        context.dataStore.edit {
+            it[longPreferencesKey(key)] = value
+        }
+    }
+
+    private suspend fun getLongValue(key: String, default: Long?) =
+        context.dataStore.data.first()[longPreferencesKey(key)] ?: default
 
     // Getter and setter int
     private suspend fun getIntValue(key: String) =
@@ -78,11 +88,21 @@ class AppDataStoreManager(
 
     override suspend fun isValidPermission(key: String): Boolean = getBooleanValue(key, false)!!
 
+
     override suspend fun isVIP(key: String, value: Boolean) {
         setBooleanValue(key, value)
     }
 
     override suspend fun isVIP(key: String): Boolean? = getBooleanValue(key, null)
+
+
+    override suspend fun setExpireDate(key: String, value: Long) {
+        setLongValue(key, value)
+    }
+
+    override suspend fun getExpireDate(key: String): Long? {
+        return getLongValue(key, null)
+    }
 
 
     override suspend fun clear() {

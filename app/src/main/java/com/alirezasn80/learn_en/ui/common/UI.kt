@@ -53,7 +53,7 @@ fun UI(
             ) {
                 content()
 
-                if (progress is Progress.Loading) BlurLayout()
+                if (progress is Progress.Loading) LoadingBlurLayout()
 
                 if (uiComponent != null) HandleUiComponents(uiComponent, messageBarState)
 
@@ -142,9 +142,11 @@ private fun HandleUiComponents(
                             state.addError(exception = Exception(message))
                         }
 
-                        MessageState.Success, MessageState.Info -> {
+                        MessageState.Success -> {
                             state.addSuccess(message)
                         }
+
+                     //   MessageState.Info -> {}
                     }
                 }
 

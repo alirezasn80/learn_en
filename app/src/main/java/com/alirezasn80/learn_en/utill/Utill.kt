@@ -41,7 +41,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-const val DEBUG = false
+const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
@@ -81,6 +81,7 @@ object Key {
     const val POSITIVE = "POSITIVE"
     const val SAF_PERMISSION = "SAF_PERMISSION"
     const val STORAGE_PERMISSION = "StoragePermission"
+    const val EXPIRE_DATE = "EXPIRE_DATE"
 }
 
 sealed interface WidgetType {
@@ -99,7 +100,7 @@ sealed interface Destination {
 sealed interface MessageState {
     object Error : MessageState
     object Success : MessageState
-    object Info : MessageState
+  //  object Info : MessageState
 }
 
 data class RemoteError(@StringRes val message: Int, val code: Int? = null)

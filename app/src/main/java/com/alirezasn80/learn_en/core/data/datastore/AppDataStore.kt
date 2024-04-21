@@ -48,6 +48,15 @@ interface AppDataStore {
         key: String
     ): Boolean?
 
+    suspend fun setExpireDate(
+        key: String,
+        value: Long
+    )
+
+    suspend fun getExpireDate(
+        key: String
+    ): Long?
+
 
     suspend fun clear()
 

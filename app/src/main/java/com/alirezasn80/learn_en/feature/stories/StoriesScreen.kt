@@ -25,9 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.ui.common.UI
@@ -47,6 +49,8 @@ fun StoriesScreen(
     UI {
         Column(Modifier.fillMaxSize()) {
             Header(state.title, upPress = navigationState::upPress)
+            if (!User.isVipUser)
+                FreeTip()
 
             Ltr {
                 LazyColumn {
@@ -63,6 +67,18 @@ fun StoriesScreen(
             }
 
         }
+    }
+}
+
+@Composable
+fun FreeTip() {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            .padding(dimension.small)
+    ) {
+        Text(text = stringResource(id = R.string.tip_free_state))
     }
 }
 
@@ -108,7 +124,7 @@ private fun ItemSection(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(if (isFree) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+            .background(if (isFree) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.2f))
     ) {
         Row(
             Modifier

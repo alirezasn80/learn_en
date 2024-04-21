@@ -82,6 +82,11 @@ private val payment_slider = listOf(
         image = R.drawable.img_dictionary,
         title = R.string.dictionary,
         desc = R.string.dictionary_desc
+    ),
+    PaymentSliderModel(
+        image = R.drawable.img_note,
+        title = R.string.create_story,
+        desc = R.string.create_story_desc
     )
 )
 
@@ -173,14 +178,14 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
 
                 MediumSpacer()
 
-                PaymentButton(text = R.string.mounch_6) {
-                    viewModel.buySubscribe(registry, "VIP_6")
+                PaymentButton(text = R.string.mounch_3) {
+                    viewModel.buySubscribe(registry, "VIP_3")
                 }
 
                 MediumSpacer()
 
-                PaymentButton(text = R.string.mounch_3) {
-                    viewModel.buySubscribe(registry, "VIP_3")
+                PaymentButton(text = R.string.mounch_1) {
+                    viewModel.buySubscribe(registry, "VIP_1")
                 }
             }
         }
