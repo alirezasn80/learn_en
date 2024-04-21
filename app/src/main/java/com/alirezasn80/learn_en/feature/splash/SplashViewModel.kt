@@ -34,7 +34,8 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             if (!isOnline(application)) {
-                navigationState.navToOffline()
+                withContext(Dispatchers.Main){ navigationState.navToOffline() }
+
             } else {
                 val expireDate = dataStore.getExpireDate(Key.EXPIRE_DATE)
                 val isVip = if (expireDate == null || expireDate == -1L) null else Date().before(Date(expireDate))

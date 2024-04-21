@@ -32,6 +32,7 @@ fun UI(
     uiComponent: SharedFlow<UiComponent>? = null,
     isNoData: Boolean = false,
     onRefresh: () -> Unit = {},
+    checkOnline: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -39,13 +40,13 @@ fun UI(
     var isConnected by remember { mutableStateOf(isOnline(context)) }
 
     ContentWithMessageBar(messageBarState = messageBarState) {
-        /*if (!isConnected) {
+        if (checkOnline && !isConnected) {
             messageBarState.addError(Exception("دسترسی به اینترنت وجود ندارد"))
             OfflineLayout {
                 isConnected = isOnline(context)
                 onRefresh()
             }
-        } else*/
+        } else
             Box(
                 Modifier
                     .fillMaxSize()
@@ -146,7 +147,7 @@ private fun HandleUiComponents(
                             state.addSuccess(message)
                         }
 
-                     //   MessageState.Info -> {}
+                        //   MessageState.Info -> {}
                     }
                 }
 

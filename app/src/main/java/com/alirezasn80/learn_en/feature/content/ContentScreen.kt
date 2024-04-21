@@ -103,7 +103,12 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
     }
 
 
-    UI {
+    UI(
+        checkOnline = true,
+        onRefresh = {
+            viewModel.getContent()
+        }
+    ) {
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
             sheetPeekHeight = 0.dp,

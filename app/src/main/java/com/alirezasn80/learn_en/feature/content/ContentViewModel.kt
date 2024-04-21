@@ -24,6 +24,7 @@ import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
+import com.alirezasn80.learn_en.utill.isOnline
 import com.alirezasn80.learn_en.utill.removeBlankLines
 import com.alirezasn80.learn_en.utill.showToast
 import com.alirezasn80.learn_en.utill.toBoolean
@@ -48,7 +49,7 @@ class ContentViewModel @Inject constructor(
     private lateinit var speechIntent: Intent
     private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
     private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
-     val isTrial = savedStateHandle.getString(Arg.IS_TRIAL)!! == "trial"
+    val isTrial = savedStateHandle.getString(Arg.IS_TRIAL)!! == "trial"
     private var maxReadableIndex = 0
     private var readMode = "default"
     private var title = ""
@@ -137,7 +138,14 @@ class ContentViewModel @Inject constructor(
     }
 
 
-    private fun getContent() = viewModelScope.launch(Dispatchers.IO) {
+    fun getContent() = viewModelScope.launch(Dispatchers.IO) {
+
+        if (!isOnline(application)){
+            return@launch
+        }
+
+
+        debug("get content")
         loading(Progress.Loading)
 
         val contentEntity = try {
@@ -150,7 +158,7 @@ class ContentViewModel @Inject constructor(
         state.update { it.copy(isBookmark = contentEntity.favorite.toBoolean()) }
         title = contentEntity.title
 
-        val paragraphs = if (contentEntity.translation == null) {// remote
+        val paragraphs = if (contentEntity.translation.isNullOrBlank()) {// remote
             translateRemote(contentEntity)
         } else { // locale
             processTranslateJson(contentEntity.translation)
@@ -221,7 +229,7 @@ class ContentViewModel @Inject constructor(
 
 
     fun onTranslateClick() {
-            state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
+        state.update { it.copy(isVisibleTranslate = !state.value.isVisibleTranslate) }
     }
 
     fun onMuteClick() {
@@ -233,24 +241,24 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
-            viewModelScope.launch(Dispatchers.IO) {
-                clearPrevSheet()
-                loading(Progress.Loading, "sheet")
+        viewModelScope.launch(Dispatchers.IO) {
+            clearPrevSheet()
+            loading(Progress.Loading, "sheet")
 
-                try {
-                    var translated: String? = database.wordDao.getDefinition(word)
-                    debug("result word : $translated")
-                    if (translated == null) {
-                        translated = TranslationConnection.dictionaryHttpURLConnection(word)
-                        database.wordDao.insertWord(WordEntity(word, translated))
-                    }
-                    val sheetModel = createSheetModel(JSONArray(translated))
-                    state.update { it.copy(sheetModel = sheetModel) }
-                    if (!state.value.isPlay && !state.value.isMute) speakText(word)
-                } catch (e: Exception) {
-                    errorException("Error in Word Click", e)
+            try {
+                var translated: String? = database.wordDao.getDefinition(word)
+                debug("result word : $translated")
+                if (translated == null) {
+                    translated = TranslationConnection.dictionaryHttpURLConnection(word)
+                    database.wordDao.insertWord(WordEntity(word, translated))
                 }
+                val sheetModel = createSheetModel(JSONArray(translated))
+                state.update { it.copy(sheetModel = sheetModel) }
+                if (!state.value.isPlay && !state.value.isMute) speakText(word)
+            } catch (e: Exception) {
+                errorException("Error in Word Click", e)
             }
+        }
     }
 
     private fun createSheetModel(jsonArray: JSONArray): SheetModel {

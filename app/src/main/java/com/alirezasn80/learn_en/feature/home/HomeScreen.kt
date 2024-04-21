@@ -344,7 +344,7 @@ private fun HeaderDrawer() {
             .background(MaterialTheme.colorScheme.secondary)
             .padding(dimension.medium)
     ) {
-        Image(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = null)
+        Image(painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier.size(85.dp).clip(CircleShape))
         SmallSpacer()
         Text(text = stringResource(id = R.string.enlish_stories))
         SmallSpacer()

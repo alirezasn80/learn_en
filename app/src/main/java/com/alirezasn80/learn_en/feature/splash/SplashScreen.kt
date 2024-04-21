@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -80,9 +81,9 @@ private fun BoxScope.LogoSection() {
             .align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            painter = painterResource(id = R.drawable.img_logo),
             contentDescription = null,
-            modifier = Modifier.size(150.dp),
+            modifier = Modifier.size(150.dp).clip(CircleShape),
             tint = Color.Unspecified
 
         )

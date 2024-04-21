@@ -69,5 +69,6 @@
     <string name="problem_connection_bazaar">اتصال به کافه بازار با مشکل مواجه شد!</string>
     <string name="no_any_subscribe">درحال حاضر اشتراکی ندارید</string>
     <string name="tip_free_state">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
+    <string name="youre_offline">لطفا از اتصال دستگاه خود به اینترنت مطمئن شوید</string>
 
 </resources>
