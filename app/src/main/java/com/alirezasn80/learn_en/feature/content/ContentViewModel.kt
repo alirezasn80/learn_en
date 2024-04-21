@@ -59,7 +59,6 @@ class ContentViewModel @Inject constructor(
     }
 
     init {
-        debug("trial : ${isTrial}")
         initSpeechToText()
         getContent()
     }
@@ -140,7 +139,7 @@ class ContentViewModel @Inject constructor(
 
     fun getContent() = viewModelScope.launch(Dispatchers.IO) {
 
-        if (!isOnline(application)){
+        if (!isOnline(application)) {
             return@launch
         }
 
@@ -247,10 +246,10 @@ class ContentViewModel @Inject constructor(
 
             try {
                 var translated: String? = database.wordDao.getDefinition(word)
-                debug("result word : $translated")
                 if (translated == null) {
                     translated = TranslationConnection.dictionaryHttpURLConnection(word)
-                    database.wordDao.insertWord(WordEntity(word, translated))
+                    if (translated.isNotEmpty())
+                        database.wordDao.insertWord(WordEntity(word, translated))
                 }
                 val sheetModel = createSheetModel(JSONArray(translated))
                 state.update { it.copy(sheetModel = sheetModel) }

@@ -121,8 +121,11 @@ fun CreateScreen(
         CreateCategoryDialog(
             onDismiss = { createCategoryDialog = false },
             onCreateCategory = {
-                createCategoryDialog = false
-                viewModel.createCategory(it)
+                if (it.isNotBlank()) {
+                    createCategoryDialog = false
+                    viewModel.createCategory(it)
+                }
+
             }
         )
     }
@@ -154,20 +157,20 @@ fun CreateScreen(
             sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
 
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primary)
-                    ) {
-                        SheetCell(
-                            title = stringResource(id = R.string.create_category),
-                            color = MaterialTheme.colorScheme.secondary,
-                            onClick = { createCategoryDialog = true }
-                        )
-                        state.createdCategories.forEach {
-                            SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
-                        }
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    SheetCell(
+                        title = stringResource(id = R.string.create_category),
+                        color = MaterialTheme.colorScheme.secondary,
+                        onClick = { createCategoryDialog = true }
+                    )
+                    state.createdCategories.forEach {
+                        SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
                     }
+                }
 
 
             }
@@ -197,16 +200,16 @@ fun CreateScreen(
                         onSaveClick = {
                             keyboardController?.hide()
                             if (User.isVipUser)
-                            validation(
-                                title = state.title,
-                                content = state.content.text,
-                                onSuccess = {
-                                    scope.launch { bottomSheetScaffold.bottomSheetState.expand() }
-                                },
-                                onFailed = { error ->
-                                    viewModel.setMessageBySnackbar(error)
-                                }
-                            )
+                                validation(
+                                    title = state.title,
+                                    content = state.content.text,
+                                    onSuccess = {
+                                        scope.launch { bottomSheetScaffold.bottomSheetState.expand() }
+                                    },
+                                    onFailed = { error ->
+                                        viewModel.setMessageBySnackbar(error)
+                                    }
+                                )
                             else
                                 navigationState.navToPayment("CREATE_STORY")
                         }
@@ -374,7 +377,10 @@ private fun ContentSection(value: TextFieldValue, onValueChange: (TextFieldValue
 
     TextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = {
+            if (it.text.length < 5000)
+                onValueChange(it)
+        },
         placeholder = { Text(text = "Content...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)) },
         modifier = Modifier
             .fillMaxSize()
@@ -450,7 +456,6 @@ private fun Header(
                 imageVector = Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-
 
 
     }
