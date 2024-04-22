@@ -338,18 +338,38 @@ fun HomeScreen(
 
 @Composable
 private fun HeaderDrawer() {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.secondary)
-            .padding(dimension.medium)
-    ) {
-        Image(painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier.size(85.dp).clip(CircleShape))
-        SmallSpacer()
-        Text(text = stringResource(id = R.string.enlish_stories))
-        SmallSpacer()
-        Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
+    Box {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(dimension.medium)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier
+                    .size(85.dp)
+                    .clip(CircleShape)
+            )
+            SmallSpacer()
+            Text(text = stringResource(id = R.string.enlish_stories))
+            SmallSpacer()
+            Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
+        }
+
+        if (User.isVipUser) {
+            Icon(
+                painter = painterResource(id = R.drawable.img_vip2),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(dimension.medium)
+                    .size(50.dp)
+                    .align(Alignment.TopEnd)
+                ,
+                tint = Color.Unspecified
+            )
+        }
     }
+
 }
 
 @Composable
