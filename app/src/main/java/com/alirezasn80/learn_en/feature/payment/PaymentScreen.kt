@@ -50,12 +50,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.ui.common.BaseTopBar
+import com.alirezasn80.learn_en.ui.theme.Gold100
+import com.alirezasn80.learn_en.ui.theme.Green100
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
@@ -168,17 +177,48 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
                 DescSection()
 
                 LargeSpacer()
+
                 PaymentButton(
                     text = R.string.mounch_12,
-                    textColor = MaterialTheme.colorScheme.primary,
-                    backgroundColor = MaterialTheme.colorScheme.onPrimary
+                    percent = buildAnnotatedString {
+                        append("شامل تخفیف شگفت انگیز!")
+                        append(" ")
+                        append("(")
+                        append(" ")
+
+                        withStyle(style = SpanStyle(color = Gold100, fontWeight = FontWeight.Bold)) {
+                            append("75%")
+                        }
+                        append(" ")
+                        append("تخفیف")
+                        append(" ")
+
+                        append(")")
+                    }
                 ) {
                     viewModel.buySubscribe(registry, "VIP_12")
                 }
 
                 MediumSpacer()
 
-                PaymentButton(text = R.string.mounch_3) {
+                PaymentButton(
+                    text = R.string.mounch_3,
+                    percent = buildAnnotatedString {
+                        append("شامل تخفیف ویژه!")
+                        append(" ")
+                        append("(")
+                        append(" ")
+
+                        withStyle(style = SpanStyle(color = Green100, fontWeight = FontWeight.Bold)) {
+                            append("35%")
+                        }
+                        append(" ")
+                        append("تخفیف")
+                        append(" ")
+
+                        append(")")
+                    }
+                ) {
                     viewModel.buySubscribe(registry, "VIP_3")
                 }
 
@@ -219,11 +259,12 @@ fun LoadingPage() {
 @Composable
 private fun PaymentButton(
     text: Int,
+    percent: AnnotatedString? = null,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .padding(horizontal = dimension.medium)
             .clip(MaterialTheme.shapes.small)
@@ -232,9 +273,13 @@ private fun PaymentButton(
             .background(backgroundColor)
             .border(1.dp, MaterialTheme.colorScheme.onPrimary, MaterialTheme.shapes.small)
             .padding(dimension.medium),
-        contentAlignment = Alignment.Center
     ) {
-        Text(text = stringResource(id = text), style = MaterialTheme.typography.titleSmall, color = textColor)
+        Text(text = "اشراک " + stringResource(id = text), style = MaterialTheme.typography.titleSmall, color = textColor)
+        if (percent != null) {
+            SmallSpacer()
+            Text(text = percent, fontSize = 13.sp)
+        }
+
     }
 }
 
