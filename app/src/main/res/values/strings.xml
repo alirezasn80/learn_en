@@ -64,12 +64,13 @@
     <string name="create_story_onbloarding">برنامه فقط به داستان‌های درونی محدود نمی‌شود. شما می‌توانید داستان‌های انگلیسی مورد علاقه‌تان را از منابع مختلف به برنامه اضافه کنید و از امکانات
         ترجمه و دیکشنری برنامه برای فهم بهتر آن ها استفاده نمایید.</string>
     <string name="create_story_desc">امکان ایجاد درست کردن داستان ها و محتوای خود داخل برنامه</string>
-    <string name="mounch_1">یک ماهه</string>
+    <string name="mounch_1">۱ ماهه</string>
     <string name="your_subscribe_is_finished">اعتبار اشتراک ویژه شما تمام شده :(</string>
     <string name="check_subscribe_status">بررسی وضعیت اشتراک</string>
     <string name="problem_connection_bazaar">اتصال به کافه بازار با مشکل مواجه شد!</string>
     <string name="no_any_subscribe">درحال حاضر اشتراکی ندارید</string>
     <string name="tip_free_state">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
     <string name="youre_offline">لطفا از اتصال دستگاه خود به اینترنت مطمئن شوید</string>
+    <string name="test">تست</string>
 
 </resources>

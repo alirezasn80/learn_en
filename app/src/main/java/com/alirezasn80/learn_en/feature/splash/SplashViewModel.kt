@@ -48,7 +48,6 @@ class SplashViewModel @Inject constructor(
                         passiveCheckSubscribe()
                         User.isVipUser = true
                         withContext(Dispatchers.Main) { navigationState.navToHome() }
-
                     }
 
                     false -> checkSubscribe { viewModelScope.launch(Dispatchers.Main) { navigationState.navToHome() } }
@@ -136,10 +135,9 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun passiveCheckSubscribe() {
-        debug("here")
+
         GlobalScope.launch(Dispatchers.IO) {
             paymentConnection = payment.connect {
-                debug("connect")
 
 
                 //Success Connection To Cafe Bazaar
@@ -155,7 +153,6 @@ class SplashViewModel @Inject constructor(
 
                             } else {
                                 debug("set it as true")
-
                                 User.isVipUser = true
                             }
 
@@ -193,6 +190,5 @@ class SplashViewModel @Inject constructor(
 
 
     }
-
 
 }

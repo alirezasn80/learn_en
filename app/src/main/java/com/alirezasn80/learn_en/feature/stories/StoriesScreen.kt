@@ -78,7 +78,7 @@ fun FreeTip() {
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
             .padding(dimension.small)
     ) {
-        Text(text = stringResource(id = R.string.tip_free_state))
+        Text(text = stringResource(id = R.string.tip_free_state), color = MaterialTheme.colorScheme.onBackground)
     }
 }
 

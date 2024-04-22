@@ -42,7 +42,6 @@ fun SplashScreen(
 ) {
     val context = LocalContext.current
 
-    //Check Destination
     LaunchedEffect(key1 = Unit) {
         viewModel.checkStatus(navigationState)
 
