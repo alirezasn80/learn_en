@@ -256,11 +256,13 @@ fun HomeScreen(
                         }
                     )
 
-                    /*DrawerItem(
+                    DrawerItem(
                         label = R.string.about_us,
                         icon = ImageVector.vectorResource(R.drawable.ic_about),
-                        onClick = {}
-                    )*/
+                        onClick = {
+                            navigationState.navToAboutUs()
+                        }
+                    )
 
                 }
             }

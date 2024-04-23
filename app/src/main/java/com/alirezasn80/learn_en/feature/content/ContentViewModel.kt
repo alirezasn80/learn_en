@@ -208,7 +208,7 @@ class ContentViewModel @Inject constructor(
             val allText = JSONArray(value).getJSONArray(0)
             val paragraphs = mutableListOf<Paragraph>()
 
-            maxReadableIndex = allText.length()
+            maxReadableIndex = allText.length()-1
 
 
             for (i in 0 until allText.length()) {

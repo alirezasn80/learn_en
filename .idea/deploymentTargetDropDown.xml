@@ -9,24 +9,13 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\seyed\.android\avd\Pixel_4_API_34_android_14_.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="VGSSINIJ95LR8XDY" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <targetSelectedWithDropDown>
-            <Target>
-              <type value="QUICK_BOOT_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\seyed\.android\avd\Pixel_4_API_34_android_14_.avd" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-22T06:03:08.349404800Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-04-23T14:18:04.212710500Z" />
         </State>
       </entry>
     </value>

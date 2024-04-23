@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.alirezasn80.learn_en.app.navigation.Screen
 import com.alirezasn80.learn_en.app.navigation.rememberNavigationState
+import com.alirezasn80.learn_en.feature.aboutus.AboutUsScreen
 import com.alirezasn80.learn_en.feature.content.ContentScreen
 import com.alirezasn80.learn_en.feature.create.CreateScreen
 import com.alirezasn80.learn_en.feature.home.HomeScreen
@@ -67,6 +68,10 @@ class MainActivity : ComponentActivity() {
 
                     composable(Screen.Offline.route) {
                         OfflineScreen(navigationState)
+                    }
+
+                    composable(Screen.AboutUs.route) {
+                        AboutUsScreen(navigationState::upPress)
                     }
 
                 }
