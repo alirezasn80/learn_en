@@ -48,6 +48,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -69,6 +70,7 @@ import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.keyboardAsState
+import com.alirezasn80.learn_en.utill.rememberImagePickerBuilder
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -77,6 +79,7 @@ fun CreateScreen(
     navigationState: NavigationState,
     viewModel: CreateViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isKeyboardOpen by keyboardAsState()
     val (focusContent, onFocusContentChange) = remember { mutableStateOf(false) }
@@ -110,12 +113,15 @@ fun CreateScreen(
         }
     }
 
-    val launcherGallery = rememberLauncherForActivityResult(
+    val imagePickerBuilder = rememberImagePickerBuilder(context =context ) {
+        viewModel.processImageUri(it)
+    }
+
+    /*val launcherGallery = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { viewModel.processImageUri(uri) }
-
-    }
+    }*/
 
     if (createCategoryDialog) {
         CreateCategoryDialog(
@@ -183,7 +189,7 @@ fun CreateScreen(
                         KeyboardBar(
                             onEnSttClick = { enSttResult.launch(it) },
                             onFaToEnSttClick = { faToEnResult.launch(it) },
-                            onScanImgClick = { launcherGallery.launch("image/*") }
+                            onScanImgClick = { imagePickerBuilder.launchPicker() }
                         )
 
                 }
