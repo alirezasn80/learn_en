@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -72,7 +73,7 @@ import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
-import com.alirezasn80.learn_en.utill.debug
+import com.alirezasn80.learn_en.utill.cleanWord
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -125,7 +126,16 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                     ) {
 
                         state.sheetModel!!.apply {
-                            SingleDefineSection(define)
+                            HeadSection(
+                                define = define,
+                                isHighlight = isHighlight,
+                                onSoundClick = {
+                                    viewModel.speakText(mainWord)
+                                },
+                                onHighlightClick = {
+                                    viewModel.changeHighlightMode(mainWord, it)
+                                }
+                            )
                             Line()
                             more.forEach { translation ->
                                 ExtraSmallSpacer()
@@ -145,23 +155,18 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                                 FlowRow(
                                                     modifier = Modifier.weight(1f),
                                                     horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                                    //   maxItemsInEachRow = 3
+                                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                                 ) {
                                                     it.synonyms.forEach { word ->
                                                         Text(
                                                             text = word, modifier = Modifier
+                                                                .clickable { viewModel.speakText(word) }
                                                                 .padding(horizontal = 2.dp)
                                                                 .background(
-                                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f), MaterialTheme.shapes
-                                                                        .extraSmall
+                                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                                                    MaterialTheme.shapes.extraSmall
                                                                 )
-                                                                .padding
-                                                                    (
-                                                                    horizontal
-                                                                    = dimension
-                                                                        .extraSmall
-                                                                )
+                                                                .padding(horizontal = dimension.extraSmall)
                                                         )
 
 
@@ -226,6 +231,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         LazyColumn(Modifier.padding(scaffoldPadding)) {
                             itemsIndexed(state.paragraphs) { index, paragraph ->
                                 ParagraphSection(
+                                    highlights = state.highlights,
                                     isFocus = state.readableIndex == index,
                                     paragraph = paragraph,
                                     isVisibleTranslate = state.isVisibleTranslate,
@@ -262,14 +268,50 @@ fun TypeSection(value: String) {
 }
 
 @Composable
-private fun SingleDefineSection(value: String) {
-    Text(
-        text = value, modifier = Modifier
+private fun HeadSection(
+    define: String,
+    isHighlight: Boolean,
+    onSoundClick: () -> Unit,
+    onHighlightClick: (Boolean) -> Unit
+) {
+    Row(
+        Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(dimension.medium),
-        color = MaterialTheme.colorScheme.onSurface
-    )
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_sound_max),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onSoundClick() }
+            )
+            ExtraSmallSpacer()
+            Text(
+                text = define, modifier = Modifier,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+
+        Icon(
+            painter = painterResource(id = if (isHighlight) R.drawable.ic_star_fill else R.drawable.ic_star_outline),
+            contentDescription = null,
+            tint = Color(0xFFFFBF00),
+            modifier = Modifier
+                .size(30.dp)
+                .clickable { onHighlightClick(!isHighlight) }
+        )
+
+
+    }
+
 }
 
 @Composable
@@ -463,6 +505,7 @@ private fun BoxScope.SpeedSection(onClick: (Float) -> Unit) {
 
 @Composable
 private fun ParagraphSection(
+    highlights: List<String>, //todo()
     isFocus: Boolean,
     paragraph: Paragraph,
     isVisibleTranslate: Boolean,
@@ -478,7 +521,9 @@ private fun ParagraphSection(
             .background(if (isFocus) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Unspecified)
             .padding(dimension.medium)
     ) {
-        ClickableWordsText(text = paragraph.text, onClick = onWordClick)
+        ClickableWordsText(text = paragraph.text, onClick = {
+            onWordClick(it.cleanWord())
+        })
         SmallSpacer()
 
         Rtl {

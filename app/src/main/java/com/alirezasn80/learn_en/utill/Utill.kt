@@ -41,7 +41,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-const val DEBUG = false
+const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
@@ -100,7 +100,7 @@ sealed interface Destination {
 sealed interface MessageState {
     object Error : MessageState
     object Success : MessageState
-  //  object Info : MessageState
+    //  object Info : MessageState
 }
 
 data class RemoteError(@StringRes val message: Int, val code: Int? = null)
@@ -424,3 +424,8 @@ fun createImageBitmap(context: Context, path: String): ImageBitmap {
 }
 
 fun Int.toBoolean() = if (this == 1) true else false
+fun Boolean.toLogicInt() = if (this == true) 1 else 0
+
+fun String.cleanWord(): String {
+    return this.trim { it !in 'a'..'z' && it !in 'A'..'Z' }
+}

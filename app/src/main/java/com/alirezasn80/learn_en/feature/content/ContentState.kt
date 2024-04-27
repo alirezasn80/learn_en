@@ -1,6 +1,6 @@
 package com.alirezasn80.learn_en.feature.content
 
-import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
+
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 
 data class Paragraph(
@@ -12,6 +12,7 @@ data class ContentState(
     val isVisibleTranslate: Boolean = false,
     val title: String = "",
     val paragraphs: List<Paragraph> = emptyList(),
+    val highlights: List<String> = emptyList(),
     val readableIndex: Int = 0,
     val isPlay: Boolean = false,
     val isMute: Boolean = false,

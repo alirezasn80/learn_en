@@ -12,6 +12,8 @@ data class Translation(
     )
 
 data class SheetModel(
+    val mainWord:String,
     val define: String,
-    val more: List<Translation>
+    val more: List<Translation>,
+    val isHighlight:Boolean
 )
