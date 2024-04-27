@@ -51,8 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -68,6 +67,7 @@ import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.ui.theme.highlighterColor
 import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
@@ -505,7 +505,7 @@ private fun BoxScope.SpeedSection(onClick: (Float) -> Unit) {
 
 @Composable
 private fun ParagraphSection(
-    highlights: List<String>, //todo()
+    highlights: List<String>,
     isFocus: Boolean,
     paragraph: Paragraph,
     isVisibleTranslate: Boolean,
@@ -521,9 +521,11 @@ private fun ParagraphSection(
             .background(if (isFocus) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Unspecified)
             .padding(dimension.medium)
     ) {
-        ClickableWordsText(text = paragraph.text, onClick = {
-            onWordClick(it.cleanWord())
-        })
+        ClickableWordsText(
+            text = paragraph.text,
+            onClick = { onWordClick(it.cleanWord()) },
+            highlights = highlights
+        )
         SmallSpacer()
 
         Rtl {
@@ -637,7 +639,7 @@ private fun Header(
 }
 
 @Composable
-fun ClickableWordsText(text: String, onClick: (String) -> Unit) {
+fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String) -> Unit) {
     val words = text.split(" ")
     val annotatedString = buildAnnotatedString {
         words.forEach { word ->
@@ -646,12 +648,13 @@ fun ClickableWordsText(text: String, onClick: (String) -> Unit) {
             withStyle(
                 style = SpanStyle(
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily(Font(R.font.vazir))
+                    color = if (word.cleanWord() in highlights) highlighterColor() else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = if (word.cleanWord() in highlights) FontWeight.ExtraBold else FontWeight.Normal
                 )
             ) {
-                append("$word ")
+                append("$word")
             }
+            append(" ")
             pop()
         }
     }

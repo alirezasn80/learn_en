@@ -396,6 +396,7 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             database.wordDao.changeHighlightMode(isHighlight.toLogicInt(), word)
             state.update { it.copy(sheetModel = state.value.sheetModel?.copy(isHighlight = isHighlight)) }
+            getHighlights()
         }
     }
 

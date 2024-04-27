@@ -1,5 +1,7 @@
 package com.alirezasn80.learn_en.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -31,3 +33,10 @@ val BlueGrayDrawer = Color(0xFF233040)
 val OrangeDrawer = Color(0xFFff9c24)
 val PurpleOnBackground = Color(0xFFe9eef4)
 val BlackOnBackground = Color(0xFF222222)
+
+
+@Composable
+fun highlighterColor() = if (isSystemInDarkTheme())
+    Color(0xFFf7d761)
+else
+    Color(0xFFe24d54)

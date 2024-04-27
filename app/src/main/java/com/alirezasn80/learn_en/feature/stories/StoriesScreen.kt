@@ -124,7 +124,7 @@ private fun ItemSection(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(if (isFree) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.2f))
+            .background(if (isFree) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
     ) {
         Row(
             Modifier
