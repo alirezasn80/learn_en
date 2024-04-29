@@ -2,7 +2,7 @@
     <string name="app_name">داستان های انگلیسی</string>
     <string name="unknown_error">خطای نامشخص</string>
     <string name="http_error">ارتباط با سرور دچار مشکل شده، لطفا بعدا تلاش کنید</string>
-    <string name="network_error">خطا در اتصال به سرور، لطفا اینترنت خود را چک کنید</string>
+    <string name="network_error">خطا در اتصال به سرور… لطفا اینترنت خود را چک کنید</string>
     <string name="network_data_null">داده ای از سرور دریافت نشد</string>
     <string name="timeout">درخواست، بیش از اندازه طول کشیده است. لطفا مجددا تلاش کنید</string>
     <string name="data_is_not_exist">داده ای وجود ندارد</string>
@@ -16,7 +16,7 @@
     <string name="add_to_bookmark">به علاقه مندی ها اضافه شد</string>
     <string name="create_story">ایجاد داستان</string>
     <string name="create_category">ایجاد دسته بندی</string>
-    <string name="story_save">سند ایجاد شده، ثبت شد</string>
+    <string name="story_save">داستان شما ثبت شد</string>
     <string name="new_category">دسته بندی جدید</string>
     <string name="enter_category_name">اسم دسته بندی را وارد کنید</string>
     <string name="confirm">تایید</string>
@@ -36,7 +36,7 @@
     <string name="yes">بله</string>
     <string name="report">گزارش</string>
     <string name="send">ارسال</string>
-    <string name="enlish_stories">English Stories</string>
+    <string name="enlish_stories">English Story</string>
     <string name="learn_english_with_story">آموزش زبان با داستان های انگلیسی</string>
     <string name="vip_user">کاربر ویژه</string>
     <string name="invite_friends">دعوت از دوستان</string>
@@ -63,7 +63,7 @@
     <string name="translate_and_dectionary_onboarding">با ترجمه خودکار هر داستان و دیکشنری هدفمند، معانی لغات را به سرعت درک کنید و دایره لغات خود را گسترش دهید</string>
     <string name="create_story_onbloarding">برنامه فقط به داستان‌های درونی محدود نمی‌شود. شما می‌توانید داستان‌های انگلیسی مورد علاقه‌تان را از منابع مختلف به برنامه اضافه کنید و از امکانات
         ترجمه و دیکشنری برنامه برای فهم بهتر آن ها استفاده نمایید.</string>
-    <string name="create_story_desc">امکان ایجاد درست کردن داستان ها و محتوای خود داخل برنامه</string>
+    <string name="create_story_desc">امکان ایجاد داستان و محتوای مورد علاقه خود، داخل برنامه</string>
     <string name="mounch_1">۱ ماهه</string>
     <string name="your_subscribe_is_finished">اعتبار اشتراک ویژه شما تمام شده :(</string>
     <string name="check_subscribe_status">بررسی وضعیت اشتراک</string>
@@ -76,5 +76,6 @@
     <string name="aboutus_desc">این اپلیکیشن ابزاری آموزشی است که به کاربران کمک می‌کند تا زبان انگلیسی خود را از طریق مطالعه داستان های برنامه و متن های مورد علاقه خودتان، تقویت کنند. این
         اپلیکیشن شامل یک سیستم ترجمه خودکار است که به کاربران اجازه می‌دهد متون را به راحتی ترجمه کنند.\n همچنین، یک دیکشنری داخلی برای جستجوی معانی کلمات وجود دارد. \nکاربران می‌توانند عکس‌های متنی را به متن قابل ویرایش تبدیل کنند و صحبت‌های خود را به متن انگلیسی تبدیل نمایند.\n علاوه بر این، کاربران می‌توانند داستان‌های خود را بنویسند و در برنامه از قابلیت ترجمه استفاده کنند و از داستان‌های موجود در دسته‌بندی‌های مختلف لذت ببرند.\nمنابع: \nhttps://www.kidsworldfun.com/\nhttps://www.vedantu.com/\n</string>
     <string name="no_found_data">داده ای یافت نشد!</string>
+    <string name="saved">ذخیره شد</string>
 
 </resources>

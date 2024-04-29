@@ -7,7 +7,7 @@ import com.alirezasn80.learn_en.core.domain.entity.Items
 sealed class Section(val name: Int, val key: String) {
     data object Default : Section(R.string.stories, "default")
     data object Favorite : Section(R.string.favorite, "favorite")
-    data object Created : Section(R.string.documents, "created")
+    data object Created : Section(R.string.created, "created")
 }
 
 val sections = listOf(

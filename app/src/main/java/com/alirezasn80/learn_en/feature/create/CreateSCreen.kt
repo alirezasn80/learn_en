@@ -201,7 +201,7 @@ fun CreateScreen(
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     Header(
-                        titleId = R.string.create_doc,
+                        titleId = R.string.create_story,
                         upPress = navigationState::upPress,
                         onSaveClick = {
                             keyboardController?.hide()

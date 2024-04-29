@@ -140,7 +140,7 @@ class CreateViewModel @Inject constructor(
                     translation = null
                 )
             )
-            setMessageByToast(R.string.story_save, MessageState.Success)
+            setMessageByToast(R.string.saved, MessageState.Success)
             Reload.created = true
             setDestination(Destination.Back)
         }

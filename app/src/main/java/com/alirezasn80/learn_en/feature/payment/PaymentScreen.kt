@@ -67,6 +67,7 @@ import com.alirezasn80.learn_en.ui.theme.Gold100
 import com.alirezasn80.learn_en.ui.theme.Green100
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.MediumSpacer
+import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.showToast
@@ -209,7 +210,7 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
                         append("(")
                         append(" ")
 
-                        withStyle(style = SpanStyle(color = Green100, fontWeight = FontWeight.Bold)) {
+                        withStyle(style = SpanStyle(color = Red100, fontWeight = FontWeight.Bold)) {
                             append("35%")
                         }
                         append(" ")
@@ -274,7 +275,7 @@ private fun PaymentButton(
             .border(1.dp, MaterialTheme.colorScheme.onPrimary, MaterialTheme.shapes.small)
             .padding(dimension.medium),
     ) {
-        Text(text = "اشراک " + stringResource(id = text), style = MaterialTheme.typography.titleSmall, color = textColor)
+        Text(text = "اشتراک " + stringResource(id = text), style = MaterialTheme.typography.titleSmall, color = textColor)
         if (percent != null) {
             SmallSpacer()
             Text(text = percent, fontSize = 13.sp)
