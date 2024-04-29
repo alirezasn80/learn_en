@@ -57,6 +57,10 @@ class ContentViewModel @Inject constructor(
         if (status == TextToSpeech.SUCCESS) ttsSetting()
     }
 
+    private val wordTS: TextToSpeech = TextToSpeech(application) { status ->
+        if (status == TextToSpeech.SUCCESS) wordSetting()
+    }
+
     init {
         initSpeechToText()
         getContent()
@@ -74,6 +78,12 @@ class ContentViewModel @Inject constructor(
             }
         }
 
+    }
+
+    private fun wordSetting() {
+        wordTS.language = Locale.US
+        wordTS.setPitch(1f)
+        wordTS.setSpeechRate(1f)
     }
 
     private fun ttsSetting() {
@@ -339,8 +349,17 @@ class ContentViewModel @Inject constructor(
         state.update { it.copy(sheetModel = null) }
     }
 
-    fun onSpeedClick(speed: Float) {
+    fun setReadSpeed(speed: Float) {
         tts.setSpeechRate(speed)
+    }
+
+    fun wordSpeak(
+        value: String,
+        speed: Float
+    ) {
+        wordTS.setSpeechRate(speed)
+        wordTS.speak(value, TextToSpeech.QUEUE_FLUSH, null, null)
+
     }
 
     fun readParagraph(isPlay: Boolean) {

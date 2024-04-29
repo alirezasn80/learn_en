@@ -84,6 +84,8 @@ data class ReadMode(
     val icon: Int
 )
 
+private var wordSpeakCounter = 0
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
@@ -129,8 +131,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                     SideEffect { scope.launch { bottomSheetState.bottomSheetState.hide() } }
                 } else if (state.sheetModel == null) {
                     SheetLoading()
-                }
-                else {
+                } else {
                     Column(
                         Modifier
                             .fillMaxWidth()
@@ -143,7 +144,14 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                 define = define,
                                 isHighlight = isHighlight,
                                 onSoundClick = {
-                                    viewModel.speakText(mainWord)
+                                    val speed = if (wordSpeakCounter == 0) {
+                                        wordSpeakCounter++
+                                        1f
+                                    } else {
+                                        wordSpeakCounter = 0
+                                        0.5f
+                                    }
+                                    viewModel.wordSpeak(mainWord, speed)
                                 },
                                 onHighlightClick = {
                                     viewModel.changeHighlightMode(mainWord, it)
@@ -229,7 +237,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                     if (!state.isMute)
                         BottomBar(
                             isPlay = state.isPlay,
-                            onSpeedClick = viewModel::onSpeedClick,
+                            onSpeedClick = viewModel::setReadSpeed,
                             onPlayClick = viewModel::readParagraph,
                             onBackwardClick = viewModel::onBackwardClick,
                             onForwardClick = viewModel::onForwardClick,
