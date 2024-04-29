@@ -19,7 +19,8 @@ object DBModule {
         val databaseFile = app.getDatabasePath("learn_en.db")
 
         return if (databaseFile.exists()) {
-            Room.databaseBuilder(app, AppDB::class.java, "learn_en.db").build()
+            Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")
+                .build()
 
         } else {
             Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")

@@ -27,12 +27,17 @@ android {
         applicationId = "com.alirezasn80.learn_en"
         minSdk = 21
         targetSdk = 34
-        versionCode = 101
-        versionName = "1.0.1"
+        versionCode = 110
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -127,5 +132,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // To recognize Latin script
-    implementation ("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1090707858128",
+    "project_id": "learn-en-b0702",
+    "storage_bucket": "learn-en-b0702.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090707858128:android:e51ba1922740b54df7b4d5",
+        "android_client_info": {
+          "package_name": "com.alirezasn80.learn_en"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDw9FzYOCLotUhwUXabxWZxk9_ZOkC4yQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
