@@ -141,7 +141,7 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    private fun loading(value: Progress, key: String = "") = viewModelScope.launch(Dispatchers.Main) { progress[key] = value }
+    private fun loading(value: Progress, key: String = "") = viewModelScope.launch(Dispatchers.Main) { debug("key is :$key"); progress[key] = value }
 
     private fun errorException(
         metricaMsg: String,
@@ -265,13 +265,14 @@ class ContentViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             clearPrevSheet()
-            loading(Progress.Loading, "sheet")
 
             try {
                 val wordEntity = database.wordDao.getWordEntity(word)
 
                 if (wordEntity == null) {
+                    debug("translation start")
                     val translated = TranslationConnection.dictionaryHttpURLConnection(word)
+                    debug("translation finish")
                     if (translated.isNotEmpty()) {
                         database.wordDao.insertWord(WordEntity(word, translated, 0))
                         onWordClick(word)
@@ -286,10 +287,9 @@ class ContentViewModel @Inject constructor(
                     if (!state.value.isPlay && !state.value.isMute) speakText(word)
                 }
             } catch (e: Exception) {
-                debug("error : ${e.message}")
                 errorException(
-                    "Error in Word Click",
-                    e,
+                    metricaMsg = "Error in Word Click",
+                    e = e,
                     key = "sheet"
                 )
             }

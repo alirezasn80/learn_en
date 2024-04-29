@@ -74,6 +74,7 @@ import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.cleanWord
+import com.alirezasn80.learn_en.utill.debug
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -85,11 +86,18 @@ data class ReadMode(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
+
     val state by viewModel.state.collectAsStateWithLifecycle()
+
     val scope = rememberCoroutineScope()
+
     val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            skipHiddenState = false
+        )
     )
+
     val destination = viewModel.destination
 
 
@@ -108,7 +116,8 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         checkOnline = true,
         onRefresh = {
             viewModel.getContent()
-        }
+        },
+        uiComponent = viewModel.uiComponents
     ) {
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
@@ -238,7 +247,8 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                     onWordClick = {
                                         if (User.isVipUser || viewModel.isTrial) {
                                             scope.launch { bottomSheetState.bottomSheetState.expand() }
-                                            viewModel.onWordClick(it)
+                                            debug("word : $it")
+                                            viewModel.onWordClick(it.lowercase())
                                         } else {
                                             navigationState.navToPayment("DICT")
                                         }
@@ -533,7 +543,6 @@ private fun ParagraphSection(
                 Text(text = paragraph.translated, modifier = Modifier.fillMaxWidth())
         }
 
-
     }
 }
 
@@ -648,8 +657,8 @@ fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String)
             withStyle(
                 style = SpanStyle(
                     fontSize = 16.sp,
-                    color = if (word.cleanWord() in highlights) highlighterColor() else MaterialTheme.colorScheme.onSurface,
-                    fontWeight = if (word.cleanWord() in highlights) FontWeight.ExtraBold else FontWeight.Normal
+                    color = if (word.cleanWord().lowercase() in highlights) highlighterColor() else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = if (word.cleanWord().lowercase() in highlights) FontWeight.ExtraBold else FontWeight.Normal
                 )
             ) {
                 append("$word")

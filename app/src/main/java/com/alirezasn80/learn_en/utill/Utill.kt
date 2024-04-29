@@ -427,5 +427,5 @@ fun Int.toBoolean() = if (this == 1) true else false
 fun Boolean.toLogicInt() = if (this == true) 1 else 0
 
 fun String.cleanWord(): String {
-    return this.trim { it !in 'a'..'z' && it !in 'A'..'Z' }
+    return this.trim { it !in 'a'..'z' && it !in 'A'..'Z' && it !in '0'..'9' }
 }
