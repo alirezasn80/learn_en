@@ -290,7 +290,8 @@ class ContentViewModel @Inject constructor(
                 errorException(
                     metricaMsg = "Error in Word Click",
                     e = e,
-                    key = "sheet"
+                    key = "sheet",
+                    userMsg = R.string.no_found_data
                 )
             }
         }
