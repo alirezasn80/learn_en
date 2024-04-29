@@ -141,7 +141,8 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    private fun loading(value: Progress, key: String = "") = viewModelScope.launch(Dispatchers.Main) { debug("key is :$key"); progress[key] = value }
+    private fun loading(value: Progress, key: String = "") =
+        viewModelScope.launch(Dispatchers.Main) { progress[key] = value }
 
     private fun errorException(
         metricaMsg: String,
@@ -150,7 +151,7 @@ class ContentViewModel @Inject constructor(
         key: String = ""
     ) {
         AppMetrica.reportError(metricaMsg, e)
-        setMessageByToast(userMsg)
+        setMessageBySnackbar(userMsg)
         loading(Progress.Idle, key)
     }
 
@@ -264,6 +265,7 @@ class ContentViewModel @Inject constructor(
     fun onWordClick(word: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
+            loading(Progress.Loading, "sheet")
             clearPrevSheet()
 
             try {
@@ -285,6 +287,8 @@ class ContentViewModel @Inject constructor(
                     )
                     state.update { it.copy(sheetModel = sheetModel) }
                     if (!state.value.isPlay && !state.value.isMute) speakText(word)
+                    loading(Progress.Idle, "sheet")
+
                 }
             } catch (e: Exception) {
                 errorException(

@@ -37,6 +37,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -124,8 +125,11 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
             sheetPeekHeight = 0.dp,
             sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
-                if (state.sheetModel == null)
+                if (viewModel.progress["sheet"] is Progress.Idle && state.sheetModel == null) {
+                    SideEffect { scope.launch { bottomSheetState.bottomSheetState.hide() } }
+                } else if (state.sheetModel == null) {
                     SheetLoading()
+                }
                 else {
                     Column(
                         Modifier
