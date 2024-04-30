@@ -154,6 +154,12 @@ fun HomeScreen(
 
     }
 
+    //Back With Ask Comment
+    BackHandler(state.openAppCount >= 3 && state.showComment) {
+        reqToExit = true
+        viewModel.setDialogKey(HomeDialogKey.AskRate)
+    }
+
 
     // Check Notification Permission
     LaunchedEffect(key1 = Unit) {
