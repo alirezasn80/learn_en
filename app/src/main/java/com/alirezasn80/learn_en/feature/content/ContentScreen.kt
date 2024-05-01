@@ -142,11 +142,17 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                             .verticalScroll(rememberScrollState())
                     ) {
 
-                        if (state.dictImages.isNotEmpty()) {
-                            MediumSpacer()
+                        MediumSpacer()
+
+                        // todo(work on correct show loading and handle error and exception on it...)
+                        // todo(hande images as offline state)
+                        if (state.dictImages.isNotEmpty())
                             SliderImage(images = state.dictImages)
-                            SmallSpacer()
-                        }
+                        else
+                            SliderLoading()
+
+                        SmallSpacer()
+
 
                         state.sheetModel!!.apply {
                             HeadSection(
@@ -295,6 +301,19 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         }
     }
 
+}
+
+@Composable
+fun SliderLoading() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(horizontal = dimension.medium)
+            .clip(MaterialTheme.shapes.small)
+            .background(Color.LightGray)
+            .shimmerEffect()
+    )
 }
 
 @Composable
