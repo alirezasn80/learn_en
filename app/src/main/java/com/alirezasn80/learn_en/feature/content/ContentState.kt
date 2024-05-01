@@ -18,4 +18,5 @@ data class ContentState(
     val isMute: Boolean = false,
     val isBookmark: Boolean = false,
     val sheetModel: SheetModel? = null,
+    val dictImages: List<String> = emptyList()
 )

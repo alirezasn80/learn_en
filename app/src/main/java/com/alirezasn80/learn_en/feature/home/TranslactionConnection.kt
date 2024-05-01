@@ -1,6 +1,7 @@
 package com.alirezasn80.learn_en.feature.home
 
 
+import com.alirezasn80.learn_en.utill.debug
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -109,6 +110,24 @@ object TranslationConnection {
                     hl,
                     q
                 )
+                return getTextHttpURLConnection(url)
+
+            } catch (ignored: java.lang.Exception) {
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return ""
+    }
+
+    fun imagesHttpUrl(
+        query: String
+    ): String {
+        try {
+            val q = URLEncoder.encode(query, charset)
+            try {
+                val url = String.format("https://www.google.com/search?q=%s&sclient=img&udm=2", q)
+                debug(url)
                 return getTextHttpURLConnection(url)
 
             } catch (ignored: java.lang.Exception) {

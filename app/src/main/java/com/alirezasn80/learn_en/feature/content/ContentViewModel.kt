@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.jsoup.Jsoup
 import java.util.Locale
 import javax.inject.Inject
 
@@ -273,10 +274,11 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
+        loading(Progress.Loading, "sheet")
+        clearPrevSheet()
+        getRelatedImages(word)
 
         viewModelScope.launch(Dispatchers.IO) {
-            loading(Progress.Loading, "sheet")
-            clearPrevSheet()
 
             try {
                 val wordEntity = database.wordDao.getWordEntity(word)
@@ -308,6 +310,32 @@ class ContentViewModel @Inject constructor(
                     userMsg = R.string.no_found_data
                 )
             }
+        }
+    }
+
+    private fun getRelatedImages(word: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val url = "https://images.search.yahoo.com/search/images?p=$word"
+            val document = Jsoup.connect(url).get()
+            val elements = document
+                .select("section#maindoc")
+                .select("section#mdoc")
+                .select("section#main")
+                .select("div#main-algo")
+                .select("div#res-cont")
+                .select("section#results")
+                .select("div.sres-cntr")
+                .select("ul#sres")
+                .tagName("li")
+                .select("a.redesign-img.round-img")
+                .select("img")
+                .map {
+                    it.absUrl("src")
+                }
+                .filter { it != null && it.isNotBlank() && it.startsWith("http") }
+
+            debug("images : ${elements.toString()}")
+            state.update { it.copy(dictImages = elements) }
         }
     }
 
@@ -346,7 +374,7 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun clearPrevSheet() {
-        state.update { it.copy(sheetModel = null) }
+        state.update { it.copy(sheetModel = null, dictImages = emptyList()) }
     }
 
     fun setReadSpeed(speed: Float) {

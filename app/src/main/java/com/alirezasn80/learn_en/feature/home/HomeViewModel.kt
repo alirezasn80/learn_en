@@ -19,6 +19,13 @@ import ir.cafebazaar.poolakey.Payment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.jsoup.Jsoup
+import java.io.IOException
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -38,6 +45,65 @@ class HomeViewModel @Inject constructor(
         openAppCounter()
         getCommentStatus()
         getCategories()
+    }
+
+
+    fun extractDocIds(input: String): List<String> {
+        val regex = """data-docid="(\w+)"""".toRegex()
+        return regex.findAll(input).map { it.groupValues[1] }.toList()
+    }
+
+    private fun googleCrawl() {
+        viewModelScope.launch(Dispatchers.IO) {
+            //.getJsonFromUrl("https://www.google.com/search?tbm=isch&q=Dota2")
+
+            val searchQuery = "flower" // جستجوی شما
+            val url = "https://www.google.com/search?q=flower&sclient=img&udm=2"
+            val client = OkHttpClient()
+
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36")
+                .build()
+
+// ارسال درخواست و دریافت پاسخ
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    // Handle the error
+                    debug("failure")
+
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        // Handle the error
+                        debug("error")
+
+                    } else {
+                        // data-docid="hPkStLsNjw6jTM"
+
+                        debug("success")
+                        val responseBody = response.body?.string()
+                        val soup = Jsoup.parse(responseBody)
+                            .select("div.main")
+                            .select("div.GyAeWb.gIatYd")
+                            .select("div.s6JM6d")
+                            .select("div.eqAnXb")
+                            .select("div#search")
+                        //.select("[data-hveid=CAEQEg]")//dynamic
+                        //have continue
+                        // debug(soup.toString())
+                        debug(extractDocIds(soup.toString()).toString())
+                        val key = extractDocIds(soup.toString()).first()
+                        val newUrl = "https://www.google.com/search?q=flower&sclient=img&udm=2#vhid=${key}&vssid=mosaic"
+                        debug(newUrl)
+                        val newResult = Jsoup.connect(newUrl).get().toString()
+                        debug(newResult)
+                    }
+                }
+            })
+
+        }
     }
 
     fun hideNotificationAlert() = state.update { it.copy(showNotificationAlert = false) }

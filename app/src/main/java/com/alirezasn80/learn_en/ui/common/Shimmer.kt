@@ -27,33 +27,38 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
-fun Modifier.shimmerEffect(backgroundHex: Long = 0xffffffff, shimmerHex: Long = 0xFF2D3B4D): Modifier = composed {
-    var size by remember {
+fun Modifier.shimmerEffect(
+    backgroundHex: Long = 0xffffffff,
+    shimmerHex: Long = 0xFF2D3B4D,
+    enable: Boolean = true,
+): Modifier = composed {
 
-        mutableStateOf(IntSize.Zero)
-    }
-    val transition = rememberInfiniteTransition(label = "")
-    val startOffsetX by transition.animateFloat(
-        initialValue = -2 * size.width.toFloat(),
-        targetValue = 2 * size.width.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500)
-        ), label = "animate"
-    )
-    background(
-        brush = Brush.linearGradient(
-            colors = listOf(
-                Color(backgroundHex),
-                Color(shimmerHex),
-                Color(backgroundHex),
-            ),
-            start = Offset(startOffsetX, 0f),
-            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+    if (enable) {
+        var size by remember { mutableStateOf(IntSize.Zero) }
+        val transition = rememberInfiniteTransition(label = "")
+        val startOffsetX by transition.animateFloat(
+            initialValue = -2 * size.width.toFloat(),
+            targetValue = 2 * size.width.toFloat(),
+            animationSpec = infiniteRepeatable(
+                animation = tween(1500)
+            ), label = "animate"
         )
-    )
-        .onGloballyPositioned {
+        background(
+            brush = Brush.linearGradient(
+                colors = listOf(
+                    Color(backgroundHex),
+                    Color(shimmerHex),
+                    Color(backgroundHex),
+                ),
+                start = Offset(startOffsetX, 0f),
+                end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+            )
+        ).onGloballyPositioned {
             size = it.size
         }
+    } else
+        Modifier
+
 }
 
 @Composable

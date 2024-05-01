@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.annotation.ExperimentalCoilApi
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.ui.common.PopUpMenu
@@ -66,6 +67,7 @@ import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
+import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.ui.theme.highlighterColor
@@ -73,6 +75,7 @@ import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
+import com.alirezasn80.learn_en.utill.SliderImage
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.cleanWord
 import com.alirezasn80.learn_en.utill.debug
@@ -86,7 +89,7 @@ data class ReadMode(
 
 private var wordSpeakCounter = 0
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalCoilApi::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
 
@@ -139,8 +142,15 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                             .verticalScroll(rememberScrollState())
                     ) {
 
+                        if (state.dictImages.isNotEmpty()) {
+                            MediumSpacer()
+                            SliderImage(images = state.dictImages)
+                            SmallSpacer()
+                        }
+
                         state.sheetModel!!.apply {
                             HeadSection(
+                                word = mainWord,
                                 define = define,
                                 isHighlight = isHighlight,
                                 onSoundClick = {
@@ -181,8 +191,17 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                                                     it.synonyms.forEach { word ->
                                                         Text(
                                                             text = word, modifier = Modifier
-                                                                .clickable { viewModel.speakText(word) }
                                                                 .padding(horizontal = 2.dp)
+                                                                .clickable {
+                                                                    val speed = if (wordSpeakCounter == 0) {
+                                                                        wordSpeakCounter++
+                                                                        1f
+                                                                    } else {
+                                                                        wordSpeakCounter = 0
+                                                                        0.5f
+                                                                    }
+                                                                    viewModel.wordSpeak(word, speed)
+                                                                }
                                                                 .background(
                                                                     MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
                                                                     MaterialTheme.shapes.extraSmall
@@ -291,6 +310,7 @@ fun TypeSection(value: String) {
 
 @Composable
 private fun HeadSection(
+    word: String,
     define: String,
     isHighlight: Boolean,
     onSoundClick: () -> Unit,
@@ -306,13 +326,21 @@ private fun HeadSection(
     ) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
+            /*Icon(
                 painter = painterResource(id = R.drawable.ic_sound_max),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
                     .size(20.dp)
                     .clickable { onSoundClick() }
+            )*/
+            Icon(
+                painter = painterResource(id = if (isHighlight) R.drawable.ic_star_fill else R.drawable.ic_star_outline),
+                contentDescription = null,
+                tint = Color(0xFFFFBF00),
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable { onHighlightClick(!isHighlight) }
             )
             ExtraSmallSpacer()
             Text(
@@ -322,13 +350,16 @@ private fun HeadSection(
         }
 
 
-        Icon(
-            painter = painterResource(id = if (isHighlight) R.drawable.ic_star_fill else R.drawable.ic_star_outline),
-            contentDescription = null,
-            tint = Color(0xFFFFBF00),
+        Text(
+            text = word,
             modifier = Modifier
-                .size(30.dp)
-                .clickable { onHighlightClick(!isHighlight) }
+                .padding(horizontal = 2.dp)
+                .clickable { onSoundClick() }
+                .background(
+                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                    MaterialTheme.shapes.extraSmall
+                )
+                .padding(horizontal = dimension.extraSmall)
         )
 
 

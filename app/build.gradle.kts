@@ -133,4 +133,7 @@ dependencies {
 
     // To recognize Latin script
     implementation("com.google.mlkit:text-recognition:16.0.0")
+
+    //coil
+    implementation ("io.coil-kt:coil-compose:2.5.0")
 }
