@@ -295,7 +295,7 @@ class ContentViewModel @Inject constructor(
                         executeDictionary(word)
                     }
                 } else {
-                    val dictImages = database.wordDao.getDictImages(word)
+                    val dictImages = database.wordImgDao.getDictImages(word)
                     val sheetModel = createSheetModel(
                         mainWord = word,
                         isHighlight = wordEntity.isHighlight.toBoolean(),
@@ -352,7 +352,7 @@ class ContentViewModel @Inject constructor(
                     .take(20)
 
                 images.forEach { imageUrl ->
-                    database.wordDao.insertWordImg(WordImgEntity(word = word, url = imageUrl))
+                    database.wordImgDao.insertWordImg(WordImgEntity(word = word, url = imageUrl))
                 }
 
                 state.update { it.copy(sheetModel = state.value.sheetModel?.copy(images = images)) }

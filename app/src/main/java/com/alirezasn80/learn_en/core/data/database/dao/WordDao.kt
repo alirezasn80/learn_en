@@ -21,13 +21,4 @@ interface WordDao {
 
     @Query("select word from WordEntity WHERE isHighlight = 1")
     suspend fun getHighlights(): List<String>
-
-    //----------------------------------------
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWordImg(wordImg: WordImgEntity)
-
-    @Query("select url from WordImgEntity WHERE word = :word")
-    suspend fun getDictImages(word: String): List<String>
-
 }

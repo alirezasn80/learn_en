@@ -4,18 +4,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = WordEntity::class,
-            parentColumns = ["word"],
-            childColumns = ["word"]
-        )
-    ]
-)
+@Entity
 data class WordImgEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val word: String,
     val url: String
 )
