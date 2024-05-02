@@ -15,5 +15,6 @@ data class SheetModel(
     val mainWord:String,
     val define: String,
     val more: List<Translation>,
-    val isHighlight:Boolean
+    val isHighlight:Boolean,
+    val images:List<String> = emptyList()
 )

@@ -41,7 +41,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-const val DEBUG = false
+const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
@@ -106,8 +106,10 @@ sealed interface MessageState {
 data class RemoteError(@StringRes val message: Int, val code: Int? = null)
 
 object LoadingKey {
-    const val DEFAULT = "Default"
-    const val NEXT_PAGE = "Next Page"
+    const val DEFAULT = ""
+    const val NEXT_PAGE = "NextPage"
+    const val DICT = "DICT"
+    const val IMG = "IMG"
 }
 
 

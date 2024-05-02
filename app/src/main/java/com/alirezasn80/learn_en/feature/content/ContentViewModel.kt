@@ -12,12 +12,14 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
+import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Translation
 import com.alirezasn80.learn_en.feature.home.TranslationConnection
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
@@ -274,68 +276,92 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
-        loading(Progress.Loading, "sheet")
         clearPrevSheet()
-        getRelatedImages(word)
+        loading(Progress.Loading, LoadingKey.DICT)
+        loading(Progress.Loading, LoadingKey.IMG)
+        executeDictionary(word)
+    }
 
+    private fun executeDictionary(word: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
                 val wordEntity = database.wordDao.getWordEntity(word)
 
                 if (wordEntity == null) {
-                    debug("translation start")
                     val translated = TranslationConnection.dictionaryHttpURLConnection(word)
-                    debug("translation finish")
                     if (translated.isNotEmpty()) {
                         database.wordDao.insertWord(WordEntity(word, translated, 0))
-                        onWordClick(word)
+                        executeDictionary(word)
                     }
                 } else {
+                    val dictImages = database.wordDao.getDictImages(word)
                     val sheetModel = createSheetModel(
                         mainWord = word,
                         isHighlight = wordEntity.isHighlight.toBoolean(),
                         jsonArray = JSONArray(wordEntity.definition)
                     )
-                    state.update { it.copy(sheetModel = sheetModel) }
-                    if (!state.value.isPlay && !state.value.isMute) speakText(word)
-                    loading(Progress.Idle, "sheet")
 
+                    state.update { it.copy(sheetModel = sheetModel.copy(images = dictImages)) }
+
+                    if (dictImages.isEmpty()) {
+                        getRelatedImages(word)
+                    } else {
+                        loading(Progress.Idle, LoadingKey.IMG)
+                    }
+
+                    if (!state.value.isPlay && !state.value.isMute) speakText(word)
+
+
+                    loading(Progress.Idle, LoadingKey.DICT)
                 }
             } catch (e: Exception) {
+                loading(Progress.Idle, LoadingKey.IMG)
                 errorException(
                     metricaMsg = "Error in Word Click",
                     e = e,
-                    key = "sheet",
+                    key = LoadingKey.DICT,
                     userMsg = R.string.no_found_data
                 )
             }
         }
+
     }
 
     private fun getRelatedImages(word: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val url = "https://images.search.yahoo.com/search/images?p=$word"
-            val document = Jsoup.connect(url).get()
-            val elements = document
-                .select("section#maindoc")
-                .select("section#mdoc")
-                .select("section#main")
-                .select("div#main-algo")
-                .select("div#res-cont")
-                .select("section#results")
-                .select("div.sres-cntr")
-                .select("ul#sres")
-                .tagName("li")
-                .select("a.redesign-img.round-img")
-                .select("img")
-                .map {
-                    it.absUrl("src")
-                }
-                .filter { it != null && it.isNotBlank() && it.startsWith("http") }
+            try {
+                val url = "https://images.search.yahoo.com/search/images?p=$word"
+                val document = Jsoup.connect(url).get()
+                val images = document
+                    .select("section#maindoc")
+                    .select("section#mdoc")
+                    .select("section#main")
+                    .select("div#main-algo")
+                    .select("div#res-cont")
+                    .select("section#results")
+                    .select("div.sres-cntr")
+                    .select("ul#sres")
+                    .tagName("li")
+                    .select("a.redesign-img.round-img")
+                    .select("img")
+                    .map {
+                        it.absUrl("src")
+                    }
+                    .filter { it != null && it.isNotBlank() && it.startsWith("http") }
+                    .take(20)
 
-            debug("images : ${elements.toString()}")
-            state.update { it.copy(dictImages = elements) }
+                images.forEach { imageUrl ->
+                    database.wordDao.insertWordImg(WordImgEntity(word = word, url = imageUrl))
+                }
+
+                state.update { it.copy(sheetModel = state.value.sheetModel?.copy(images = images)) }
+                loading(Progress.Idle, LoadingKey.IMG)
+
+            } catch (e: Exception) {
+                loading(Progress.Idle, LoadingKey.IMG)
+            }
+
         }
     }
 
@@ -374,7 +400,7 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun clearPrevSheet() {
-        state.update { it.copy(sheetModel = null, dictImages = emptyList()) }
+        state.update { it.copy(sheetModel = null) }
     }
 
     fun setReadSpeed(speed: Float) {

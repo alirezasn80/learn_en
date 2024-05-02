@@ -4,6 +4,7 @@ package com.alirezasn80.learn_en.utill
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -150,9 +151,10 @@ private fun DotsIndicator(
 
     LazyRow(
         modifier = Modifier
-            .fillMaxWidth(0.5f)
+            .fillMaxWidth()
             .wrapContentHeight()
             .padding(8.dp),
+        horizontalArrangement = Arrangement.Center,
         reverseLayout = true
     ) {
 

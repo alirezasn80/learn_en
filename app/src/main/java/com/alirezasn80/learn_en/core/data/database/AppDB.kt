@@ -10,11 +10,20 @@ import com.alirezasn80.learn_en.core.data.database.dao.WordDao
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
 import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
+import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 
 @Database(
-    entities = [CategoryEntity::class, ContentEntity::class, WordEntity::class],
-    version = 2,
-    autoMigrations = [AutoMigration(from = 1, to = 2)]
+    entities = [
+        CategoryEntity::class,
+        ContentEntity::class,
+        WordEntity::class,
+        WordImgEntity::class
+    ],
+    version = 3,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3)
+    ]
 )
 abstract class AppDB : RoomDatabase() {
 

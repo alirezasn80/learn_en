@@ -72,6 +72,7 @@ import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.ui.theme.highlighterColor
 import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
@@ -89,7 +90,7 @@ data class ReadMode(
 
 private var wordSpeakCounter = 0
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalCoilApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
 
@@ -130,7 +131,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
             sheetPeekHeight = 0.dp,
             sheetContainerColor = MaterialTheme.colorScheme.primary,
             sheetContent = {
-                if (viewModel.progress["sheet"] is Progress.Idle && state.sheetModel == null) {
+                if (viewModel.progress[LoadingKey.DICT] is Progress.Idle && state.sheetModel == null) {
                     SideEffect { scope.launch { bottomSheetState.bottomSheetState.hide() } }
                 } else if (state.sheetModel == null) {
                     SheetLoading()
@@ -144,12 +145,11 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
 
                         MediumSpacer()
 
-                        // todo(work on correct show loading and handle error and exception on it...)
-                        // todo(hande images as offline state)
-                        if (state.dictImages.isNotEmpty())
-                            SliderImage(images = state.dictImages)
-                        else
+                        if (viewModel.progress[LoadingKey.IMG] is Progress.Loading)
                             SliderLoading()
+                        else if (state.sheetModel?.images?.isNotEmpty() == true) {
+                            SliderImage(images = state.sheetModel!!.images)
+                        }
 
                         SmallSpacer()
 

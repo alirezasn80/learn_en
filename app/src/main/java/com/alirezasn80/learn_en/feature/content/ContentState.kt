@@ -17,6 +17,5 @@ data class ContentState(
     val isPlay: Boolean = false,
     val isMute: Boolean = false,
     val isBookmark: Boolean = false,
-    val sheetModel: SheetModel? = null,
-    val dictImages: List<String> = emptyList()
+    val sheetModel: SheetModel? = null
 )
