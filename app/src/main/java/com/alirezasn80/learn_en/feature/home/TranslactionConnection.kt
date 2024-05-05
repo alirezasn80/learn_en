@@ -79,7 +79,7 @@ object TranslationConnection {
             val q = URLEncoder.encode(text, charset)
             try {
                 val url = String.format(
-                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t",
+                    "https://translate.google.com/translate_a/single?&client=gtx&sl=%s&tl=%s&q=%s&dt=bd&dt=t&dt=md&dt=ex",
                     sl,
                     hl,
                     q

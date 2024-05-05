@@ -59,24 +59,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.annotation.ExperimentalCoilApi
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
+import com.alirezasn80.learn_en.core.domain.local.Desc
+import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.ui.common.PopUpMenu
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
+import com.alirezasn80.learn_en.ui.theme.ExitRed
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
-import com.alirezasn80.learn_en.ui.theme.MediumSpacer
+import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.ui.theme.highlighterColor
 import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
-import com.alirezasn80.learn_en.utill.SliderImage
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.cleanWord
 import com.alirezasn80.learn_en.utill.debug
@@ -140,92 +142,31 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         Modifier
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
-                            .verticalScroll(rememberScrollState())
                     ) {
+                        CategorySection(
+                            selectedCategory = state.selectedCategory,
+                            onCategoryClick = viewModel::setSelectedDictCategory
+                        )
+                        when (state.selectedCategory) {
 
-                        /*if (viewModel.progress[LoadingKey.IMG] is Progress.Loading)
-                            SliderLoading()
-                        else if (state.sheetModel?.images?.isNotEmpty() == true) {
-                            SliderImage(images = state.sheetModel!!.images)
-                        }*/
-
-
-                        state.sheetModel!!.apply {
-                            HeadSection(
-                                word = mainWord,
-                                define = define,
-                                isHighlight = isHighlight,
-                                onSoundClick = {
-                                    val speed = if (wordSpeakCounter == 0) {
-                                        wordSpeakCounter++
-                                        1f
-                                    } else {
-                                        wordSpeakCounter = 0
-                                        0.5f
-                                    }
-                                    viewModel.wordSpeak(mainWord, speed)
-                                },
-                                onHighlightClick = {
-                                    viewModel.changeHighlightMode(mainWord, it)
-                                }
-                            )
-                            Line()
-                            more.forEach { translation ->
-                                ExtraSmallSpacer()
-                                TypeSection(translation.type)
-                                ExtraSmallSpacer()
-                                Column {
-                                    translation.defines.forEach {
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .background(MaterialTheme.colorScheme.surface)
-                                                .padding(dimension.medium)
-                                        ) {
-                                            Text(text = it.word, color = MaterialTheme.colorScheme.onSurface)
-                                            SmallSpacer()
-                                            Ltr {
-                                                FlowRow(
-                                                    modifier = Modifier.weight(1f),
-                                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                                ) {
-                                                    it.synonyms.forEach { word ->
-                                                        Text(
-                                                            text = word, modifier = Modifier
-                                                                .padding(horizontal = 2.dp)
-                                                                .clickable {
-                                                                    val speed = if (wordSpeakCounter == 0) {
-                                                                        wordSpeakCounter++
-                                                                        1f
-                                                                    } else {
-                                                                        wordSpeakCounter = 0
-                                                                        0.5f
-                                                                    }
-                                                                    viewModel.wordSpeak(word, speed)
-                                                                }
-                                                                .background(
-                                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
-                                                                    MaterialTheme.shapes.extraSmall
-                                                                )
-                                                                .padding(horizontal = dimension.extraSmall)
-                                                        )
-
-
-                                                    }
-
-                                                }
-                                            }
-
-
-                                        }
-                                        Line(thickness = 2.dp)
-                                    }
-                                }
-
+                            DictCategory.Desc -> {
+                                DescSection(state.sheetModel!!.descriptions)
                             }
 
+                            DictCategory.Meaning -> {
+                                MeaningSection(
+                                    sheetModel = state.sheetModel!!,
+                                    onWordSpeak = viewModel::wordSpeak,
+                                    onChangeHighlightMode = viewModel::changeHighlightMode,
+                                )
+                            }
+
+                            DictCategory.Example -> {
+                                ExampleSection(examples = state.sheetModel!!.examples)
+                            }
                         }
+
+
                     }
 
 
@@ -297,6 +238,229 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         }
     }
 
+}
+
+@Composable
+fun DescSection(descriptions: List<Desc>) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Ltr {
+            descriptions.forEach { desc ->
+                ExtraSmallSpacer()
+                TypeSection(desc.type)
+                ExtraSmallSpacer()
+                Column {
+                    desc.texts.forEach {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(dimension.medium)
+                        ) {
+                            Text(text = it, color = MaterialTheme.colorScheme.onSurface)
+                        }
+                        Line(thickness = 2.dp)
+                    }
+                }
+
+            }
+        }
+
+    }
+}
+
+@Composable
+fun ExampleSection(examples: List<String>) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Ltr {
+            examples.forEach { example ->
+                Column {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(dimension.medium)
+                    ) {
+                        StyledText(text = example)
+                    }
+                    Line(thickness = 2.dp)
+
+                }
+
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun StyledText(text: String) {
+    val annotatedString = buildAnnotatedString {
+        val regex = Regex("<b>(.*?)</b>")
+        val matches = regex.findAll(text)
+        var lastIndex = 0
+
+        matches.forEach { match ->
+            append(text.substring(lastIndex, match.range.first))
+            withStyle(style = SpanStyle(color = Red100, fontWeight = FontWeight.Bold)) {
+                append(match.groups[1]?.value ?: "")
+            }
+            lastIndex = match.range.last + 1
+        }
+
+        if (lastIndex < text.length) {
+            append(text.substring(lastIndex, text.length))
+        }
+    }
+
+    Text(text = annotatedString, color = MaterialTheme.colorScheme.onSurface)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun MeaningSection(
+    sheetModel: SheetModel,
+    onWordSpeak: (String, Float) -> Unit,
+    onChangeHighlightMode: (String, Boolean) -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+    ) {
+
+        /*if (viewModel.progress[LoadingKey.IMG] is Progress.Loading)
+            SliderLoading()
+        else if (state.sheetModel?.images?.isNotEmpty() == true) {
+            SliderImage(images = state.sheetModel!!.images)
+        }*/
+
+        sheetModel.apply {
+
+
+            HeadSection(
+                word = mainWord,
+                define = define,
+                isHighlight = isHighlight,
+                onSoundClick = {
+                    val speed = if (wordSpeakCounter == 0) {
+                        wordSpeakCounter++
+                        1f
+                    } else {
+                        wordSpeakCounter = 0
+                        0.5f
+                    }
+                    onWordSpeak(mainWord, speed)
+                },
+                onHighlightClick = {
+                    onChangeHighlightMode(mainWord, it)
+                }
+            )
+
+            Line()
+
+            synonyms.forEach { translation ->
+                ExtraSmallSpacer()
+                TypeSection(translation.type)
+                ExtraSmallSpacer()
+                Column {
+                    translation.defines.forEach {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(dimension.medium)
+                        ) {
+                            Text(text = it.word, color = MaterialTheme.colorScheme.onSurface)
+                            SmallSpacer()
+                            Ltr {
+                                FlowRow(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    it.synonyms.forEach { word ->
+                                        Text(
+                                            text = word, modifier = Modifier
+                                                .padding(horizontal = 2.dp)
+                                                .clickable {
+                                                    val speed = if (wordSpeakCounter == 0) {
+                                                        wordSpeakCounter++
+                                                        1f
+                                                    } else {
+                                                        wordSpeakCounter = 0
+                                                        0.5f
+                                                    }
+                                                    onWordSpeak(word, speed)
+                                                }
+                                                .background(
+                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                                    MaterialTheme.shapes.extraSmall
+                                                )
+                                                .padding(horizontal = dimension.extraSmall)
+                                        )
+
+
+                                    }
+
+                                }
+                            }
+
+
+                        }
+                        Line(thickness = 2.dp)
+                    }
+                }
+
+            }
+
+        }
+    }
+
+}
+
+
+private val categories = listOf(
+    DictCategory.Meaning,
+    DictCategory.Desc,
+    DictCategory.Example
+)
+
+@Composable
+fun CategorySection(
+    selectedCategory: DictCategory,
+    onCategoryClick: (DictCategory) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimension.small),
+        horizontalArrangement = Arrangement.spacedBy(dimension.small)
+    ) {
+        categories.forEach { category ->
+            val isSelected = category.id == selectedCategory.id
+
+            Text(
+                text = category.title,
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.small)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
+                    .clickable { onCategoryClick(category) }
+                    .padding(horizontal = dimension.small, vertical = dimension.extraSmall)
+            )
+
+        }
+    }
 }
 
 @Composable

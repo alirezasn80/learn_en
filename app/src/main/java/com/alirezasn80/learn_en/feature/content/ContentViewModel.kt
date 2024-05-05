@@ -14,11 +14,13 @@ import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
+import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
-import com.alirezasn80.learn_en.core.domain.local.Translation
+import com.alirezasn80.learn_en.core.domain.local.Synonym
 import com.alirezasn80.learn_en.feature.home.TranslationConnection
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
@@ -68,6 +70,10 @@ class ContentViewModel @Inject constructor(
         initSpeechToText()
         getContent()
         getHighlights()
+    }
+
+    fun setSelectedDictCategory(category: DictCategory) {
+        state.update { it.copy(selectedCategory = category) }
     }
 
     private fun getHighlights() {
@@ -176,7 +182,7 @@ class ContentViewModel @Inject constructor(
         }
 
 
-        debug("get content")
+
         loading(Progress.Loading)
 
         val contentEntity = try {
@@ -190,13 +196,12 @@ class ContentViewModel @Inject constructor(
         title = contentEntity.title
 
         val paragraphs = if (contentEntity.translation.isNullOrBlank()) {// remote
-            debug("from remote")
+
             translateRemote(contentEntity)
         } else { // locale
             debug("from locale")
             processTranslateJson(contentEntity.translation)
         }
-        debug("done")
 
 
         state.update {
@@ -295,6 +300,7 @@ class ContentViewModel @Inject constructor(
                         executeDictionary(word)
                     }
                 } else {
+
                     //val dictImages = database.wordImgDao.getDictImages(word)
                     val sheetModel = createSheetModel(
                         mainWord = word,
@@ -371,37 +377,98 @@ class ContentViewModel @Inject constructor(
         isHighlight: Boolean,
         jsonArray: JSONArray
     ): SheetModel {
-        val translationsModel = mutableListOf<Translation>()
-        val definesModel = mutableListOf<Define>()
-        val definition = jsonArray.getJSONArray(0).getJSONArray(0).getString(0)
+        val synonymsModel = mutableListOf<Synonym>()
+        val descriptionModel = mutableListOf<Desc>()
+        val examples = mutableListOf<String>()
 
-        for (i in 0 until jsonArray.getJSONArray(1).length()) {
-            val bdJsonArray = jsonArray.getJSONArray(1).getJSONArray(i)
-            val type = bdJsonArray.getString(0)
-            val totalSimilar = bdJsonArray.getJSONArray(2)
 
-            for (j in 0 until totalSimilar.length()) {
-                val similarTranslate = totalSimilar.getJSONArray(j).getString(0)
-                val synonyms = totalSimilar.getJSONArray(j).getJSONArray(1)
-                val define = Define(similarTranslate, synonyms.toStringList())
-                definesModel.add(define)
+        // Definition------------------------------
+        val definition = try {
+            jsonArray.getJSONArray(0).getJSONArray(0).getString(0)
+        } catch (e: Exception) {
+            mainWord
+        }
+
+
+        // Synonyms ------------------------------
+        val bdJson: JSONArray? = try {
+            jsonArray.getJSONArray(1)
+        } catch (e: Exception) {
+            null
+        }
+
+        if (bdJson != null)
+            for (i in 0 until bdJson.length()) {
+                val array = bdJson.getJSONArray(i)
+                val type = array.getString(0)
+                val totalSimilar = array.getJSONArray(2)
+
+                val defines: MutableList<Define> = mutableListOf()
+
+                for (j in 0 until totalSimilar.length()) {
+                    val similarTranslate = totalSimilar.getJSONArray(j).getString(0)
+                    val synonyms = totalSimilar.getJSONArray(j).getJSONArray(1)
+                    val define = Define(similarTranslate, synonyms.toStringList())
+                    defines.add(define)
+                }
+
+                val synonym = Synonym(type, defines)
+                synonymsModel.add(synonym)
+                //definesModel.clear()
             }
 
-            val translation = Translation(type, definesModel)
-            translationsModel.add(translation)
+
+        //Description of Word ------------------------------
+        val mdJson = try {
+            jsonArray.getJSONArray(12)
+        } catch (e: Exception) {
+            null
         }
+
+        if (mdJson != null)
+            for (i in 0 until mdJson.length()) {
+                val array = mdJson.getJSONArray(i)
+                val type = array.getString(0)
+                val descriptions = array.getJSONArray(1)
+
+                val texts = mutableListOf<String>()
+                for (j in 0 until descriptions.length()) {
+                    val desc = descriptions.getJSONArray(j).getString(0)
+                    texts.add(desc)
+                }
+                descriptionModel.add(Desc(type, texts))
+            }
+
+
+        //Example of Word ---------------------------------------
+        val exJson = try {
+            jsonArray.getJSONArray(13).getJSONArray(0)
+        } catch (e: Exception) {
+            null
+        }
+
+        if (exJson != null)
+            for (i in 0 until exJson.length()) {
+                val array = exJson.getJSONArray(i)
+                val example = array.getString(0)
+                examples.add(example)
+            }
+
+
+        //Create Model ----------------------------------------------
 
         return SheetModel(
             mainWord = mainWord,
             define = definition,
-            more = translationsModel,
-            isHighlight = isHighlight
-
+            synonyms = synonymsModel,
+            isHighlight = isHighlight,
+            descriptions = descriptionModel,
+            examples = examples
         )
     }
 
     private fun clearPrevSheet() {
-        state.update { it.copy(sheetModel = null) }
+        state.update { it.copy(sheetModel = null, selectedCategory = DictCategory.Meaning) }
     }
 
     fun setReadSpeed(speed: Float) {

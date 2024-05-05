@@ -2,6 +2,7 @@ package com.alirezasn80.learn_en.feature.content
 
 
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
+import com.alirezasn80.learn_en.utill.DictCategory
 
 data class Paragraph(
     val text: String,
@@ -17,5 +18,6 @@ data class ContentState(
     val isPlay: Boolean = false,
     val isMute: Boolean = false,
     val isBookmark: Boolean = false,
-    val sheetModel: SheetModel? = null
+    val sheetModel: SheetModel? = null,
+    val selectedCategory: DictCategory = DictCategory.Meaning,
 )

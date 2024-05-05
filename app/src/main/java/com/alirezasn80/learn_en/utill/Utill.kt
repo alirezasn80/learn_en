@@ -432,3 +432,9 @@ fun Boolean.toLogicInt() = if (this == true) 1 else 0
 fun String.cleanWord(): String {
     return this.trim { it !in 'a'..'z' && it !in 'A'..'Z' && it !in '0'..'9' }
 }
+
+sealed class DictCategory(val id: Int, val title: String) {
+    data object Meaning : DictCategory(1, "معانی")
+    data object Desc : DictCategory(2, "توضیحات")
+    data object Example : DictCategory(3, "مثال")
+}

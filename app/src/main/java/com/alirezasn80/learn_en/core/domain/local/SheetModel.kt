@@ -5,16 +5,22 @@ data class Define(
     val synonyms: List<String>
 )
 
-data class Translation(
+data class Synonym(
     val type: String,
     val defines: List<Define>,
+)
 
-    )
+data class Desc(
+    val type: String,
+    val texts: List<String>
+)
 
 data class SheetModel(
-    val mainWord:String,
+    val mainWord: String,
     val define: String,
-    val more: List<Translation>,
-    val isHighlight:Boolean,
-    val images:List<String> = emptyList()
+    val synonyms: List<Synonym>,
+    val descriptions: List<Desc>,
+    val examples:List<String>,
+    val isHighlight: Boolean,
+    val images: List<String> = emptyList()
 )
