@@ -278,7 +278,7 @@ class ContentViewModel @Inject constructor(
     fun onWordClick(word: String) {
         clearPrevSheet()
         loading(Progress.Loading, LoadingKey.DICT)
-        loading(Progress.Loading, LoadingKey.IMG)
+        //loading(Progress.Loading, LoadingKey.IMG)
         executeDictionary(word)
     }
 
@@ -295,20 +295,20 @@ class ContentViewModel @Inject constructor(
                         executeDictionary(word)
                     }
                 } else {
-                    val dictImages = database.wordImgDao.getDictImages(word)
+                    //val dictImages = database.wordImgDao.getDictImages(word)
                     val sheetModel = createSheetModel(
                         mainWord = word,
                         isHighlight = wordEntity.isHighlight.toBoolean(),
                         jsonArray = JSONArray(wordEntity.definition)
                     )
 
-                    state.update { it.copy(sheetModel = sheetModel.copy(images = dictImages)) }
+                    state.update { it.copy(sheetModel = sheetModel) }
 
-                    if (dictImages.isEmpty()) {
+                    /*if (dictImages.isEmpty()) {
                         getRelatedImages(word)
                     } else {
                         loading(Progress.Idle, LoadingKey.IMG)
-                    }
+                    }*/
 
                     if (!state.value.isPlay && !state.value.isMute) speakText(word)
 
@@ -316,7 +316,7 @@ class ContentViewModel @Inject constructor(
                     loading(Progress.Idle, LoadingKey.DICT)
                 }
             } catch (e: Exception) {
-                loading(Progress.Idle, LoadingKey.IMG)
+                //loading(Progress.Idle, LoadingKey.IMG)
                 errorException(
                     metricaMsg = "Error in Word Click",
                     e = e,
@@ -328,6 +328,7 @@ class ContentViewModel @Inject constructor(
 
     }
 
+    // not used because some images not related the word
     private fun getRelatedImages(word: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {

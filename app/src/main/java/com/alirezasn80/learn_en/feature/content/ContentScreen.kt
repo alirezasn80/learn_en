@@ -143,15 +143,11 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                             .verticalScroll(rememberScrollState())
                     ) {
 
-                        MediumSpacer()
-
-                        if (viewModel.progress[LoadingKey.IMG] is Progress.Loading)
+                        /*if (viewModel.progress[LoadingKey.IMG] is Progress.Loading)
                             SliderLoading()
                         else if (state.sheetModel?.images?.isNotEmpty() == true) {
                             SliderImage(images = state.sheetModel!!.images)
-                        }
-
-                        SmallSpacer()
+                        }*/
 
 
                         state.sheetModel!!.apply {

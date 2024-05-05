@@ -105,6 +105,14 @@ class AppDataStoreManager(
     }
 
 
+    override suspend fun isDarkTheme(key: String, value: Boolean) {
+        setBooleanValue(key, value)
+    }
+
+    override suspend fun isDarkTheme(key: String): Boolean = getBooleanValue(key, false)!!
+
+
+
     override suspend fun clear() {
         context.dataStore.edit { it.clear() }
     }

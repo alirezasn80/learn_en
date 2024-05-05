@@ -79,6 +79,7 @@ object Key {
     const val COUNTER = "Counter"
     const val NEGATIVE = "NEGATIVE"
     const val POSITIVE = "POSITIVE"
+    const val IS_DARK_THEME = "IS_DARK_THEME"
     const val SAF_PERMISSION = "SAF_PERMISSION"
     const val STORAGE_PERMISSION = "StoragePermission"
     const val EXPIRE_DATE = "EXPIRE_DATE"

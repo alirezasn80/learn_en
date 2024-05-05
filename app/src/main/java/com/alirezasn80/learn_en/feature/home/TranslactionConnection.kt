@@ -84,6 +84,7 @@ object TranslationConnection {
                     hl,
                     q
                 )
+                debug(url)
                 return getTextHttpURLConnection(url)
 
             } catch (ignored: java.lang.Exception) {

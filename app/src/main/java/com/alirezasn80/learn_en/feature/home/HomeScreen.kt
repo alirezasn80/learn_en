@@ -1,6 +1,11 @@
 package com.alirezasn80.learn_en.feature.home
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +32,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -72,6 +78,7 @@ import com.alirezasn80.learn_en.ui.theme.ExitRed
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
+import com.alirezasn80.learn_en.ui.theme.ThemeViewModel
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.Ltr
@@ -93,6 +100,7 @@ import kotlin.system.exitProcess
 @Composable
 fun HomeScreen(
     navigationState: NavigationState,
+    themeViewModel: ThemeViewModel,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
@@ -202,7 +210,10 @@ fun HomeScreen(
                     drawerShape = RectangleShape,
                     drawerContainerColor = MaterialTheme.colorScheme.background,
                 ) {
-                    HeaderDrawer()
+                    HeaderDrawer(
+                        isDarkTheme = themeViewModel.isDarkTheme.value,
+                        onChangeTheme = themeViewModel::toggleTheme,
+                    )
 
                     // VIP User
                     DrawerItem(
@@ -345,38 +356,70 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HeaderDrawer() {
-    Box {
+private fun HeaderDrawer(
+    isDarkTheme: Boolean,
+    onChangeTheme: () -> Unit,
+) {
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary)
                 .padding(dimension.medium)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier
-                    .size(85.dp)
-                    .clip(CircleShape)
-            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                IconButton(
+                    onClick = onChangeTheme,
+                    colors = IconButtonDefaults.iconButtonColors()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier
+                            .size(85.dp)
+                            .clip(CircleShape)
+                    )
+
+                    AnimatedContent(
+                        targetState = isDarkTheme,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(250)) togetherWith fadeOut(animationSpec = tween(700))
+                        }, label = ""
+                    ) {
+                        Icon(
+                            painter = painterResource(id = if (it) R.drawable.ic_sun else R.drawable.ic_moon),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+
+                }
+            }
+
             SmallSpacer()
             Text(text = stringResource(id = R.string.enlish_stories))
             SmallSpacer()
-            Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
+
+                if (User.isVipUser) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.img_vip2),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(dimension.medium)
+                            .size(50.dp),
+                        tint = Color.Unspecified
+                    )
+                } else {
+                    SmallSpacer()
+                }
+            }
         }
 
-        if (User.isVipUser) {
-            Icon(
-                painter = painterResource(id = R.drawable.img_vip2),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(dimension.medium)
-                    .size(50.dp)
-                    .align(Alignment.TopEnd)
-                ,
-                tint = Color.Unspecified
-            )
-        }
-    }
+
 
 }
 

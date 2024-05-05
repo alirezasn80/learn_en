@@ -36,25 +36,26 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun Learn_enTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    themeViewModel: ThemeViewModel,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        /* dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-             val context = LocalContext.current
-             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-         }*/
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val colorScheme = when (themeViewModel.isDarkTheme.value) {
+        true -> {
+            DarkColorScheme
+        }
+
+        false -> {
+            LightColorScheme
+        }
+
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = themeViewModel.isDarkTheme.value
         }
     }
 

@@ -57,6 +57,16 @@ interface AppDataStore {
         key: String
     ): Long?
 
+    suspend fun isDarkTheme(
+        key: String,
+        value: Boolean,
+    )
+
+    suspend fun isDarkTheme(
+        key: String
+    ): Boolean
+
+
 
     suspend fun clear()
 
