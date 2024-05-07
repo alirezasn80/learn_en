@@ -1,11 +1,12 @@
 package com.alirezasn80.learn_en.feature.create
 
 import android.content.Intent
-import android.net.Uri
+import android.os.Build
 import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
@@ -67,11 +67,11 @@ import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.Keyboard
 import com.alirezasn80.learn_en.utill.Ltr
-import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.keyboardAsState
 import com.alirezasn80.learn_en.utill.rememberImagePickerBuilder
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -187,7 +187,9 @@ fun CreateScreen(
 
                     if (focusContent && isKeyboardOpen == Keyboard.Opened)
                         KeyboardBar(
-                            onEnSttClick = { enSttResult.launch(it) },
+                            onEnSttClick = {
+                                enSttResult.launch(it)
+                            },
                             onFaToEnSttClick = { faToEnResult.launch(it) },
                             onScanImgClick = { imagePickerBuilder.launchPicker() }
                         )
@@ -225,7 +227,7 @@ fun CreateScreen(
                         SmallSpacer()
                         TitleSection(state.title, viewModel::onTitleChange)
                         SmallSpacer()
-                        Text(text = "${5000-state.content.text.length}")
+                        Text(text = "${5000 - state.content.text.length}")
                         ContentSection(
                             value = state.content,
                             onValueChange = viewModel::onContentChange,

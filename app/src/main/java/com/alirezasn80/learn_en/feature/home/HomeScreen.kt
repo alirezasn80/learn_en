@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -48,6 +49,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SheetValue
@@ -56,6 +58,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -128,9 +131,7 @@ fun HomeScreen(
     var reqToExit by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val context = LocalContext.current
-    val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
-    )
+    var showCategory by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val permissionState = rememberPermissionState(
@@ -203,12 +204,6 @@ fun HomeScreen(
             scope.launch { drawerState.close() }
     }
 
-    // Close Bottom Sheet
-    BackHandler(bottomSheetState.bottomSheetState.isVisible) {
-        if (bottomSheetState.bottomSheetState.isVisible)
-            scope.launch { bottomSheetState.bottomSheetState.hide() }
-    }
-
     // Check Reload
     LaunchedEffect(Unit) {
         if (Reload.created) {
@@ -223,6 +218,19 @@ fun HomeScreen(
     }
 
     UI(uiComponent = viewModel.uiComponents, progress = viewModel.progress["bazaar"]) {
+
+        if (showCategory) {
+            BottomSheet(
+                onDismiss = { showCategory = false },
+                onClick = {
+                    viewModel.setSelectedLevel(it)
+                    showCategory = false
+                },
+                onCreateClick = navigationState::navToCreate
+            )
+        }
+
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -304,86 +312,84 @@ fun HomeScreen(
                 }
             }
         ) {
-            BottomSheetScaffold(
-                scaffoldState = bottomSheetState,
-                sheetPeekHeight = 0.dp,
-                sheetContainerColor = MaterialTheme.colorScheme.primary,
-                sheetContent = {
-                    BottomSheet(
-                        onClick = {
-                            viewModel.setSelectedLevel(it)
-                            scope.launch { bottomSheetState.bottomSheetState.hide() }
-                        },
-                        onCreateClick = navigationState::navToCreate
-                    )
-                }
-            ) {
-                Column(Modifier.fillMaxSize()) {
-                    Header(
-                        selectedLevel = state.selectedSection.name,
-                        onMenuClick = { scope.launch { drawerState.open() } },
-                        onLevelClick = {
-                            scope.launch {
-                                if (bottomSheetState.bottomSheetState.isVisible)
-                                    bottomSheetState.bottomSheetState.hide()
-                                else
-
-                                    bottomSheetState.bottomSheetState.expand()
-                            }
-                        },
-                        onCreateClick = navigationState::navToCreate
-                    )
-                    Ltr {
-                        if (viewModel.progress[""] is Progress.Loading) {
-                            LoadingLayout()
-                        } else {
-                            if (state.selectedSection.key == "favorite") {
-                                if (state.favorites.isEmpty()) {
-                                    EmptyLayout()
-                                } else {
-                                    LazyColumn {
-                                        itemsIndexed(state.favorites) { index, item ->
-                                            FavoriteItemSection(
-                                                index = index + 1,
-                                                item = item,
-                                                onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
-                                            )
-                                        }
-                                    }
-                                }
+            Column(Modifier.fillMaxSize()) {
+                Header(
+                    selectedLevel = state.selectedSection.name,
+                    onMenuClick = { scope.launch { drawerState.open() } },
+                    onLevelClick = {
+                        if (showCategory)
+                            showCategory = false
+                        else
+                            showCategory = true
+                    },
+                    onCreateClick = navigationState::navToCreate
+                )
+                Ltr {
+                    if (viewModel.progress[""] is Progress.Loading) {
+                        LoadingLayout()
+                    } else {
+                        if (state.selectedSection.key == "favorite") {
+                            if (state.favorites.isEmpty()) {
+                                EmptyLayout()
                             } else {
-                                if (state.categories.isEmpty()) {
-                                    EmptyLayout()
-                                } else {
-
-                                    LazyVerticalGrid(
-                                        columns = GridCells.Fixed(3),
-                                        horizontalArrangement = Arrangement.Center,
-                                        contentPadding = PaddingValues(12.dp)
-                                    ) {
-                                        items(state.categories) {
-                                            CategoryItemSection(
-                                                isLastRead = it.id == state.lastReadCategory,
-                                                item = it,
-                                                onClick = {
-                                                    viewModel.saveAsLastRead(it.id)
-                                                    navigationState.navToStories(it.id, it.title)
-                                                }
-                                            )
-                                        }
+                                LazyColumn {
+                                    itemsIndexed(state.favorites) { index, item ->
+                                        FavoriteItemSection(
+                                            index = index + 1,
+                                            item = item,
+                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
+                                        )
                                     }
+                                }
+                            }
+                        } else {
+                            if (state.categories.isEmpty()) {
+                                EmptyLayout()
+                            } else {
 
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    horizontalArrangement = Arrangement.Center,
+                                    contentPadding = PaddingValues(12.dp),
+                                ) {
+                                    items(state.categories,key = {it.id}) {
+                                        CategoryItemSection(
+                                            isLastRead = it.id == state.lastReadCategory,
+                                            item = it,
+                                            onClick = {
+                                                viewModel.saveAsLastRead(it.id)
+                                                navigationState.navToStories(it.id, it.title)
+                                            }
+                                        )
+                                    }
                                 }
 
                             }
+
                         }
                     }
-
-
                 }
+
+
             }
 
+
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SheetCategorySection(
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+
     }
 }
 
@@ -534,7 +540,6 @@ private fun CategoryItemSection(
     Column(
         Modifier
             .padding(dimension.small)
-            .background(MaterialTheme.colorScheme.surface)
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -670,41 +675,51 @@ private fun Header(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheet(
+    onDismiss: () -> Unit,
     onClick: (Section) -> Unit,
     onCreateClick: () -> Unit,
 ) {
-
-    Column(
-        Modifier
-            .background(MaterialTheme.colorScheme.primary)
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
-        sections.forEach {
-            Column {
-                Row(
-                    Modifier
-                        .clickable { onClick(it) }
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(dimension.medium),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
-                    if (it is Section.Created)
-                        Text(
-                            text = stringResource(id = R.string.create),
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.clickable { onCreateClick() }
-                        )
+        Column(
+            Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .padding(bottom = 40.dp)
+        ) {
+            sections.forEach {
+                Column {
+                    Row(
+                        Modifier
+                            .clickable { onClick(it) }
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(dimension.medium),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
+                        if (it is Section.Created)
+                            Text(
+                                text = stringResource(id = R.string.create),
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.clickable { onCreateClick() }
+                            )
 
+                    }
+                    Divider(color = MaterialTheme.colorScheme.background, thickness = 2.dp)
                 }
-                Divider(color = MaterialTheme.colorScheme.primary, thickness = 0.7.dp)
+
+
             }
-
-
         }
     }
+
 
 }
 

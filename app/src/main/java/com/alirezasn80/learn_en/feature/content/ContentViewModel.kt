@@ -160,7 +160,7 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    private fun loading(value: Progress, key: String = "") =
+     fun loading(value: Progress, key: String = "") =
         viewModelScope.launch(Dispatchers.Main) { progress[key] = value }
 
     private fun errorException(
@@ -282,8 +282,6 @@ class ContentViewModel @Inject constructor(
 
     fun onWordClick(word: String) {
         clearPrevSheet()
-        loading(Progress.Loading, LoadingKey.DICT)
-        //loading(Progress.Loading, LoadingKey.IMG)
         executeDictionary(word)
     }
 

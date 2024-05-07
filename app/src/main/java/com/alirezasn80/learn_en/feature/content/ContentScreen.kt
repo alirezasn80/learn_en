@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -25,15 +26,21 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,7 +73,6 @@ import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.ui.common.PopUpMenu
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
-import com.alirezasn80.learn_en.ui.theme.ExitRed
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
 import com.alirezasn80.learn_en.ui.theme.Red100
@@ -97,24 +103,13 @@ private var wordSpeakCounter = 0
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-
     val scope = rememberCoroutineScope()
-
-    val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            skipHiddenState = false
-        )
-    )
-
+    var showSetting by remember { mutableStateOf(false) }
+    var showDict by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
     val destination = viewModel.destination
 
 
-    // Close Bottom Sheet
-    BackHandler(bottomSheetState.bottomSheetState.isVisible) {
-        if (bottomSheetState.bottomSheetState.isVisible)
-            scope.launch { bottomSheetState.bottomSheetState.hide() }
-    }
 
     LaunchedEffect(destination) {
         if (destination is Destination.Payment) navigationState.navToPayment("TRANSLATE")
@@ -127,117 +122,205 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         },
         uiComponent = viewModel.uiComponents
     ) {
-        BottomSheetScaffold(
-            scaffoldState = bottomSheetState,
-            sheetPeekHeight = 0.dp,
-            sheetContainerColor = MaterialTheme.colorScheme.primary,
-            sheetContent = {
-                if (viewModel.progress[LoadingKey.DICT] is Progress.Idle && state.sheetModel == null) {
-                    SideEffect { scope.launch { bottomSheetState.bottomSheetState.hide() } }
-                } else if (state.sheetModel == null) {
-                    SheetLoading()
-                } else {
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                    ) {
-                        CategorySection(
-                            selectedCategory = state.selectedCategory,
-                            onCategoryClick = viewModel::setSelectedDictCategory
-                        )
-                        when (state.selectedCategory) {
-
-                            DictCategory.Desc -> {
-                                DescSection(state.sheetModel!!.descriptions)
-                            }
-
-                            DictCategory.Meaning -> {
-                                MeaningSection(
-                                    sheetModel = state.sheetModel!!,
-                                    onWordSpeak = viewModel::wordSpeak,
-                                    onChangeHighlightMode = viewModel::changeHighlightMode,
-                                )
-                            }
-
-                            DictCategory.Example -> {
-                                ExampleSection(examples = state.sheetModel!!.examples)
-                            }
-                        }
 
 
+        if (showSetting) {
+            SettingSection(
+                sheetState = sheetState,
+                onDismiss = { showSetting = false }
+            )
+        }
+
+        if (showDict) {
+            DictSection(
+                sheetState = sheetState,
+                progress = viewModel.progress,//not used
+                sheetModel = state.sheetModel,
+                selectedCategory = state.selectedCategory,
+                onDismiss = { showDict = false },
+                onWordSpeak = viewModel::wordSpeak,
+                onCategoryClick = viewModel::setSelectedDictCategory,
+                onChangeHighlightMode = viewModel::changeHighlightMode
+            )
+        }
+
+
+        Scaffold(
+            topBar = {
+                Header(
+                    title = state.title,
+                    isVisibleTranslate = state.isVisibleTranslate,
+                    isMute = state.isMute,
+                    isBookmark = state.isBookmark,
+                    upPress = navigationState::upPress,
+                    onTranslateClick = {
+                        if (User.isVipUser || viewModel.isTrial)
+                            viewModel.onTranslateClick()
+                        else
+                            navigationState.navToPayment("TRANSLATE")
+                    },
+                    onMuteClick = viewModel::onMuteClick,
+                    onBookmarkClick = viewModel::onBookmarkClick,
+                    onSettingClick = {
+                        showSetting = true
                     }
 
 
-                }
-
-
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    Header(
-                        title = state.title,
-                        isVisibleTranslate = state.isVisibleTranslate,
-                        isMute = state.isMute,
-                        isBookmark = state.isBookmark,
-                        upPress = navigationState::upPress,
-                        onTranslateClick = {
-                            if (User.isVipUser || viewModel.isTrial)
-                                viewModel.onTranslateClick()
-                            else
-                                navigationState.navToPayment("TRANSLATE")
-                        },
-                        onMuteClick = viewModel::onMuteClick,
-                        onBookmarkClick = viewModel::onBookmarkClick
-
-
+                )
+            },
+            bottomBar = {
+                if (!state.isMute)
+                    BottomBar(
+                        isPlay = state.isPlay,
+                        onSpeedClick = viewModel::setReadSpeed,
+                        onPlayClick = viewModel::readParagraph,
+                        onBackwardClick = viewModel::onBackwardClick,
+                        onForwardClick = viewModel::onForwardClick,
+                        onReadModeClick = viewModel::onReadModeClick
                     )
-                },
-                bottomBar = {
-                    if (!state.isMute)
-                        BottomBar(
-                            isPlay = state.isPlay,
-                            onSpeedClick = viewModel::setReadSpeed,
-                            onPlayClick = viewModel::readParagraph,
-                            onBackwardClick = viewModel::onBackwardClick,
-                            onForwardClick = viewModel::onForwardClick,
-                            onReadModeClick = viewModel::onReadModeClick
-                        )
-                }
-            ) { scaffoldPadding ->
-                Ltr {
-                    if (viewModel.progress[""] is Progress.Loading) {
-                        MainLoading(scaffoldPadding)
-                    } else
-                        LazyColumn(Modifier.padding(scaffoldPadding)) {
-                            itemsIndexed(state.paragraphs) { index, paragraph ->
-                                ParagraphSection(
-                                    highlights = state.highlights,
-                                    isFocus = state.readableIndex == index,
-                                    paragraph = paragraph,
-                                    isVisibleTranslate = state.isVisibleTranslate,
-                                    onWordClick = {
-                                        if (User.isVipUser || viewModel.isTrial) {
-                                            scope.launch { bottomSheetState.bottomSheetState.expand() }
-                                            debug("word : $it")
-                                            viewModel.onWordClick(it.lowercase())
-                                        } else {
-                                            navigationState.navToPayment("DICT")
-                                        }
-                                    },
-                                    onClick = { viewModel.onParagraphClick(index) }
-                                )
-                            }
-                        }
-                }
-
-
             }
+        ) { scaffoldPadding ->
+            Ltr {
+                if (viewModel.progress[""] is Progress.Loading) {
+                    MainLoading(scaffoldPadding)
+                } else
+                    LazyColumn(Modifier.padding(scaffoldPadding)) {
+                        itemsIndexed(state.paragraphs) { index, paragraph ->
+                            ParagraphSection(
+                                highlights = state.highlights,
+                                isFocus = state.readableIndex == index,
+                                paragraph = paragraph,
+                                isVisibleTranslate = state.isVisibleTranslate,
+                                onWordClick = {
+                                    if (User.isVipUser || viewModel.isTrial) {
+                                        viewModel.loading(Progress.Loading, LoadingKey.DICT) //not used
+                                        viewModel.onWordClick(it.lowercase())
+                                        showDict = true
+                                    } else {
+                                        navigationState.navToPayment("DICT")
+                                    }
+                                },
+                                onClick = { viewModel.onParagraphClick(index) }
+                            )
+                        }
+                    }
+            }
+
+
         }
+
     }
 
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DictSection(
+    sheetState: SheetState,
+    progress: MutableMap<String, Progress>,
+    sheetModel: SheetModel?,
+    selectedCategory: DictCategory,
+    onCategoryClick: (DictCategory) -> Unit,
+    onWordSpeak: (String, Float) -> Unit,
+    onChangeHighlightMode: (String, Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        /*if (progress[LoadingKey.DICT] is Progress.Idle && sheetModel == null) {
+            debug("here?")
+            onDismiss()
+        } else*/ if (sheetModel == null) {
+        SheetLoading()
+    } else {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(bottom = 40.dp)
+        ) {
+            CategorySection(
+                selectedCategory = selectedCategory,
+                onCategoryClick = onCategoryClick
+            )
+            when (selectedCategory) {
+
+                DictCategory.Desc -> {
+                    DescSection(sheetModel.descriptions)
+                }
+
+                DictCategory.Meaning -> {
+                    MeaningSection(
+                        sheetModel = sheetModel,
+                        onWordSpeak = onWordSpeak,
+                        onChangeHighlightMode = onChangeHighlightMode,
+                    )
+                }
+
+                DictCategory.Example -> {
+                    ExampleSection(examples = sheetModel.examples)
+                }
+            }
+
+
+        }
+    }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingSection(
+    sheetState: SheetState,
+    onDismiss: () -> Unit
+) {
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        CountryList()
+    }
+}
+
+@Composable
+private fun CountryList() {
+    val countries = listOf(
+        Pair("United States", "\uD83C\uDDFA\uD83C\uDDF8"),
+        Pair("Canada", "\uD83C\uDDE8\uD83C\uDDE6"),
+        Pair("India", "\uD83C\uDDEE\uD83C\uDDF3"),
+        Pair("Germany", "\uD83C\uDDE9\uD83C\uDDEA"),
+        Pair("France", "\uD83C\uDDEB\uD83C\uDDF7"),
+        Pair("Japan", "\uD83C\uDDEF\uD83C\uDDF5"),
+        Pair("China", "\uD83C\uDDE8\uD83C\uDDF3"),
+        Pair("Brazil", "\uD83C\uDDE7\uD83C\uDDF7"),
+        Pair("Australia", "\uD83C\uDDE6\uD83C\uDDFA"),
+        Pair("Russia", "\uD83C\uDDF7\uD83C\uDDFA"),
+        Pair("United Kingdom", "\uD83C\uDDEC\uD83C\uDDE7"),
+    )
+
+    LazyColumn(contentPadding = PaddingValues(bottom = 40.dp)) {
+        items(countries) { (country, flag) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+            ) {
+                Text(
+                    text = flag,
+                    modifier = Modifier.padding(end = 20.dp)
+                )
+                Text(text = country)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun DescSection(descriptions: List<Desc>) {
@@ -747,7 +830,7 @@ private fun ParagraphSection(
         Modifier
             .clickable { onClick() }
             .fillMaxWidth()
-             .padding(vertical =if (isVisibleTranslate)1.dp else 0.dp)
+            .padding(vertical = if (isVisibleTranslate) 1.dp else 0.dp)
             .background(MaterialTheme.colorScheme.surface)
             .background(if (isFocus) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Unspecified)
             .padding(horizontal = dimension.medium, vertical = dimension.small)
@@ -762,8 +845,8 @@ private fun ParagraphSection(
         Rtl {
             if (isVisibleTranslate) {
                 Text(text = paragraph.translated, modifier = Modifier.fillMaxWidth())
-               // SmallSpacer()
-               // Line()
+                // SmallSpacer()
+                // Line()
             }
         }
 
@@ -779,7 +862,8 @@ private fun Header(
     upPress: () -> Unit,
     onTranslateClick: () -> Unit,
     onMuteClick: () -> Unit,
-    onBookmarkClick: () -> Unit
+    onBookmarkClick: () -> Unit,
+    onSettingClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -809,24 +893,6 @@ private fun Header(
             modifier = Modifier.padding(start = dimension.medium)
         ) {
 
-
-            // Mute
-            Icon(
-                modifier = Modifier
-                    .clickable { onMuteClick() }
-                    .clip(CircleShape)
-                    .background(
-                        if (isMute)
-                            Color.White.copy(alpha = 0.3f)
-                        else
-                            Color.Unspecified
-                    )
-                    .padding(dimension.extraSmall),
-                imageVector = ImageVector.vectorResource(if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-
             SmallSpacer()
 
 
@@ -849,22 +915,38 @@ private fun Header(
 
             SmallSpacer()
 
-            // Bookmark
-            Icon(
-                modifier = Modifier
-                    .clickable { onBookmarkClick() }
-                    .clip(CircleShape)
-                    .background(
-                        if (isBookmark)
-                            Color.White.copy(alpha = 0.3f)
-                        else
-                            Color.Unspecified
-                    )
-                    .padding(dimension.extraSmall),
-                imageVector = ImageVector.vectorResource(if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
+
+            PopUpMenu(
+                mainIcon = Icons.Rounded.MoreVert,
+                titleMenuItems = listOf(
+                    if (isBookmark) "حذف از علاقه مندی" else "افزودن به علاقه مندی",
+                    if (isMute) "با صدا" else "بی صدا",
+                    "تنظیمات"
+                ),
+                iconMenuItems = listOf(
+                    if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark,
+                    if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max,
+                    Icons.Rounded.Settings
+                ),
+                selectedItem = {
+                    when (it) {
+
+                        0 -> {
+                            onBookmarkClick()
+                        }
+
+                        1 -> {
+                            onMuteClick()
+                        }
+
+                        2 -> {
+                            onSettingClick()
+                        }
+
+                    }
+                }
             )
+
 
         }
 
