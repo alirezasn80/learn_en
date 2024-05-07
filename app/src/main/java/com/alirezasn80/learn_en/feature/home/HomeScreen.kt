@@ -352,7 +352,7 @@ fun HomeScreen(
                                     horizontalArrangement = Arrangement.Center,
                                     contentPadding = PaddingValues(12.dp),
                                 ) {
-                                    items(state.categories,key = {it.id}) {
+                                    items(state.categories, key = { it.id }) {
                                         CategoryItemSection(
                                             isLastRead = it.id == state.lastReadCategory,
                                             item = it,
