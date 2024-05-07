@@ -113,7 +113,7 @@ fun CreateScreen(
         }
     }
 
-    val imagePickerBuilder = rememberImagePickerBuilder(context =context ) {
+    val imagePickerBuilder = rememberImagePickerBuilder(context = context) {
         viewModel.processImageUri(it)
     }
 
@@ -225,6 +225,7 @@ fun CreateScreen(
                         SmallSpacer()
                         TitleSection(state.title, viewModel::onTitleChange)
                         SmallSpacer()
+                        Text(text = "${5000-state.content.text.length}")
                         ContentSection(
                             value = state.content,
                             onValueChange = viewModel::onContentChange,
@@ -384,7 +385,7 @@ private fun ContentSection(value: TextFieldValue, onValueChange: (TextFieldValue
     TextField(
         value = value,
         onValueChange = {
-            if (it.text.length < 5000)
+            if (it.text.length <= 5000)
                 onValueChange(it)
         },
         placeholder = { Text(text = "Content...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)) },

@@ -136,4 +136,7 @@ dependencies {
 
     //coil
     implementation ("io.coil-kt:coil-compose:2.5.0")
+
+    //Crop
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
 }

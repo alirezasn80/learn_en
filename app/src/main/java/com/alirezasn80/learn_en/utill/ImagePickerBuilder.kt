@@ -31,6 +31,10 @@ import androidx.core.content.FileProvider
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -45,16 +49,37 @@ fun rememberImagePickerBuilder(
     var showDialog by remember { mutableStateOf(false) }
 
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
+    val cropAssetLauncher = rememberLauncherForActivityResult(
+        contract = CropImageContract(),
         onResult = { result ->
-            result?.let(onSelectedImage)
+            if (result.isSuccessful)
+                result.uriContent?.let { onSelectedImage(it) }
         }
     )
 
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-        if (isSuccess)
-            onSelectedImage(capturedUrl)
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { result ->
+            result?.let {
+                val cropOptions = CropImageContractOptions(
+                    it,
+                    CropImageOptions()
+                )
+                cropAssetLauncher.launch(cropOptions)
+            }
+        }
+    )
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { isSuccess ->
+        if (isSuccess) {
+            val cropOptions = CropImageContractOptions(
+                capturedUrl,
+                CropImageOptions()
+            )
+            cropAssetLauncher.launch(cropOptions)
+        }
     }
 
     if (showDialog) {
