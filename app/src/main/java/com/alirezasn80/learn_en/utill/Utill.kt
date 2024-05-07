@@ -83,6 +83,8 @@ object Key {
     const val SAF_PERMISSION = "SAF_PERMISSION"
     const val STORAGE_PERMISSION = "StoragePermission"
     const val EXPIRE_DATE = "EXPIRE_DATE"
+    const val LAST_READ_CATEGORY = "LAST_READ_CATEGORY"
+    const val LAST_READ_STORY = "LAST_READ_STORY"
 }
 
 sealed interface WidgetType {

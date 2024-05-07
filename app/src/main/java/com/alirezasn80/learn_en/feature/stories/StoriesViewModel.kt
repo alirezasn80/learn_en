@@ -3,9 +3,11 @@ package com.alirezasn80.learn_en.feature.stories
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.domain.entity.toItems
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.getString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,7 @@ import javax.inject.Inject
 class StoriesViewModel @Inject constructor(
     savedstate: SavedStateHandle,
     private val database: AppDB,
+    private val dataStore: AppDataStore,
 ) : BaseViewModel<StoriesState>(StoriesState()) {
     val categoryId = savedstate.getString(Arg.CATEGORY_ID)!!.toInt()
     private val title = savedstate.getString(Arg.TITLE)!!
@@ -24,6 +27,8 @@ class StoriesViewModel @Inject constructor(
     init {
         state.update { it.copy(title = title) }
         getStories()
+        getLastReadCategory()
+
     }
 
     private fun getStories() {
@@ -34,5 +39,20 @@ class StoriesViewModel @Inject constructor(
         }
 
     }
+
+    fun saveAsLastRead(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastReadStory(Key.LAST_READ_STORY, id)
+            state.update { it.copy(isLastReadStory = id) }
+        }
+    }
+
+    private fun getLastReadCategory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = dataStore.getLastReadStory(Key.LAST_READ_STORY)
+            state.update { it.copy(isLastReadStory = id) }
+        }
+    }
+
 
 }

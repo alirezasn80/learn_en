@@ -30,6 +30,26 @@ interface AppDataStore {
         key: String,
     ): Int
 
+    suspend fun setLastReadCategory(
+        key: String,
+        value: Int,
+    )
+
+    suspend fun getLastReadCategory(
+        key: String,
+    ): Int
+
+    suspend fun setLastReadStory(
+        key: String,
+        value: Int,
+    )
+
+    suspend fun getLastReadStory(
+        key: String,
+    ): Int
+
+
+
     suspend fun validPermission(
         key: String,
         value: Boolean,

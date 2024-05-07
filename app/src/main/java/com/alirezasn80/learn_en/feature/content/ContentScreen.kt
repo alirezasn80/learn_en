@@ -120,7 +120,6 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         if (destination is Destination.Payment) navigationState.navToPayment("TRANSLATE")
     }
 
-
     UI(
         checkOnline = true,
         onRefresh = {
@@ -748,10 +747,10 @@ private fun ParagraphSection(
         Modifier
             .clickable { onClick() }
             .fillMaxWidth()
-            .padding(vertical = 1.dp)
+             .padding(vertical =if (isVisibleTranslate)1.dp else 0.dp)
             .background(MaterialTheme.colorScheme.surface)
             .background(if (isFocus) MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f) else Color.Unspecified)
-            .padding(dimension.medium)
+            .padding(horizontal = dimension.medium, vertical = dimension.small)
     ) {
         ClickableWordsText(
             text = paragraph.text,
@@ -761,8 +760,11 @@ private fun ParagraphSection(
         SmallSpacer()
 
         Rtl {
-            if (isVisibleTranslate)
+            if (isVisibleTranslate) {
                 Text(text = paragraph.translated, modifier = Modifier.fillMaxWidth())
+               // SmallSpacer()
+               // Line()
+            }
         }
 
     }
@@ -899,6 +901,7 @@ fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String)
                     // Handle the click event on the word
                     onClick(annotation.item)
                 }
-        }
+        },
+        style = MaterialTheme.typography.bodyLarge
     )
 }

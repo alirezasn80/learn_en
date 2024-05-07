@@ -57,10 +57,14 @@ fun StoriesScreen(
                     itemsIndexed(state.items) { index, item ->
                         val isTrial = index <= 1 || User.isVipUser
                         ItemSection(
+                            isLastRead = item.contentId!! == state.isLastReadStory,
                             isFree = isTrial,
                             index = index,
                             item = item,
-                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, if (isTrial) "trial" else "lock") }
+                            onClick = {
+                                viewmodel.saveAsLastRead(item.contentId)
+                                navigationState.navToContent(item.categoryId!!, item.contentId, if (isTrial) "trial" else "lock")
+                            }
                         )
                     }
                 }
@@ -108,6 +112,7 @@ private fun Header(title: String, upPress: () -> Unit) {
 
 @Composable
 private fun ItemSection(
+    isLastRead: Boolean,
     isFree: Boolean,
     index: Int,
     item: Items,
@@ -151,7 +156,7 @@ private fun ItemSection(
                 SmallSpacer()
                 Text(
                     text = item.title, style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = if (isLastRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 )
             }
         }

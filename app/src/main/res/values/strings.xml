@@ -1,81 +1,81 @@
 <resources>
     <string name="app_name">داستان های انگلیسی</string>
-    <string name="unknown_error">خطای نامشخص</string>
-    <string name="http_error">ارتباط با سرور دچار مشکل شده، لطفا بعدا تلاش کنید</string>
-    <string name="network_error">خطا در اتصال به سرور… لطفا اینترنت خود را چک کنید</string>
-    <string name="network_data_null">داده ای از سرور دریافت نشد</string>
-    <string name="timeout">درخواست، بیش از اندازه طول کشیده است. لطفا مجددا تلاش کنید</string>
-    <string name="data_is_not_exist">داده ای وجود ندارد</string>
-    <string name="try_again">تلاش مجدد</string>
-    <string name="elementary">ابتدایی</string>
-    <string name="medium">متوسط</string>
-    <string name="advance">پیشرفته</string>
-    <string name="all">همه</string>
-    <string name="favorite">مورد علاقه</string>
-    <string name="created">ساخته شده</string>
-    <string name="add_to_bookmark">به علاقه مندی ها اضافه شد</string>
-    <string name="create_story">ایجاد داستان</string>
-    <string name="create_category">ایجاد دسته بندی</string>
-    <string name="story_save">داستان شما ثبت شد</string>
-    <string name="new_category">دسته بندی جدید</string>
-    <string name="enter_category_name">اسم دسته بندی را وارد کنید</string>
-    <string name="confirm">تایید</string>
-    <string name="cancel">لغو</string>
-    <string name="blank_title">لطفا عنوان را وارد کنید</string>
-    <string name="blank_content">لطفا محتوا را وارد کنید</string>
-    <string name="stories">داستان ها</string>
-    <string name="documents">اسناد</string>
-    <string name="create_doc">ایجاد محتوا</string>
-    <string name="create">ایجاد</string>
-    <string name="delete_from_bookmark">از علاقه مندی ها حذف شد</string>
-    <string name="support_by_5_star">با ۵ ستاره حمایت کنید</string>
-    <string name="submit_comment">ثبت نظر</string>
-    <string name="dialog_text_satisfied">کاربر گرامی، آیا از عملکرد برنامه رضایت دارید؟</string>
-    <string name="exit">خروج</string>
-    <string name="no">خیر</string>
-    <string name="yes">بله</string>
-    <string name="report">گزارش</string>
-    <string name="send">ارسال</string>
-    <string name="enlish_stories">English Story</string>
-    <string name="learn_english_with_story">آموزش زبان با داستان های انگلیسی</string>
-    <string name="vip_user">کاربر ویژه</string>
-    <string name="invite_friends">دعوت از دوستان</string>
-    <string name="send_app_to_other">اپلیکیشن یادگیری زبان با داستان های مختلف و داستان های خود!
+    <string name="unknown_error" translatable="false">خطای نامشخص</string>
+    <string name="http_error" translatable="false">ارتباط با سرور دچار مشکل شده، لطفا بعدا تلاش کنید</string>
+    <string name="network_error" translatable="false">خطا در اتصال به سرور… لطفا اینترنت خود را چک کنید</string>
+    <string name="network_data_null" translatable="false">داده ای از سرور دریافت نشد</string>
+    <string name="timeout" translatable="false">درخواست، بیش از اندازه طول کشیده است. لطفا مجددا تلاش کنید</string>
+    <string name="data_is_not_exist" translatable="false">داده ای وجود ندارد</string>
+    <string name="try_again" translatable="false">تلاش مجدد</string>
+    <string name="elementary" translatable="false">ابتدایی</string>
+    <string name="medium" translatable="false">متوسط</string>
+    <string name="advance" translatable="false">پیشرفته</string>
+    <string name="all" translatable="false">همه</string>
+    <string name="favorite" translatable="false">مورد علاقه</string>
+    <string name="created" translatable="false">ساخته شده</string>
+    <string name="add_to_bookmark" translatable="false">به علاقه مندی ها اضافه شد</string>
+    <string name="create_story" translatable="false">ایجاد داستان</string>
+    <string name="create_category" translatable="false">ایجاد دسته بندی</string>
+    <string name="story_save" translatable="false">داستان شما ثبت شد</string>
+    <string name="new_category" translatable="false">دسته بندی جدید</string>
+    <string name="enter_category_name" translatable="false">اسم دسته بندی را وارد کنید</string>
+    <string name="confirm" translatable="false">تایید</string>
+    <string name="cancel" translatable="false">لغو</string>
+    <string name="blank_title" translatable="false">لطفا عنوان را وارد کنید</string>
+    <string name="blank_content" translatable="false">لطفا محتوا را وارد کنید</string>
+    <string name="stories" translatable="false">داستان ها</string>
+    <string name="documents" translatable="false">اسناد</string>
+    <string name="create_doc" translatable="false">ایجاد محتوا</string>
+    <string name="create" translatable="false">ایجاد</string>
+    <string name="delete_from_bookmark" translatable="false">از علاقه مندی ها حذف شد</string>
+    <string name="support_by_5_star" translatable="false">با ۵ ستاره حمایت کنید</string>
+    <string name="submit_comment" translatable="false">ثبت نظر</string>
+    <string name="dialog_text_satisfied" translatable="false">کاربر گرامی، آیا از عملکرد برنامه رضایت دارید؟</string>
+    <string name="exit" translatable="false">خروج</string>
+    <string name="no" translatable="false">خیر</string>
+    <string name="yes" translatable="false">بله</string>
+    <string name="report" translatable="false">گزارش</string>
+    <string name="send" translatable="false">ارسال</string>
+    <string name="enlish_stories" translatable="false">English Story</string>
+    <string name="learn_english_with_story" translatable="false">آموزش زبان با داستان های انگلیسی</string>
+    <string name="vip_user" translatable="false">کاربر ویژه</string>
+    <string name="invite_friends" translatable="false">دعوت از دوستان</string>
+    <string name="send_app_to_other" translatable="false">اپلیکیشن یادگیری زبان با داستان های مختلف و داستان های خود!
     https://cafebazaar.ir/app/com.alirezasn80.learn_en</string>
-    <string name="about_us">درباره ما</string>
-    <string name="report_text">متن گزارش</string>
-    <string name="your_text_sent">متن شما ارسال شد</string>
-    <string name="error_connect_bazaar">در اتصال به کافه بازار، مشکلی بوجود آمده است.لطفا پس از اطمینان از نصب بودن اپلیکیشن کافه بازار بر روی دیوایس خود، مجددا تلاش کنید</string>
-    <string name="error_payment_page_bazaar">متاسفانه مشکلی در اتصال به کافه بازار بوجود آمده است. لطفا مجددا تلاش کنید</string>
-    <string name="error_process_payment_bazaar">عملیات پرداخت ناموفق بود</string>
-    <string name="you_now_vip">تبریک! درحال حاضر شما کاربر ویژه هستید 🥳</string>
-    <string name="vip_payment">ارتقا دائمی به کاربر ویژه</string>
-    <string name="mounch_12">۱۲ ماهه</string>
-    <string name="mounch_6">۶ ماهه</string>
-    <string name="mounch_3">۳ ماهه</string>
-    <string name="auto_translate">ترجمه خودکار</string>
-    <string name="auto_translate_desc">امکان ترجمه خودکار تمامی داستان های برنامه</string>
-    <string name="dictionary">دیکشنری</string>
-    <string name="dictionary_desc">امکان نمایش دیکشنری با کلیک بر روی هر لغت از داستان ها</string>
-    <string name="support">پشتیبانی</string>
-    <string name="onboarding_desc">توضیحات انبوردینگ</string>
-    <string name="various_stories">کشف دنیای داستان‌های انگلیسی با دسته‌بندی‌های مختلف! هر داستانی که می‌خوانید، قدمی به سوی تسلط بر زبان انگلیسی است.</string>
-    <string name="translate_and_dectionary_onboarding">با ترجمه خودکار هر داستان و دیکشنری هدفمند، معانی لغات را به سرعت درک کنید و دایره لغات خود را گسترش دهید</string>
-    <string name="create_story_onbloarding">برنامه فقط به داستان‌های درونی محدود نمی‌شود. شما می‌توانید داستان‌های انگلیسی مورد علاقه‌تان را از منابع مختلف به برنامه اضافه کنید و از امکانات
+    <string name="about_us" translatable="false">درباره ما</string>
+    <string name="report_text" translatable="false">متن گزارش</string>
+    <string name="your_text_sent" translatable="false">متن شما ارسال شد</string>
+    <string name="error_connect_bazaar" translatable="false">در اتصال به کافه بازار، مشکلی بوجود آمده است.لطفا پس از اطمینان از نصب بودن اپلیکیشن کافه بازار بر روی دیوایس خود، مجددا تلاش کنید</string>
+    <string name="error_payment_page_bazaar" translatable="false">متاسفانه مشکلی در اتصال به کافه بازار بوجود آمده است. لطفا مجددا تلاش کنید</string>
+    <string name="error_process_payment_bazaar" translatable="false">عملیات پرداخت ناموفق بود</string>
+    <string name="you_now_vip" translatable="false">تبریک! درحال حاضر شما کاربر ویژه هستید 🥳</string>
+    <string name="vip_payment" translatable="false">ارتقا دائمی به کاربر ویژه</string>
+    <string name="mounch_12" translatable="false">۱۲ ماهه</string>
+    <string name="mounch_6" translatable="false">۶ ماهه</string>
+    <string name="mounch_3" translatable="false">۳ ماهه</string>
+    <string name="auto_translate" translatable="false">ترجمه خودکار</string>
+    <string name="auto_translate_desc" translatable="false">امکان ترجمه خودکار تمامی داستان های برنامه</string>
+    <string name="dictionary" translatable="false">دیکشنری</string>
+    <string name="dictionary_desc" translatable="false">امکان نمایش دیکشنری با کلیک بر روی هر لغت از داستان ها</string>
+    <string name="support" translatable="false">پشتیبانی</string>
+    <string name="onboarding_desc" translatable="false">توضیحات انبوردینگ</string>
+    <string name="various_stories" translatable="false">کشف دنیای داستان‌های انگلیسی با دسته‌بندی‌های مختلف! هر داستانی که می‌خوانید، قدمی به سوی تسلط بر زبان انگلیسی است.</string>
+    <string name="translate_and_dectionary_onboarding" translatable="false">با ترجمه خودکار هر داستان و دیکشنری هدفمند، معانی لغات را به سرعت درک کنید و دایره لغات خود را گسترش دهید</string>
+    <string name="create_story_onbloarding" translatable="false">برنامه فقط به داستان‌های درونی محدود نمی‌شود. شما می‌توانید داستان‌های انگلیسی مورد علاقه‌تان را از منابع مختلف به برنامه اضافه کنید و از امکانات
         ترجمه و دیکشنری برنامه برای فهم بهتر آن ها استفاده نمایید.</string>
-    <string name="create_story_desc">امکان ایجاد داستان و محتوای مورد علاقه خود، داخل برنامه</string>
-    <string name="mounch_1">۱ ماهه</string>
-    <string name="your_subscribe_is_finished">اعتبار اشتراک ویژه شما تمام شده :(</string>
-    <string name="check_subscribe_status">بررسی وضعیت اشتراک</string>
-    <string name="problem_connection_bazaar">اتصال به کافه بازار با مشکل مواجه شد!</string>
-    <string name="no_any_subscribe">درحال حاضر اشتراکی ندارید</string>
-    <string name="tip_free_state">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
-    <string name="youre_offline">لطفا از اتصال دستگاه خود به اینترنت مطمئن شوید</string>
-    <string name="test">تست</string>
-    <string name="aboutus">درباره ما</string>
-    <string name="aboutus_desc">این اپلیکیشن ابزاری آموزشی است که به کاربران کمک می‌کند تا زبان انگلیسی خود را از طریق مطالعه داستان های برنامه و متن های مورد علاقه خودتان، تقویت کنند. این
+    <string name="create_story_desc" translatable="false">امکان ایجاد داستان و محتوای مورد علاقه خود، داخل برنامه</string>
+    <string name="mounch_1" translatable="false">۱ ماهه</string>
+    <string name="your_subscribe_is_finished" translatable="false">اعتبار اشتراک ویژه شما تمام شده :(</string>
+    <string name="check_subscribe_status" translatable="false">بررسی وضعیت اشتراک</string>
+    <string name="problem_connection_bazaar" translatable="false">اتصال به کافه بازار با مشکل مواجه شد!</string>
+    <string name="no_any_subscribe" translatable="false">درحال حاضر اشتراکی ندارید</string>
+    <string name="tip_free_state" translatable="false">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
+    <string name="youre_offline" translatable="false">لطفا از اتصال دستگاه خود به اینترنت مطمئن شوید</string>
+    <string name="test" translatable="false">تست</string>
+    <string name="aboutus" translatable="false">درباره ما</string>
+    <string name="aboutus_desc" translatable="false">این اپلیکیشن ابزاری آموزشی است که به کاربران کمک می‌کند تا زبان انگلیسی خود را از طریق مطالعه داستان های برنامه و متن های مورد علاقه خودتان، تقویت کنند. این
         اپلیکیشن شامل یک سیستم ترجمه خودکار است که به کاربران اجازه می‌دهد متون را به راحتی ترجمه کنند.\n همچنین، یک دیکشنری داخلی برای جستجوی معانی کلمات وجود دارد. \nکاربران می‌توانند عکس‌های متنی را به متن قابل ویرایش تبدیل کنند و صحبت‌های خود را به متن انگلیسی تبدیل نمایند.\n علاوه بر این، کاربران می‌توانند داستان‌های خود را بنویسند و در برنامه از قابلیت ترجمه استفاده کنند و از داستان‌های موجود در دسته‌بندی‌های مختلف لذت ببرند.\nمنابع: \nhttps://www.kidsworldfun.com/\nhttps://www.vedantu.com/\n</string>
-    <string name="no_found_data">داده ای یافت نشد!</string>
-    <string name="saved">ذخیره شد</string>
+    <string name="no_found_data" translatable="false">داده ای یافت نشد!</string>
+    <string name="saved" translatable="false">ذخیره شد</string>
 
 </resources>

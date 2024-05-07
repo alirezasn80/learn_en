@@ -2,24 +2,38 @@ package com.alirezasn80.learn_en.feature.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -52,7 +66,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
@@ -62,9 +79,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
@@ -334,13 +354,25 @@ fun HomeScreen(
                             } else {
                                 if (state.categories.isEmpty()) {
                                     EmptyLayout()
-                                } else LazyColumn {
-                                    items(state.categories) {
-                                        CategoryItemSection(
-                                            item = it,
-                                            onClick = { navigationState.navToStories(it.id, it.title) }
-                                        )
+                                } else {
+
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Fixed(3),
+                                        horizontalArrangement = Arrangement.Center,
+                                        contentPadding = PaddingValues(12.dp)
+                                    ) {
+                                        items(state.categories) {
+                                            CategoryItemSection(
+                                                isLastRead = it.id == state.lastReadCategory,
+                                                item = it,
+                                                onClick = {
+                                                    viewModel.saveAsLastRead(it.id)
+                                                    navigationState.navToStories(it.id, it.title)
+                                                }
+                                            )
+                                        }
                                     }
+
                                 }
 
                             }
@@ -360,6 +392,7 @@ private fun HeaderDrawer(
     isDarkTheme: Boolean,
     onChangeTheme: () -> Unit,
 ) {
+    Box(Modifier.fillMaxWidth()) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -370,17 +403,34 @@ private fun HeaderDrawer(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Box {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_logo),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(85.dp)
+                            .clip(CircleShape)
+                    )
+
+                    if (User.isVipUser) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.img_vip2),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(45.dp)
+                                .align(Alignment.TopStart)
+                                .offset(x = (-10).dp, y = (-10).dp)
+                                .alpha(0.9f),
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+
 
                 IconButton(
                     onClick = onChangeTheme,
                     colors = IconButtonDefaults.iconButtonColors()
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_logo), contentDescription = null, modifier = Modifier
-                            .size(85.dp)
-                            .clip(CircleShape)
-                    )
-
                     AnimatedContent(
                         targetState = isDarkTheme,
                         transitionSpec = {
@@ -399,26 +449,16 @@ private fun HeaderDrawer(
             }
 
             SmallSpacer()
-            Text(text = stringResource(id = R.string.enlish_stories))
-            SmallSpacer()
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+
+            Column {
+                Text(text = stringResource(id = R.string.enlish_stories))
+                SmallSpacer()
                 Text(text = stringResource(id = R.string.learn_english_with_story), style = MaterialTheme.typography.labelSmall)
-
-                if (User.isVipUser) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.img_vip2),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(dimension.medium)
-                            .size(50.dp),
-                        tint = Color.Unspecified
-                    )
-                } else {
-                    SmallSpacer()
-                }
             }
-        }
 
+
+        }
+    }
 
 
 }
@@ -484,54 +524,66 @@ private fun EmptyLayout() {
 }
 
 @Composable
-private fun CategoryItemSection(item: CategoryModel, onClick: () -> Unit) {
+private fun CategoryItemSection(
+    isLastRead: Boolean,
+    item: CategoryModel,
+    onClick: () -> Unit
+) {
     val context = LocalContext.current
 
     Column(
         Modifier
-            .fillMaxWidth()
+            .padding(dimension.small)
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { onClick() }) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(dimension.medium), verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Number
-            if (item.image == null)
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = item.id.toString(), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
-                }
-            else {
-                Image(
-                    bitmap = createImageBitmap(context, item.image),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop
-                )
+            .clickable { onClick() },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
+        // Number
+        if (item.image == null)
+            Box(
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .size(100.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .shadow(1.dp)
+                    .zIndex(1f)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = item.id.toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                )
             }
-            SmallSpacer()
-            Column {
-                Text(text = "Story ${item.id}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
-                SmallSpacer()
-                Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
-            }
+        else {
+            Image(
+                bitmap = createImageBitmap(context, item.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .size(100.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .shadow(1.dp)
+                    .zIndex(1f),
+                contentScale = ContentScale.Crop
+            )
+
         }
 
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp), color = MaterialTheme.colorScheme.background
+        SmallSpacer()
+
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (isLastRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+            fontWeight = if (isLastRead) FontWeight.Bold else FontWeight.Normal
         )
+
+
     }
 }
 

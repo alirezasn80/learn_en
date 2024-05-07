@@ -30,5 +30,6 @@ data class HomeState(
     val openAppCount: Int = 0,
     val needUpdate: Boolean = false,
     val showNotificationAlert: Boolean = true,
-    val showComment: Boolean = true
+    val showComment: Boolean = true,
+    val lastReadCategory:Int =0,
 )

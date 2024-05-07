@@ -81,6 +81,23 @@ class AppDataStoreManager(
     override suspend fun getOpenAppCounter(key: String): Int = getIntValue(key)
 
 
+    override suspend fun setLastReadCategory(key: String, value: Int) {
+        setIntValue(key, value)
+    }
+
+    override suspend fun getLastReadCategory(key: String): Int {
+        return getIntValue(key)
+    }
+
+    override suspend fun setLastReadStory(key: String, value: Int) {
+        setIntValue(key, value)
+    }
+
+    override suspend fun getLastReadStory(key: String): Int {
+        return getIntValue(key)
+    }
+
+
     // Getter and setter Cleaner Permission
     override suspend fun validPermission(key: String, value: Boolean) {
         setBooleanValue(key, value)
@@ -110,7 +127,6 @@ class AppDataStoreManager(
     }
 
     override suspend fun isDarkTheme(key: String): Boolean = getBooleanValue(key, false)!!
-
 
 
     override suspend fun clear() {

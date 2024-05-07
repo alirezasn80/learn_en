@@ -45,6 +45,14 @@ class HomeViewModel @Inject constructor(
         openAppCounter()
         getCommentStatus()
         getCategories()
+        getLastReadCategory()
+    }
+
+    private fun getLastReadCategory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = dataStore.getLastReadCategory(Key.LAST_READ_CATEGORY)
+            state.update { it.copy(lastReadCategory = id) }
+        }
     }
 
 
@@ -304,6 +312,13 @@ class HomeViewModel @Inject constructor(
 
 
             }
+        }
+    }
+
+    fun saveAsLastRead(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastReadCategory(Key.LAST_READ_CATEGORY, id)
+            state.update { it.copy(lastReadCategory = id) }
         }
     }
 
