@@ -1,7 +1,7 @@
 package com.alirezasn80.learn_en.feature.content
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,18 +35,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +52,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -75,6 +70,7 @@ import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
+import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
@@ -87,8 +83,7 @@ import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Rtl
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.cleanWord
-import com.alirezasn80.learn_en.utill.debug
-import kotlinx.coroutines.launch
+import com.alirezasn80.learn_en.utill.fontsOfStory
 import kotlin.random.Random
 
 data class ReadMode(
@@ -98,12 +93,11 @@ data class ReadMode(
 
 private var wordSpeakCounter = 0
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel = hiltViewModel()) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
     var showSetting by remember { mutableStateOf(false) }
     var showDict by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -127,7 +121,11 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
         if (showSetting) {
             SettingSection(
                 sheetState = sheetState,
-                onDismiss = { showSetting = false }
+                onDismiss = { showSetting = false },
+                selectedFont = state.selectedFontFamily,
+                onSelectedFont = viewModel::onSelectedFontFamilyClick,
+                selectedSize = state.selectedFontSize,
+                onSelectedSize = viewModel::onSelectedSize
             )
         }
 
@@ -187,6 +185,8 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                     LazyColumn(Modifier.padding(scaffoldPadding)) {
                         itemsIndexed(state.paragraphs) { index, paragraph ->
                             ParagraphSection(
+                                selectedSize = state.selectedFontSize,
+                                selectedFont = state.selectedFontFamily,
                                 highlights = state.highlights,
                                 isFocus = state.readableIndex == index,
                                 paragraph = paragraph,
@@ -276,6 +276,10 @@ fun DictSection(
 @Composable
 private fun SettingSection(
     sheetState: SheetState,
+    selectedSize: Int,
+    selectedFont: Int,
+    onSelectedFont: (Int) -> Unit,
+    onSelectedSize: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
 
@@ -284,40 +288,100 @@ private fun SettingSection(
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
-        CountryList()
+
+        Column(
+            Modifier
+                .padding(dimension.medium)
+                .padding(bottom = 24.dp)
+        ) {
+            FontSizeSection(
+                selectedSize = selectedSize,
+                onSelectedSize = onSelectedSize
+            )
+            MediumSpacer()
+            FontStyleSection(
+                selectedFont = selectedFont,
+                onSelectedFont = onSelectedFont
+            )
+        }
+
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CountryList() {
-    val countries = listOf(
-        Pair("United States", "\uD83C\uDDFA\uD83C\uDDF8"),
-        Pair("Canada", "\uD83C\uDDE8\uD83C\uDDE6"),
-        Pair("India", "\uD83C\uDDEE\uD83C\uDDF3"),
-        Pair("Germany", "\uD83C\uDDE9\uD83C\uDDEA"),
-        Pair("France", "\uD83C\uDDEB\uD83C\uDDF7"),
-        Pair("Japan", "\uD83C\uDDEF\uD83C\uDDF5"),
-        Pair("China", "\uD83C\uDDE8\uD83C\uDDF3"),
-        Pair("Brazil", "\uD83C\uDDE7\uD83C\uDDF7"),
-        Pair("Australia", "\uD83C\uDDE6\uD83C\uDDFA"),
-        Pair("Russia", "\uD83C\uDDF7\uD83C\uDDFA"),
-        Pair("United Kingdom", "\uD83C\uDDEC\uD83C\uDDE7"),
-    )
+fun FontStyleSection(selectedFont: Int, onSelectedFont: (Int) -> Unit) {
 
-    LazyColumn(contentPadding = PaddingValues(bottom = 40.dp)) {
-        items(countries) { (country, flag) ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp, horizontal = 20.dp)
-            ) {
+    Text(text = "فونت متن :")
+    Ltr {
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = dimension.extraSmall),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            fontsOfStory.forEach { font ->
                 Text(
-                    text = flag,
-                    modifier = Modifier.padding(end = 20.dp)
+                    text = font.title, modifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .border((0.5).dp, MaterialTheme.colorScheme.onBackground, MaterialTheme.shapes.small)
+                        .background(
+                            color = if (selectedFont == font.id)
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                            else
+                                MaterialTheme.colorScheme.background,
+                            MaterialTheme.shapes.small
+                        )
+                        .clickable {
+                            onSelectedFont(font.id)
+                        }
+                        .padding(horizontal = dimension.small, vertical = dimension.extraSmall)
                 )
-                Text(text = country)
             }
         }
+    }
+}
+
+
+@Composable
+private fun FontSizeSection(
+    selectedSize: Int,
+    onSelectedSize: (Int) -> Unit
+) {
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+        Text(text = "سایز متن")
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_circle_add),
+                null,
+                modifier = Modifier.clickable {
+                    if (selectedSize < 30) {
+                        onSelectedSize(selectedSize + 1)
+                    }
+                }
+            )
+            SmallSpacer()
+            Text(text = "$selectedSize")
+            SmallSpacer()
+            Icon(
+                painter = painterResource(id = R.drawable.ic_circle_remove),
+                null,
+                modifier = Modifier.clickable {
+
+                    if (selectedSize > 4) {
+                        onSelectedSize(selectedSize - 1)
+                    }
+
+
+                }
+            )
+        }
+
+
     }
 }
 
@@ -819,6 +883,8 @@ private fun BoxScope.SpeedSection(onClick: (Float) -> Unit) {
 
 @Composable
 private fun ParagraphSection(
+    selectedSize: Int,
+    selectedFont: Int,
     highlights: List<String>,
     isFocus: Boolean,
     paragraph: Paragraph,
@@ -836,6 +902,8 @@ private fun ParagraphSection(
             .padding(horizontal = dimension.medium, vertical = dimension.small)
     ) {
         ClickableWordsText(
+            selectedSize = selectedSize,
+            selectedFont = selectedFont,
             text = paragraph.text,
             onClick = { onWordClick(it.cleanWord()) },
             highlights = highlights
@@ -946,6 +1014,7 @@ private fun Header(
                     }
                 }
             )
+            SmallSpacer()
 
 
         }
@@ -954,7 +1023,13 @@ private fun Header(
 }
 
 @Composable
-fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String) -> Unit) {
+fun ClickableWordsText(
+    selectedSize: Int,
+    selectedFont: Int,
+    highlights: List<String>,
+    text: String,
+    onClick: (String) -> Unit
+) {
     val words = text.split(" ")
     val annotatedString = buildAnnotatedString {
         words.forEach { word ->
@@ -962,7 +1037,7 @@ fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String)
             pushStringAnnotation(tag = annotation, annotation = word)
             withStyle(
                 style = SpanStyle(
-                    fontSize = 16.sp,
+                    fontSize =selectedSize.sp,
                     color = if (word.cleanWord().lowercase() in highlights) highlighterColor() else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (word.cleanWord().lowercase() in highlights) FontWeight.ExtraBold else FontWeight.Normal
                 )
@@ -984,6 +1059,6 @@ fun ClickableWordsText(highlights: List<String>, text: String, onClick: (String)
                     onClick(annotation.item)
                 }
         },
-        style = MaterialTheme.typography.bodyLarge
+        style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(selectedFont)))
     )
 }

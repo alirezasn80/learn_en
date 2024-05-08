@@ -85,6 +85,8 @@ object Key {
     const val EXPIRE_DATE = "EXPIRE_DATE"
     const val LAST_READ_CATEGORY = "LAST_READ_CATEGORY"
     const val LAST_READ_STORY = "LAST_READ_STORY"
+    const val DEFAULT_FONT_SIZE = "DEFAULT_FONT_SIZE"
+    const val DEFAULT_FONT_FAMILY = "DEFAULT_FONT_FAMILY"
 }
 
 sealed interface WidgetType {
@@ -440,3 +442,36 @@ sealed class DictCategory(val id: Int, val title: String) {
     data object Desc : DictCategory(2, "توضیحات")
     data object Example : DictCategory(3, "مثال")
 }
+
+data class FontModel(
+    val title: String,
+    val id: Int
+)
+
+
+val fontsOfStory = listOf(
+    FontModel(
+        title = "helvetica",
+        id = R.font.helvetica
+    ),
+    FontModel(
+        title = "sabon",
+        id = R.font.sabon
+    ),
+    FontModel(
+        title = "garamond",
+        id = R.font.garamond
+    ),
+    FontModel(
+        title = "libre baskervil",
+        id = R.font.libre_baskervil
+    ),
+    FontModel(
+        title = "montserrat regular",
+        id = R.font.montserrat_regular
+    ),
+    FontModel(
+        title = "times new roman",
+        id = R.font.times_new_roman
+    )
+)

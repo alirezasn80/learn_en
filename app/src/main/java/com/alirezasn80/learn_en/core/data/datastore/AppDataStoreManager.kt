@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.alirezasn80.learn_en.R
 import kotlinx.coroutines.flow.first
 
 private const val APP_DATASTORE = "app"
@@ -39,8 +40,8 @@ class AppDataStoreManager(
         context.dataStore.data.first()[longPreferencesKey(key)] ?: default
 
     // Getter and setter int
-    private suspend fun getIntValue(key: String) =
-        context.dataStore.data.first()[intPreferencesKey(key)] ?: 0
+    private suspend fun getIntValue(key: String, default: Int = 0) =
+        context.dataStore.data.first()[intPreferencesKey(key)] ?: default
 
     private suspend fun setIntValue(key: String, value: Int) {
         context.dataStore.edit { it[intPreferencesKey(key)] = value }
@@ -95,6 +96,22 @@ class AppDataStoreManager(
 
     override suspend fun getLastReadStory(key: String): Int {
         return getIntValue(key)
+    }
+
+    override suspend fun setDefaultFontSize(key: String, value: Int) {
+        setIntValue(key, value)
+    }
+
+    override suspend fun getDefaultFontSize(key: String): Int {
+        return getIntValue(key, 14)
+    }
+
+    override suspend fun setDefaultFontFamily(key: String, value: Int) {
+        setIntValue(key, value)
+    }
+
+    override suspend fun getDefaultFontFamily(key: String): Int {
+        return getIntValue(key, R.font.helvetica)
     }
 
 

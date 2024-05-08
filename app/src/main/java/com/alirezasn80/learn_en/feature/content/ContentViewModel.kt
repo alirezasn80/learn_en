@@ -10,6 +10,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
@@ -21,6 +22,7 @@ import com.alirezasn80.learn_en.feature.home.TranslationConnection
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.DictCategory
+import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
@@ -35,6 +37,8 @@ import com.alirezasn80.learn_en.utill.toStringList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -47,8 +51,10 @@ import javax.inject.Inject
 class ContentViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val database: AppDB,
-    private val application: Application
+    private val application: Application,
+    private val dataStore: AppDataStore,
 ) : BaseViewModel<ContentState>(ContentState()) {
+    var job: Job? = null
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechIntent: Intent
     private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
@@ -67,9 +73,23 @@ class ContentViewModel @Inject constructor(
     }
 
     init {
+        initDefaultFont()
         initSpeechToText()
         getContent()
         getHighlights()
+    }
+
+    private fun initDefaultFont() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val fontSize = dataStore.getDefaultFontSize(Key.DEFAULT_FONT_SIZE)
+            val fontFamily = dataStore.getDefaultFontFamily(Key.DEFAULT_FONT_FAMILY)
+            state.update {
+                it.copy(
+                    selectedFontFamily = fontFamily,
+                    selectedFontSize = fontSize
+                )
+            }
+        }
     }
 
     fun setSelectedDictCategory(category: DictCategory) {
@@ -160,7 +180,25 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-     fun loading(value: Progress, key: String = "") =
+    fun onSelectedFontFamilyClick(fontId: Int) {
+        state.update { it.copy(selectedFontFamily = fontId) }
+        job?.cancel()
+        job = viewModelScope.launch(Dispatchers.IO) {
+            delay(500)
+            dataStore.setDefaultFontSize(Key.DEFAULT_FONT_FAMILY, fontId)
+        }
+    }
+
+    fun onSelectedSize(fontSize: Int) {
+        state.update { it.copy(selectedFontSize = fontSize) }
+        job?.cancel()
+        job = viewModelScope.launch(Dispatchers.IO) {
+            delay(500)
+            dataStore.setDefaultFontSize(Key.DEFAULT_FONT_SIZE, fontSize)
+        }
+    }
+
+    fun loading(value: Progress, key: String = "") =
         viewModelScope.launch(Dispatchers.Main) { progress[key] = value }
 
     private fun errorException(

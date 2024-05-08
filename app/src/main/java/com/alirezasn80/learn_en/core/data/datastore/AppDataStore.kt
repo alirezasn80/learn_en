@@ -48,6 +48,24 @@ interface AppDataStore {
         key: String,
     ): Int
 
+    suspend fun setDefaultFontSize(
+        key: String,
+        value: Int,
+    )
+
+    suspend fun getDefaultFontSize(
+        key: String,
+    ): Int
+
+
+    suspend fun setDefaultFontFamily(
+        key: String,
+        value: Int,
+    )
+
+    suspend fun getDefaultFontFamily(
+        key: String,
+    ): Int
 
 
     suspend fun validPermission(
@@ -85,7 +103,6 @@ interface AppDataStore {
     suspend fun isDarkTheme(
         key: String
     ): Boolean
-
 
 
     suspend fun clear()
