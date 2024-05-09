@@ -2,6 +2,11 @@ package com.alirezasn80.learn_en.feature.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,6 +63,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -86,6 +93,7 @@ import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.ExitRed
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.MediumSpacer
+import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.ThemeViewModel
 import com.alirezasn80.learn_en.ui.theme.dimension
@@ -95,6 +103,7 @@ import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.createImageBitmap
+import com.alirezasn80.learn_en.utill.openAppInCafeBazaar
 import com.alirezasn80.learn_en.utill.openBazaarComment
 import com.alirezasn80.learn_en.utill.openGmail
 import com.alirezasn80.learn_en.utill.rememberPermissionState
@@ -104,7 +113,6 @@ import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigationState: NavigationState,
@@ -228,6 +236,14 @@ fun HomeScreen(
                         onChangeTheme = themeViewModel::toggleTheme,
                     )
 
+                    if (state.needUpdate) {
+                        UpdateSection(onClick = {
+                            context.openAppInCafeBazaar()
+                            viewModel.hideNeedUpdate()
+                        })
+                    }
+
+
                     // VIP User
                     DrawerItem(
                         label = R.string.vip_user,
@@ -299,13 +315,11 @@ fun HomeScreen(
         ) {
             Column(Modifier.fillMaxSize()) {
                 Header(
+                    needUpdate = state.needUpdate,
                     selectedLevel = state.selectedSection.name,
                     onMenuClick = { scope.launch { drawerState.open() } },
                     onLevelClick = {
-                        if (showCategory)
-                            showCategory = false
-                        else
-                            showCategory = true
+                        showCategory = !showCategory
                     },
                     onCreateClick = navigationState::navToCreate
                 )
@@ -360,6 +374,67 @@ fun HomeScreen(
 
 
         }
+    }
+}
+
+@Composable
+fun UpdateSection(onClick: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+    val degree by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 45f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rotate"
+    )
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rotate"
+    )
+    Row(
+        Modifier
+            .clickable { onClick() }
+            .fillMaxWidth()
+            .padding(dimension.medium),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Box {
+            Image(
+                painter = painterResource(id = R.drawable.img_update),
+                contentDescription = null, modifier = Modifier
+                    .size(24.dp)
+                    .rotate(degree),
+                contentScale = ContentScale.Fit
+            )
+
+            Icon(
+                imageVector = Icons.Rounded.Circle,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(13.dp)
+                    .offset(x = (-5).dp, y = (-5).dp),
+                tint = Red100
+            )
+
+        }
+
+        SmallSpacer()
+        Text(
+            text = stringResource(id = R.string.update_app),
+            maxLines = 1, overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .scale(scale)
+        )
+
     }
 }
 
@@ -628,6 +703,7 @@ private fun FavoriteItemSection(
 
 @Composable
 private fun Header(
+    needUpdate: Boolean,
     selectedLevel: Int,
     onMenuClick: () -> Unit,
     onLevelClick: () -> Unit,
@@ -638,9 +714,23 @@ private fun Header(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
     ) {
-        IconButton(onClick = onMenuClick, modifier = Modifier.align(Alignment.CenterStart)) {
-            Icon(imageVector = Icons.Rounded.Menu, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+        Box {
+            IconButton(onClick = onMenuClick, modifier = Modifier.align(Alignment.CenterStart)) {
+                Icon(imageVector = Icons.Rounded.Menu, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+            }
+
+            if (needUpdate)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_circle),
+                    contentDescription = null,
+                    tint = Red100,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp)
+                        .size(13.dp)
+                )
         }
+
         TextButton(onClick = onLevelClick, modifier = Modifier.align(Alignment.Center)) {
             Icon(modifier = Modifier.align(Alignment.CenterVertically), imageVector = Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
             Text(

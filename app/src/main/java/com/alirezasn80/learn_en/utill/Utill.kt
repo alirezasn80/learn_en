@@ -301,7 +301,7 @@ fun Context.openBazaarComment() {
 fun Context.openAppInCafeBazaar() {
     try {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.eitaacleaner"))
+        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.learn_en"))
         intent.setPackage("com.farsitel.bazaar")
         startActivity(intent)
     } catch (e: Exception) {

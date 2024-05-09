@@ -1,5 +1,7 @@
 package com.alirezasn80.learn_en.feature.home
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
@@ -34,11 +36,11 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dp: AppDB,
     private val dataStore: AppDataStore,
-    private val payment: Payment
+    private val payment: Payment,
+    private val application:Context,
 ) : BaseViewModel<HomeState>(HomeState()) {
     private var bazaarConnection: Connection? = null
-
-    // private var connection: CheckUpdateApp? = null
+    private var connection: CheckUpdateApp? = null
 
     init {
         checkUpdate()
@@ -117,7 +119,7 @@ class HomeViewModel @Inject constructor(
     fun hideNotificationAlert() = state.update { it.copy(showNotificationAlert = false) }
 
     private fun checkUpdate() {
-        /*connection = CheckUpdateApp(object : CheckUpdateAppListener {
+        connection = CheckUpdateApp(object : CheckUpdateAppListener {
             override fun needUpdate(value: Boolean) {
                 state.update { it.copy(needUpdate = value) }
                 connection?.let {
@@ -129,7 +131,7 @@ class HomeViewModel @Inject constructor(
         })
         val i = Intent("com.farsitel.bazaar.service.UpdateCheckService.BIND")
         i.setPackage("com.farsitel.bazaar")
-        application.bindService(i, connection!!, Context.BIND_AUTO_CREATE)*/
+        application.bindService(i, connection!!, Context.BIND_AUTO_CREATE)
     }
 
     private fun openAppCounter() {
