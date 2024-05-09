@@ -416,8 +416,8 @@ fun UpdateSection(onClick: () -> Unit) {
             )
 
             Icon(
-                imageVector = Icons.Rounded.Circle,
                 contentDescription = null,
+                painter = painterResource(id = R.drawable.ic_circle),
                 modifier = Modifier
                     .size(13.dp)
                     .offset(x = (-5).dp, y = (-5).dp),
@@ -727,7 +727,7 @@ private fun Header(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(10.dp)
-                        .size(13.dp)
+                        .size(10.dp)
                 )
         }
 

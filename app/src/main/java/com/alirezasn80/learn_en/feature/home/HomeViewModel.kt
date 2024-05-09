@@ -1,5 +1,6 @@
 package com.alirezasn80.learn_en.feature.home
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.viewModelScope
@@ -37,7 +38,7 @@ class HomeViewModel @Inject constructor(
     private val dp: AppDB,
     private val dataStore: AppDataStore,
     private val payment: Payment,
-    private val application:Context,
+    private val application:Application,
 ) : BaseViewModel<HomeState>(HomeState()) {
     private var bazaarConnection: Connection? = null
     private var connection: CheckUpdateApp? = null
