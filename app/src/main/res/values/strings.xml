@@ -78,5 +78,7 @@
     <string name="no_found_data" translatable="false">داده ای یافت نشد!</string>
     <string name="saved" translatable="false">ذخیره شد</string>
     <string name="update_app">بروزرسانی برنامه</string>
+    <string name="flash_card">فلش کارت</string>
+    <string name="show_translate">نمایش ترجمه</string>
 
 </resources>

@@ -226,6 +226,7 @@ fun DictSection(
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
+        modifier = Modifier.fillMaxWidth(),
         onDismissRequest = { onDismiss() },
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() }
@@ -284,6 +285,7 @@ private fun SettingSection(
 ) {
 
     ModalBottomSheet(
+        modifier = Modifier.fillMaxWidth(),
         onDismissRequest = { onDismiss() },
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() }
@@ -291,6 +293,7 @@ private fun SettingSection(
 
         Column(
             Modifier
+                .fillMaxWidth()
                 .padding(dimension.medium)
                 .padding(bottom = 24.dp)
         ) {

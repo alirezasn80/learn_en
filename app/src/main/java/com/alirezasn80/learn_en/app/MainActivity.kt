@@ -12,6 +12,7 @@ import com.alirezasn80.learn_en.app.navigation.rememberNavigationState
 import com.alirezasn80.learn_en.feature.aboutus.AboutUsScreen
 import com.alirezasn80.learn_en.feature.content.ContentScreen
 import com.alirezasn80.learn_en.feature.create.CreateScreen
+import com.alirezasn80.learn_en.feature.flash_card.FlashCardScreen
 import com.alirezasn80.learn_en.feature.home.HomeScreen
 import com.alirezasn80.learn_en.feature.offline.OfflineScreen
 import com.alirezasn80.learn_en.feature.onboarding.OnBoardingScreen
@@ -75,6 +76,10 @@ class MainActivity : ComponentActivity() {
 
                     composable(Screen.AboutUs.route) {
                         AboutUsScreen(navigationState::upPress)
+                    }
+
+                    composable(Screen.FlashCard.route) {
+                        FlashCardScreen(navigationState::upPress)
                     }
 
                 }

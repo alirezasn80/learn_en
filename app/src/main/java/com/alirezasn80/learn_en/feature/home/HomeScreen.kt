@@ -268,6 +268,17 @@ fun HomeScreen(
                         }
                     )
 
+
+                    // Flash Card
+                    DrawerItem(
+                        label = R.string.flash_card,
+                        icon = painterResource(id = R.drawable.img_flash_card),
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navigationState.navToFlashCard()
+                        }
+                    )
+
                     // Invite Friends
                     DrawerItem(
                         label = R.string.invite_friends,
@@ -759,12 +770,14 @@ private fun BottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
+        modifier = Modifier.fillMaxWidth(),
         onDismissRequest = { onDismiss() },
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             Modifier
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(bottom = 40.dp)
         ) {
