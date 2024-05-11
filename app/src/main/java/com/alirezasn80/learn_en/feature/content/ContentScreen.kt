@@ -215,7 +215,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictSection(
+private fun DictSection(
     sheetState: SheetState,
     progress: MutableMap<String, Progress>,
     sheetModel: SheetModel?,
@@ -390,7 +390,7 @@ private fun FontSizeSection(
 
 
 @Composable
-fun DescSection(descriptions: List<Desc>) {
+private fun DescSection(descriptions: List<Desc>) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -476,7 +476,7 @@ private fun StyledText(text: String) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MeaningSection(
+private fun MeaningSection(
     sheetModel: SheetModel,
     onWordSpeak: (String, Float) -> Unit,
     onChangeHighlightMode: (String, Boolean) -> Unit,
@@ -498,7 +498,7 @@ fun MeaningSection(
 
 
             HeadSection(
-                word = mainWord,
+                word = word,
                 define = define,
                 isHighlight = isHighlight,
                 onSoundClick = {
@@ -509,10 +509,10 @@ fun MeaningSection(
                         wordSpeakCounter = 0
                         0.5f
                     }
-                    onWordSpeak(mainWord, speed)
+                    onWordSpeak(word, speed)
                 },
                 onHighlightClick = {
-                    onChangeHighlightMode(mainWord, it)
+                    onChangeHighlightMode(word, it)
                 }
             )
 
@@ -586,7 +586,7 @@ private val categories = listOf(
 )
 
 @Composable
-fun CategorySection(
+private fun CategorySection(
     selectedCategory: DictCategory,
     onCategoryClick: (DictCategory) -> Unit
 ) {
@@ -940,24 +940,26 @@ private fun Header(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = upPress) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+            SmallSpacer()
 
-        IconButton(onClick = upPress) {
-            Icon(
-                imageVector = Icons.Rounded.ArrowForward,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+            Text(
+                text = title, textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.titleSmall
             )
-        }
 
-        Text(
-            text = title, modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically), textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.titleSmall
-        )
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -1021,7 +1023,6 @@ private fun Header(
 
 
         }
-
     }
 }
 

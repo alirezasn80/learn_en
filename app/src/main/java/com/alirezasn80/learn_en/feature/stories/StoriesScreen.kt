@@ -79,7 +79,7 @@ fun FreeTip() {
     Row(
         Modifier
             .fillMaxWidth()
-        //    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            //    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
             .padding(dimension.small)
     ) {
         Text(text = stringResource(id = R.string.tip_free_state), color = MaterialTheme.colorScheme.onBackground)
@@ -89,22 +89,24 @@ fun FreeTip() {
 
 @Composable
 private fun Header(title: String, upPress: () -> Unit) {
-    Box(
+    Row(
         Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.primary),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterStart)) {
+        IconButton(onClick = upPress, modifier = Modifier) {
             Icon(
                 imageVector = Icons.Rounded.ArrowForward,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
+        SmallSpacer()
 
         Text(
             text = title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier,
         )
 
     }

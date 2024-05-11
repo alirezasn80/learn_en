@@ -80,5 +80,7 @@
     <string name="update_app">بروزرسانی برنامه</string>
     <string name="flash_card">فلش کارت</string>
     <string name="show_translate">نمایش ترجمه</string>
+    <string name="removed_from_flashcards">لغت از فلش کارت حذف شد</string>
+    <string name="more_detail">«جزییات بیشتر»</string>
 
 </resources>

@@ -100,7 +100,7 @@ class ContentViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val highlights = database.wordDao.getHighlights()
+                val highlights = database.wordDao.getFlashcards().map { it.word }
                 state.update { it.copy(highlights = highlights) }
             } catch (e: Exception) {
                 errorException("Error in get highlights", e)
@@ -494,7 +494,7 @@ class ContentViewModel @Inject constructor(
         //Create Model ----------------------------------------------
 
         return SheetModel(
-            mainWord = mainWord,
+            word = mainWord,
             define = definition,
             synonyms = synonymsModel,
             isHighlight = isHighlight,
@@ -576,7 +576,7 @@ class ContentViewModel @Inject constructor(
 
     fun changeHighlightMode(word: String, isHighlight: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            database.wordDao.changeHighlightMode(isHighlight.toLogicInt(), word)
+            database.wordDao.updateFlashcardByWord(isHighlight.toLogicInt(), word)
             state.update { it.copy(sheetModel = state.value.sheetModel?.copy(isHighlight = isHighlight)) }
             getHighlights()
         }

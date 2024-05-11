@@ -16,7 +16,7 @@ data class Desc(
 )
 
 data class SheetModel(
-    val mainWord: String,
+    val word: String,
     val define: String,
     val synonyms: List<Synonym>,
     val descriptions: List<Desc>,

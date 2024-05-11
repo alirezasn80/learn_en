@@ -36,7 +36,4 @@ val BlackOnBackground = Color(0xFF222222)
 
 
 @Composable
-fun highlighterColor() = if (isSystemInDarkTheme())
-    Color(0xFFf7d761)
-else
-    Color(0xFFe24d54)
+fun highlighterColor() = Color(0xFFFFBF00)

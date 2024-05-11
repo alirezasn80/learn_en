@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
-import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 
 @Dao
 interface WordDao {
@@ -17,8 +16,9 @@ interface WordDao {
     suspend fun getWordEntity(word: String): WordEntity?
 
     @Query("UPDATE WordEntity SET isHighlight = :isHighlight WHERE word = :word")
-    suspend fun changeHighlightMode(isHighlight: Int, word: String)
+    suspend fun updateFlashcardByWord(isHighlight: Int, word: String)
 
-    @Query("select word from WordEntity WHERE isHighlight = 1")
-    suspend fun getHighlights(): List<String>
+    @Query("select * from WordEntity WHERE isHighlight = 1")
+    suspend fun getFlashcards(): List<WordEntity>
+
 }
