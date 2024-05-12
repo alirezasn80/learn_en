@@ -937,25 +937,24 @@ private fun Header(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = upPress) {
-                Icon(
-                    imageVector = Icons.Rounded.ArrowForward,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            }
-            SmallSpacer()
-
-            Text(
-                text = title, textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.titleSmall
+        IconButton(onClick = upPress) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
-
         }
+
+        SmallSpacer()
+
+
+        Text(
+            text = title, textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.weight(1f)
+        )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,

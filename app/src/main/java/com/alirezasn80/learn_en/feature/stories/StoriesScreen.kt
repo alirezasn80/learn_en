@@ -89,24 +89,24 @@ fun FreeTip() {
 
 @Composable
 private fun Header(title: String, upPress: () -> Unit) {
-    Row(
+    Box(
         Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary),
-        verticalAlignment = Alignment.CenterVertically
+            .background(MaterialTheme.colorScheme.primary)
     ) {
-        IconButton(onClick = upPress, modifier = Modifier) {
+        IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterStart)) {
             Icon(
                 imageVector = Icons.Rounded.ArrowForward,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-        SmallSpacer()
 
         Text(
-            text = title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier,
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.Center),
         )
 
     }

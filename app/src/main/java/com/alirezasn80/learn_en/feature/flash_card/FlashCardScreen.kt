@@ -170,7 +170,8 @@ fun FlashCardScreen(
                                     WordSection(
                                         isFirst = page == 0,
                                         word = state.flashcards!![page].word,
-                                        onStarClick = viewModel::removeFromFlashcards
+                                        onStarClick = viewModel::removeFromFlashcards,
+                                        onSoundClick = viewModel::wordSpeak
                                     )
                                 }
                             }
@@ -450,25 +451,11 @@ private fun DefinitionSection(
 }
 
 @Composable
-private fun BottomSection(
-    onClick: () -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(dimension.medium), horizontalArrangement = Arrangement.Center
-    ) {
-        Button(onClick = onClick) {
-            Text(text = stringResource(id = R.string.show_translate))
-        }
-    }
-}
-
-@Composable
 private fun WordSection(
     isFirst: Boolean,
     word: String,
     onStarClick: (String) -> Unit,
+    onSoundClick: (String, Float) -> Unit
 ) {
     Box(
         Modifier.fillMaxSize()
@@ -487,7 +474,25 @@ private fun WordSection(
             )
         }
 
-        Text(text = word, modifier = Modifier.align(Alignment.Center), style = MaterialTheme.typography.titleLarge)
+        IconButton(
+            onClick = { onSoundClick(word, 1f) },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(dimension.small)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_sound_max),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Row(
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            Text(text = word, style = MaterialTheme.typography.titleLarge)
+        }
 
         if (isFirst)
             Icon(
@@ -514,13 +519,12 @@ private fun TopSection(
         Modifier
             .fillMaxWidth()
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = upPress) {
+            IconButton(onClick = upPress, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowForward,
                     contentDescription = null,
@@ -528,12 +532,12 @@ private fun TopSection(
                 )
             }
 
-            SmallSpacer()
-
             Text(
                 text = stringResource(id = R.string.flash_card),
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                 modifier = Modifier.align(Alignment.Center)
+
             )
 
         }
