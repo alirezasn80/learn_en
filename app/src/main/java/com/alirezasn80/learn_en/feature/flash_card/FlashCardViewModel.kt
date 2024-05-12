@@ -176,4 +176,8 @@ class FlashCardViewModel @Inject constructor(
         )
     }
 
+    fun refreshCategory() {
+        state.update { it.copy(selectedCategory = DictCategory.Meaning) }
+    }
+
 }

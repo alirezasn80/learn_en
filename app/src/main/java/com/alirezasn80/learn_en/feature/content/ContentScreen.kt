@@ -205,8 +205,6 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
                         }
                     }
             }
-
-
         }
 
     }
@@ -243,7 +241,9 @@ private fun DictSection(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(bottom = 40.dp)
         ) {
+
             CategorySection(
+                categories = sheetModel.getCategories(),
                 selectedCategory = selectedCategory,
                 onCategoryClick = onCategoryClick
             )
@@ -579,17 +579,13 @@ private fun MeaningSection(
 }
 
 
-private val categories = listOf(
-    DictCategory.Meaning,
-    DictCategory.Desc,
-    DictCategory.Example
-)
-
 @Composable
 private fun CategorySection(
+    categories: List<DictCategory>,
     selectedCategory: DictCategory,
     onCategoryClick: (DictCategory) -> Unit
 ) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1041,7 +1037,7 @@ fun ClickableWordsText(
             pushStringAnnotation(tag = annotation, annotation = word)
             withStyle(
                 style = SpanStyle(
-                    fontSize =selectedSize.sp,
+                    fontSize = selectedSize.sp,
                     color = if (word.cleanWord().lowercase() in highlights) highlighterColor() else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (word.cleanWord().lowercase() in highlights) FontWeight.ExtraBold else FontWeight.Normal
                 )

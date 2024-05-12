@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,8 +32,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
@@ -112,6 +117,8 @@ import com.alirezasn80.learn_en.utill.showToast
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+
+private const val COLUMN_COUNT = 3
 
 @Composable
 fun HomeScreen(
@@ -357,22 +364,44 @@ fun HomeScreen(
                                 EmptyLayout()
                             } else {
 
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(3),
-                                    horizontalArrangement = Arrangement.Center,
-                                    contentPadding = PaddingValues(12.dp),
+                                Column(
+                                    Modifier
+                                        .padding(12.dp)
+                                        .verticalScroll(rememberScrollState())
                                 ) {
-                                    items(state.categories, key = { it.id }) {
-                                        CategoryItemSection(
-                                            isLastRead = it.id == state.lastReadCategory,
-                                            item = it,
-                                            onClick = {
-                                                viewModel.saveAsLastRead(it.id)
-                                                navigationState.navToStories(it.id, it.title)
+                                    state.categories.chunked(COLUMN_COUNT).forEach {
+
+                                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            var spaceUI = 0
+                                            if (it.size < COLUMN_COUNT) {
+                                                spaceUI = COLUMN_COUNT - it.size
                                             }
-                                        )
+                                            it.forEach {
+                                                CategoryItemSection(
+                                                    isLastRead = it.id == state.lastReadCategory,
+                                                    item = it,
+                                                    onClick = {
+                                                        viewModel.saveAsLastRead(it.id)
+                                                        navigationState.navToStories(it.id, it.title)
+                                                    }
+                                                )
+                                            }
+                                            if (spaceUI != 0) {
+                                                repeat(spaceUI) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .padding(dimension.small)
+                                                    )
+                                                }
+                                            }
+
+                                        }
                                     }
+
+
                                 }
+
 
                             }
 
@@ -601,7 +630,7 @@ private fun EmptyLayout() {
 }
 
 @Composable
-private fun CategoryItemSection(
+private fun RowScope.CategoryItemSection(
     isLastRead: Boolean,
     item: CategoryModel,
     onClick: () -> Unit
@@ -610,6 +639,7 @@ private fun CategoryItemSection(
 
     Column(
         Modifier
+            .weight(1f)
             .padding(dimension.small)
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally

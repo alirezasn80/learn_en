@@ -75,6 +75,8 @@ import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.Ltr
 
+private var selectedPage = -1
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -89,6 +91,18 @@ fun FlashCardScreen(
     UI(
         uiComponent = viewModel.uiComponents
     ) {
+
+        if (showDict && selectedPage != -1) {
+            DictSection(
+                sheetModel = state.flashcards!![selectedPage],
+                selectedCategory = state.selectedCategory,
+                onDismiss = { showDict = false },
+                onWordSpeak = viewModel::wordSpeak,
+                onCategoryClick = viewModel::setSelectedDictCategory,
+            )
+        }
+
+
         Scaffold(
             topBar = {
                 TopSection(
@@ -116,6 +130,7 @@ fun FlashCardScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                 ) { page ->
+                    selectedPage = page
                     var rotate by remember { mutableStateOf(false) }
                     val angle: Float by animateFloatAsState(
                         targetValue = if (rotate) 180f else 0f,
@@ -147,6 +162,7 @@ fun FlashCardScreen(
                                             viewModel.removeFromFlashcards(state.flashcards!![page].word)
                                         },
                                         onDetailClick = {
+                                            viewModel.refreshCategory()
                                             showDict = true
                                         }
                                     )
@@ -161,16 +177,6 @@ fun FlashCardScreen(
 
 
                         }
-                    }
-
-                    if (showDict) {
-                        DictSection(
-                            sheetModel = state.flashcards!![page],
-                            selectedCategory = state.selectedCategory,
-                            onDismiss = { showDict = false },
-                            onWordSpeak = viewModel::wordSpeak,
-                            onCategoryClick = viewModel::setSelectedDictCategory,
-                        )
                     }
 
                 }
@@ -207,6 +213,7 @@ private fun DictSection(
                 .padding(bottom = 40.dp)
         ) {
             CategorySection(
+                categories = sheetModel.getCategories(),
                 selectedCategory = selectedCategory,
                 onCategoryClick = onCategoryClick
             )
@@ -337,14 +344,10 @@ private fun DescSection(descriptions: List<Desc>) {
     }
 }
 
-private val categories = listOf(
-    DictCategory.Meaning,
-    DictCategory.Desc,
-    DictCategory.Example
-)
 
 @Composable
 private fun CategorySection(
+    categories: List<DictCategory>,
     selectedCategory: DictCategory,
     onCategoryClick: (DictCategory) -> Unit
 ) {

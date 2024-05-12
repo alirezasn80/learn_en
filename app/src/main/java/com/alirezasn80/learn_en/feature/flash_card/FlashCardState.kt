@@ -6,4 +6,5 @@ import com.alirezasn80.learn_en.utill.DictCategory
 data class FlashCardState(
     val flashcards: List<SheetModel>? = null,
     val selectedCategory: DictCategory = DictCategory.Meaning,
+    val dictCategories: List<DictCategory> = emptyList()
 )
