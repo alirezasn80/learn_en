@@ -24,6 +24,7 @@ fun CategoryEntity.toCategoryModel(isCover: Boolean = false) = CategoryModel(
     image = if (isCover) title.toLowerCase().chooseCover() else null
 )
 
+//todo(work on it)
 private fun String.chooseCover(): String {
     return when {
         contains("akbar-birbal") -> "cover/Akbar-birbal.webp"
@@ -48,7 +49,7 @@ private fun String.chooseCover(): String {
         contains("panchatantra") -> "cover/panchatantra.webp"
         contains("proverbs") -> "cover/proverbs.webp"
         contains("quotes") -> "cover/quotes.webp"
-        contains("short") -> "cover/short.webp"
+        contains("short") -> "https://covers.storytel.com/jpg-640/9781667970233.6655babc-1c48-4bce-aa76-0431f44eddfe?quality=70"
         else -> "cover/default.webp"
     }
 }

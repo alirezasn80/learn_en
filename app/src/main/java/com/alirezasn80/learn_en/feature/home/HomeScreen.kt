@@ -1,5 +1,6 @@
 package com.alirezasn80.learn_en.feature.home
 
+import android.graphics.BitmapFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
@@ -88,6 +89,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.AsyncImage
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
 import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
@@ -102,6 +105,7 @@ import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.ThemeViewModel
 import com.alirezasn80.learn_en.ui.theme.dimension
+import com.alirezasn80.learn_en.utill.CoilImage
 import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
@@ -363,62 +367,37 @@ fun HomeScreen(
                             if (state.categories.isEmpty()) {
                                 EmptyLayout()
                             } else {
-
-                                Column(
-                                    Modifier
-                                        .padding(12.dp)
-                                        .verticalScroll(rememberScrollState())
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    contentPadding = PaddingValues(12.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalArrangement = Arrangement.Center
                                 ) {
-                                    state.categories.chunked(COLUMN_COUNT).forEach {
-
-                                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                            var spaceUI = 0
-                                            if (it.size < COLUMN_COUNT) {
-                                                spaceUI = COLUMN_COUNT - it.size
+                                    items(state.categories) {
+                                        CategoryItemSection(
+                                            isLastRead = it.id == state.lastReadCategory,
+                                            item = it,
+                                            onClick = {
+                                                viewModel.saveAsLastRead(it.id)
+                                                navigationState.navToStories(it.id, it.title)
                                             }
-                                            it.forEach {
-                                                CategoryItemSection(
-                                                    isLastRead = it.id == state.lastReadCategory,
-                                                    item = it,
-                                                    onClick = {
-                                                        viewModel.saveAsLastRead(it.id)
-                                                        navigationState.navToStories(it.id, it.title)
-                                                    }
-                                                )
-                                            }
-                                            if (spaceUI != 0) {
-                                                repeat(spaceUI) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .weight(1f)
-                                                            .padding(dimension.small)
-                                                    )
-                                                }
-                                            }
-
-                                        }
+                                        )
                                     }
 
-
                                 }
-
-
                             }
 
                         }
                     }
                 }
 
-
             }
-
-
         }
     }
 }
 
 @Composable
-fun UpdateSection(onClick: () -> Unit) {
+private fun UpdateSection(onClick: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "rotation")
     val degree by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -478,20 +457,6 @@ fun UpdateSection(onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SheetCategorySection(
-    onDismiss: () -> Unit,
-) {
-    val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(
-        onDismissRequest = { onDismiss() },
-        sheetState = sheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
-    ) {
-
-    }
-}
 
 @Composable
 private fun HeaderDrawer(
@@ -629,8 +594,10 @@ private fun EmptyLayout() {
     }
 }
 
+
+@OptIn(ExperimentalCoilApi::class)
 @Composable
-private fun RowScope.CategoryItemSection(
+private fun CategoryItemSection(
     isLastRead: Boolean,
     item: CategoryModel,
     onClick: () -> Unit
@@ -639,7 +606,6 @@ private fun RowScope.CategoryItemSection(
 
     Column(
         Modifier
-            .weight(1f)
             .padding(dimension.small)
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
@@ -665,18 +631,15 @@ private fun RowScope.CategoryItemSection(
                 )
             }
         else {
-            Image(
-                bitmap = createImageBitmap(context, item.image),
-                contentDescription = null,
+            CoilImage(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .size(100.dp)
                     .clip(MaterialTheme.shapes.medium)
                     .shadow(1.dp)
-                    .zIndex(1f),
+                    .zIndex(1f), data = item.image,
                 contentScale = ContentScale.Crop
             )
-
         }
 
         SmallSpacer()
@@ -994,3 +957,49 @@ private fun BadRateDialog(
         }
     }
 }
+
+
+/*
+*
+*
+                                Column(
+                                    Modifier
+                                        .padding(12.dp)
+                                        .verticalScroll(rememberScrollState())
+                                ) {
+                                    state.categories.chunked(COLUMN_COUNT).forEach {
+
+                                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            var spaceUI = 0
+                                            if (it.size < COLUMN_COUNT) {
+                                                spaceUI = COLUMN_COUNT - it.size
+                                            }
+                                            it.forEach {
+                                                CategoryItemSection(
+                                                    isLastRead = it.id == state.lastReadCategory,
+                                                    item = it,
+                                                    onClick = {
+                                                        viewModel.saveAsLastRead(it.id)
+                                                        navigationState.navToStories(it.id, it.title)
+                                                    }
+                                                )
+                                            }
+                                            if (spaceUI != 0) {
+                                                repeat(spaceUI) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .padding(dimension.small)
+                                                    )
+                                                }
+                                            }
+
+                                        }
+                                    }
+
+
+                                }
+
+
+*
+* */
