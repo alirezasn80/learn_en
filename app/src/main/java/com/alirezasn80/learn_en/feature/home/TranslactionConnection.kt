@@ -67,7 +67,6 @@ object TranslationConnection {
         }
     }
 
-
     fun dictionaryHttpURLConnection(
         text: String,
         to: String = "fa",

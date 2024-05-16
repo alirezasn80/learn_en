@@ -319,8 +319,12 @@ class ContentViewModel @Inject constructor(
     }
 
     fun onWordClick(word: String) {
+        if (state.value.isPlay)
+            readParagraph(false)
+
         clearPrevSheet()
         executeDictionary(word)
+
     }
 
     private fun executeDictionary(word: String) {
@@ -330,10 +334,14 @@ class ContentViewModel @Inject constructor(
                 val wordEntity = database.wordDao.getWordEntity(word)
 
                 if (wordEntity == null) {
-                    val translated = TranslationConnection.dictionaryHttpURLConnection(word)
-                    if (translated.isNotEmpty()) {
-                        database.wordDao.insertWord(WordEntity(word, translated, 0))
-                        executeDictionary(word)
+                    if (isOnline(application)) {
+                        val translated = TranslationConnection.dictionaryHttpURLConnection(word)
+                        if (translated.isNotEmpty()) {
+                            database.wordDao.insertWord(WordEntity(word, translated, 0))
+                            executeDictionary(word)
+                        }
+                    } else {
+                        setMessageBySnackbar(R.string.check_connection)
                     }
                 } else {
 
@@ -470,7 +478,9 @@ class ContentViewModel @Inject constructor(
                 val texts = mutableListOf<String>()
                 for (j in 0 until descriptions.length()) {
                     val desc = descriptions.getJSONArray(j).getString(0)
-                    texts.add(desc)
+                    // text
+                    descriptions.getJSONArray(j).put(2, "Seyed")        // New Add
+
                 }
                 descriptionModel.add(Desc(type, texts))
             }
@@ -490,6 +500,9 @@ class ContentViewModel @Inject constructor(
                 examples.add(example)
             }
 
+
+
+        debug(jsonArray.toString())
 
         //Create Model ----------------------------------------------
 
