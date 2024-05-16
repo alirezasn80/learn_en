@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -74,6 +75,7 @@ import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.Ltr
+import com.alirezasn80.learn_en.utill.Rtl
 
 private var selectedPage = -1
 
@@ -327,13 +329,27 @@ private fun DescSection(descriptions: List<Desc>) {
                 ExtraSmallSpacer()
                 Column {
                     desc.texts.forEach {
-                        Row(
+                        Column(
                             Modifier
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surface)
                                 .padding(dimension.medium)
                         ) {
-                            Text(text = it, color = MaterialTheme.colorScheme.onSurface)
+                            Text(text = it.main, color = MaterialTheme.colorScheme.onSurface)
+                            ExtraSmallSpacer()
+
+                            Rtl {
+                                Row(
+                                    Modifier
+                                        .width(100.dp)
+                                        .background(Color.Red)) {
+                                    Text(
+                                        text = it.translate,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
+                            }
                         }
                         Line(thickness = 2.dp)
                     }
@@ -536,7 +552,7 @@ private fun TopSection(
                 text = stringResource(id = R.string.flash_card),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleSmall,
-                 modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center)
 
             )
 
