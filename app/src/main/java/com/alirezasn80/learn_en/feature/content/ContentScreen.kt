@@ -404,15 +404,13 @@ private fun DescSection(descriptions: List<Desc>) {
                 ExtraSmallSpacer()
                 Column {
                     desc.texts.forEach {
-                        Column(
+                        Row(
                             Modifier
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surface)
                                 .padding(dimension.medium)
                         ) {
-                            Text(text = it.main, color = MaterialTheme.colorScheme.onSurface)
-                            ExtraSmallSpacer()
-                            Rtl { Text(text = it.translate, color = MaterialTheme.colorScheme.onSurface) }
+                            Text(text = it, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Line(thickness = 2.dp)
                     }

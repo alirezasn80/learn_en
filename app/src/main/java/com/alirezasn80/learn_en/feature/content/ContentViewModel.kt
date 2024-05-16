@@ -18,8 +18,7 @@ import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Synonym
-import com.alirezasn80.learn_en.core.domain.local.Translate
-import com.alirezasn80.learn_en.feature.home.GoogleTranslate
+import com.alirezasn80.learn_en.utill.GoogleTranslate
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.DictCategory
@@ -475,40 +474,10 @@ class ContentViewModel @Inject constructor(
                 val type = array.getString(0)
                 val descriptions = array.getJSONArray(1)
 
-                val texts = mutableListOf<Translate>()
+                val texts = mutableListOf<String>()
                 for (j in 0 until descriptions.length()) {
-
-                    val t = try {
-                        val desc = descriptions.getJSONArray(j).getJSONArray(0).getString(0)
-                        val translate = descriptions.getJSONArray(j).getString(1)
-                        Translate(desc, translate)
-                    } catch (e: Exception) {
-                        val newArray = JSONArray()
-                        val item = descriptions.getJSONArray(j)
-                        val desc = item.getString(0)
-                        val translate = GoogleTranslate.getTranslate(desc)
-                        newArray.put(item)
-                        newArray.put(translate)
-                        descriptions.put(j, newArray)
-                        Translate(desc,translate)
-                    }
-
-                    /*val desc = descriptions.getJSONArray(j).getString(0)
-                    val translate = try {
-                        val result = descriptions.getJSONArray(j).getString(2)
-                        debug("result try : $result")
-                        "سید"
-                    } catch (e: Exception) {
-                        val result = GoogleTranslate.getTranslate(desc)
-                        debug("result catch : $result")
-                        descriptions.getJSONArray(j).put(2, result)
-                        "علیرضا"
-                    }*/
-
-
-
-
-                    texts.add(t)
+                    val desc = descriptions.getJSONArray(j).getString(0)
+                    texts.add(desc)
                 }
                 descriptionModel.add(Desc(type, texts))
             }

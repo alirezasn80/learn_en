@@ -9,8 +9,6 @@ import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Synonym
-import com.alirezasn80.learn_en.core.domain.local.Translate
-import com.alirezasn80.learn_en.feature.home.GoogleTranslate
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.MessageState
@@ -142,20 +140,10 @@ class FlashCardViewModel @Inject constructor(
                 val type = array.getString(0)
                 val descriptions = array.getJSONArray(1)
 
-                val texts = mutableListOf<Translate>()
+                val texts = mutableListOf<String>()
                 for (j in 0 until descriptions.length()) {
                     val desc = descriptions.getJSONArray(j).getString(0)
-                    val translateDesc = try {
-                        descriptions.getJSONArray(j).getString(2)
-                    } catch (e: Exception) {
-                        val result = GoogleTranslate.getTranslate(desc)
-                        descriptions.getJSONArray(j).put(2, GoogleTranslate.getTranslate(desc))
-                        result
-                    }
-
-
-
-                    texts.add(Translate(desc, translateDesc))
+                    texts.add(desc)
                 }
                 descriptionModel.add(Desc(type, texts))
             }

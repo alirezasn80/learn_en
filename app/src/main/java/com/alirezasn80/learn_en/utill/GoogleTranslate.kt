@@ -1,7 +1,6 @@
-package com.alirezasn80.learn_en.feature.home
+package com.alirezasn80.learn_en.utill
 
 
-import com.alirezasn80.learn_en.utill.debug
 import org.jsoup.Jsoup
 import java.io.BufferedReader
 import java.io.InputStreamReader

@@ -12,14 +12,9 @@ data class Synonym(
     val defines: List<Define>,
 )
 
-data class Translate(
-    val main:String,
-    val translate:String
-)
-
 data class Desc(
     val type: String,
-    val texts: List<Translate>
+    val texts: List<String>
 )
 
 data class SheetModel(
