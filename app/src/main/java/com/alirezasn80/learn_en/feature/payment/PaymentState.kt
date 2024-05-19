@@ -15,4 +15,5 @@ sealed interface Status {
 data class PaymentState(
     val isLoading: Boolean = false,
     val successPayment: Boolean = false,
+
 )

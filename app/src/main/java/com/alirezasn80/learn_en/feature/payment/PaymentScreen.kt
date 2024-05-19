@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -51,7 +52,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -63,8 +63,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.ui.common.BaseTopBar
+import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.Gold100
-import com.alirezasn80.learn_en.ui.theme.Green100
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.MediumSpacer
 import com.alirezasn80.learn_en.ui.theme.Red100
@@ -104,7 +104,10 @@ private val pagerItems by lazy { payment_slider }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewModel()) {
+fun PaymentScreen(
+    upPress: () -> Unit,
+    viewModel: PaymentViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val registry = LocalActivityResultRegistryOwner.current?.activityResultRegistry
@@ -130,114 +133,136 @@ fun PaymentScreen(upPress: () -> Unit, viewModel: PaymentViewModel = hiltViewMod
 
         }
     }
-    Box {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.primary,
-            topBar = {
-                BaseTopBar(
-                    title = R.string.vip_user,
-                    upPress = upPress,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            },
-            /*bottomBar = {
-                Row(Modifier.padding(dimension.medium)) {
-                    PaymentButton(
-                        text = R.string.vip_payment,
-                        textColor = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.onPrimary
-                    ) { viewModel.buyProduct(registry, "VIP1") }
+
+    UI(
+        uiComponent = viewModel.uiComponents
+    ) {
+        Box {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.primary,
+                topBar = {
+                    BaseTopBar(
+                        title = R.string.vip_user,
+                        upPress = upPress,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                },
+                bottomBar = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimension.medium), horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(onClick = { viewModel.checkSubscribeStatus() }) {
+                            Text(
+                                text = "«" + stringResource(id = R.string.check_subscribe_status) + "»",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                    }
                 }
-            }*/
-        ) {
-            Column(
-                Modifier
-                    .padding(it)
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(bottom = dimension.medium)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                /*bottomBar = {
+                    Row(Modifier.padding(dimension.medium)) {
+                        PaymentButton(
+                            text = R.string.vip_payment,
+                            textColor = MaterialTheme.colorScheme.primary,
+                            backgroundColor = MaterialTheme.colorScheme.onPrimary
+                        ) { viewModel.buyProduct(registry, "VIP1") }
+                    }
+                }*/
             ) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier
-                        .padding(horizontal = dimension.medium)
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically,
-
+                Column(
+                    Modifier
+                        .padding(it)
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(bottom = dimension.medium)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .padding(horizontal = dimension.medium)
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) { PagerCell(pagerItems[it]) }
-                SmallSpacer()
-                IndicatorSection(
-                    pagerState = pagerState,
-                    indicatorCount = pagerItems.size
-                )
-                LargeSpacer()
-                DescSection()
+                    SmallSpacer()
+                    IndicatorSection(
+                        pagerState = pagerState,
+                        indicatorCount = pagerItems.size
+                    )
+                    LargeSpacer()
 
-                LargeSpacer()
+                    DescSection()
 
-                PaymentButton(
-                    text = R.string.mounch_12,
-                    percent = buildAnnotatedString {
-                        append("شامل تخفیف شگفت انگیز!")
-                        append(" ")
-                        append("(")
-                        append(" ")
+                    MediumSpacer()
 
-                        withStyle(style = SpanStyle(color = Gold100, fontWeight = FontWeight.Bold)) {
-                            append("75%")
+                    PaymentButton(
+                        text = R.string.mounch_12,
+                        percent = buildAnnotatedString {
+                            append("شامل تخفیف شگفت انگیز!")
+                            append(" ")
+                            append("(")
+                            append(" ")
+
+                            withStyle(style = SpanStyle(color = Gold100, fontWeight = FontWeight.Bold)) {
+                                append("75%")
+                            }
+                            append(" ")
+                            append("تخفیف")
+                            append(" ")
+
+                            append(")")
                         }
-                        append(" ")
-                        append("تخفیف")
-                        append(" ")
-
-                        append(")")
+                    ) {
+                        viewModel.buySubscribe(registry, "VIP_12")
                     }
-                ) {
-                    viewModel.buySubscribe(registry, "VIP_12")
-                }
 
-                MediumSpacer()
+                    MediumSpacer()
 
-                PaymentButton(
-                    text = R.string.mounch_3,
-                    percent = buildAnnotatedString {
-                        append("شامل تخفیف ویژه!")
-                        append(" ")
-                        append("(")
-                        append(" ")
+                    PaymentButton(
+                        text = R.string.mounch_3,
+                        percent = buildAnnotatedString {
+                            append("شامل تخفیف ویژه!")
+                            append(" ")
+                            append("(")
+                            append(" ")
 
-                        withStyle(style = SpanStyle(color = Red100, fontWeight = FontWeight.Bold)) {
-                            append("35%")
+                            withStyle(style = SpanStyle(color = Red100, fontWeight = FontWeight.Bold)) {
+                                append("35%")
+                            }
+                            append(" ")
+                            append("تخفیف")
+                            append(" ")
+
+                            append(")")
                         }
-                        append(" ")
-                        append("تخفیف")
-                        append(" ")
-
-                        append(")")
+                    ) {
+                        viewModel.buySubscribe(registry, "VIP_3")
                     }
-                ) {
-                    viewModel.buySubscribe(registry, "VIP_3")
-                }
 
-                MediumSpacer()
+                    MediumSpacer()
 
-                PaymentButton(text = R.string.mounch_1) {
-                    viewModel.buySubscribe(registry, "VIP_1")
+                    PaymentButton(text = R.string.mounch_1) {
+                        viewModel.buySubscribe(registry, "VIP_1")
+                    }
                 }
             }
-        }
 
-        if (state.isLoading) {
-            LoadingPage()
+            if (state.isLoading) {
+                LoadingPage()
+            }
         }
     }
 
 
 }
+
 
 @Composable
 fun LoadingPage() {

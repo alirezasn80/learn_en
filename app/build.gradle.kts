@@ -6,7 +6,6 @@ plugins {
     id("appmetrica-plugin")
     id("com.google.gms.google-services")
     id("kotlinx-serialization")
-
 }
 
 appmetrica {

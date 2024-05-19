@@ -75,8 +75,6 @@ import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.DictCategory
 import com.alirezasn80.learn_en.utill.Ltr
 
-private var selectedPage = -1
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -91,17 +89,6 @@ fun FlashCardScreen(
     UI(
         uiComponent = viewModel.uiComponents
     ) {
-
-        if (showDict && selectedPage != -1) {
-            DictSection(
-                sheetModel = state.flashcards!![selectedPage],
-                selectedCategory = state.selectedCategory,
-                onDismiss = { showDict = false },
-                onWordSpeak = viewModel::wordSpeak,
-                onCategoryClick = viewModel::setSelectedDictCategory,
-            )
-        }
-
 
         Scaffold(
             topBar = {
@@ -124,13 +111,23 @@ fun FlashCardScreen(
                     currentPage = pagerState.currentPage + 1
                 }
 
+                if (showDict) {
+                    DictSection(
+                        sheetModel = state.flashcards!![pagerState.currentPage],
+                        selectedCategory = state.selectedCategory,
+                        onDismiss = { showDict = false },
+                        onWordSpeak = viewModel::wordSpeak,
+                        onCategoryClick = viewModel::setSelectedDictCategory,
+                    )
+                }
+
+
                 HorizontalPager(
                     state = pagerState,
                     reverseLayout = true,
                     modifier = Modifier
                         .fillMaxSize(),
                 ) { page ->
-                    selectedPage = page
                     var rotate by remember { mutableStateOf(false) }
                     val angle: Float by animateFloatAsState(
                         targetValue = if (rotate) 180f else 0f,
@@ -536,7 +533,7 @@ private fun TopSection(
                 text = stringResource(id = R.string.flash_card),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleSmall,
-                 modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center)
 
             )
 

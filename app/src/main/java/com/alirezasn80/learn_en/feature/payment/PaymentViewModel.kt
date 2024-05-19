@@ -9,9 +9,13 @@ import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.utill.Arg
+import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Key
+import com.alirezasn80.learn_en.utill.MessageState
 import com.alirezasn80.learn_en.utill.ProductId
+import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.User
+import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,8 +37,7 @@ class PaymentViewModel @Inject constructor(
     private val application: Application,
     private val dataStore: AppDataStore,
     stateHandle: SavedStateHandle,
-) : ViewModel() {
-    val state = MutableStateFlow(PaymentState())
+) : BaseViewModel<PaymentState>(PaymentState()) {
     private var paymentConnection: Connection? = null
     private val key = stateHandle.getString(Arg.Key) ?: ""
 
@@ -203,6 +206,66 @@ class PaymentViewModel @Inject constructor(
 
     fun hideLoading() = state.update { it.copy(isLoading = false) }
 
+    fun checkSubscribeStatus() {
+
+        state.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            payment.connect {
+
+                //Success Connection To Cafe Bazaar
+                connectionSucceed {
+                    debug("conection success")
+                    payment.getSubscribedProducts {
+
+                        querySucceed { purchasedProducts ->
+                            debug("query success")
+                            state.update { it.copy(isLoading = false) }
+
+
+
+                            viewModelScope.launch {
+                                if (purchasedProducts.isEmpty()) {
+                                    debug("is empty")
+                                    setMessageBySnackbar(R.string.no_any_subscribe, MessageState.Error)
+                                    User.isVipUser = false
+                                    dataStore.setExpireDate(Key.EXPIRE_DATE, -1L)
+                                } else {
+                                    debug("else")
+                                    User.isVipUser = true
+                                    val purchaseTime = purchasedProducts[0].purchaseTime
+                                    val dateOfPurchase = Date(purchaseTime)
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = dateOfPurchase
+                                    calendar.add(Calendar.MONTH, purchasedProducts[0].productId.toMonth()!!)
+                                    val expireDate = calendar.time
+                                    dataStore.setExpireDate(Key.EXPIRE_DATE, expireDate.time)
+                                    setMessageBySnackbar(R.string.you_now_vip, MessageState.Success)
+                                }
+                            }
+
+
+                        }
+
+                        queryFailed {
+                            state.update { it.copy(isLoading = false) }
+
+                            setMessageBySnackbar(R.string.problem_connection_bazaar)
+                        }
+                    }
+                }
+
+                connectionFailed {
+                    state.update { it.copy(isLoading = false) }
+                    setMessageBySnackbar(R.string.problem_connection_bazaar)
+                }
+
+
+            }
+        }
+    }
+
     override fun onCleared() {
         paymentConnection?.disconnect()
         super.onCleared()
@@ -210,12 +273,12 @@ class PaymentViewModel @Inject constructor(
 
 }
 
- fun String.toMonth(): Int? {
+fun String.toMonth(): Int? {
     return when (this) {
         ProductId.MONTH1 -> 1
         ProductId.MONTH3 -> 3
         ProductId.MONTH12 -> 12
-        "TEST"->1
+        "TEST" -> 1
         else -> null
     }
 }

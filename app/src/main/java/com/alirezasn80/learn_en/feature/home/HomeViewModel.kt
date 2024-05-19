@@ -261,7 +261,7 @@ class HomeViewModel @Inject constructor(
     fun checkSubscribeStatus() {
         progress["bazaar"] = Progress.Loading
 
-        //todo()
+
         viewModelScope.launch(Dispatchers.IO) {
 
             bazaarConnection = payment.connect {

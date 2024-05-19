@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.Home.route) {
-                        HomeScreen(navigationState,themeViewModel)
+                        HomeScreen(navigationState, themeViewModel)
                     }
 
                     composable(Screen.Stories.route) {
