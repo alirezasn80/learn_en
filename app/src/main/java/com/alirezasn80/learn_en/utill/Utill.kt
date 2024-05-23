@@ -35,13 +35,25 @@ import androidx.navigation.NavBackStackEntry
 import com.alirezasn80.learn_en.R
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.TimeoutCancellationException
+import okhttp3.Interceptor
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.Buffer
+import okio.GzipSource
 import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
 import java.io.IOException
+import java.nio.charset.Charset
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-const val DEBUG = false
+const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
@@ -58,6 +70,114 @@ fun Any.toStr(): String {
 
 object User {
     var isVipUser = false
+}
+
+//Convert String to Request Body
+fun String.toRB() = this.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+
+fun Uri.toPart(context: Context, key: String/*, onCreatedFile: (File) -> Unit*/): MultipartBody.Part {
+    val file: File = FileUtils.getFile(context, this)!!
+    val requestFile = file.asRequestBody(context.contentResolver.getType(this)?.toMediaTypeOrNull())
+    //onCreatedFile(file)
+    return MultipartBody.Part.createFormData(key, file.name, requestFile)
+}
+
+fun File.toPart(key: String): MultipartBody.Part {
+    return MultipartBody.Part.createFormData(key, name, asRequestBody())
+}
+
+fun logging() = Interceptor { chain ->
+    val message = StringBuilder()
+    val headersToRedact = emptySet<String>()
+    val request = chain.request()
+    val startNs = System.nanoTime()
+    val response = chain.proceed(request)
+    val tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs)
+    val seconds = tookMs / 1000
+    val millis = tookMs % 1000
+    val time = "${if (seconds.toInt() == 0) "" else "${seconds}S and "}${millis}MS"
+    val url = request.url
+    val code = response.code
+    val responseBody = response.body!!
+    val contentLength = responseBody.contentLength()
+
+
+    val headers = response.headers
+    for (i in 0 until headers.size)
+        if (headers.name(i) !in headersToRedact) headers.value(i)
+
+
+    val source = responseBody.source()
+    source.request(Long.MAX_VALUE) // Buffer the entire body.
+    var buffer = source.buffer
+
+
+    if ("gzip".equals(headers["Content-Encoding"], ignoreCase = true)) {
+        GzipSource(buffer.clone()).use { gzippedResponseBody ->
+            buffer = Buffer()
+            buffer.writeAll(gzippedResponseBody)
+        }
+    }
+
+    val charset: Charset = responseBody.contentType()?.charset() ?: Charsets.UTF_8
+
+    if (contentLength != 0L) {
+        val body = buffer.clone().readString(charset)
+
+        if (url.toString().contains(".png").not()) {
+
+            message.append("START(url:$url, code:$code) \n")
+            try {
+
+                val indentSize = 2
+                var indentation = 0
+
+                /* for (char in body) {
+                     when (char) {
+                         '{', '[' -> {
+                             message.append(char)
+                             message.append("\n")
+                             indentation += indentSize
+                             message.append(" ".repeat(indentation))
+                         }
+
+                         '}', ']' -> {
+                             message.append("\n")
+                             indentation -= indentSize
+                             message.append(" ".repeat(indentation))
+                             message.append(char)
+                         }
+
+                         ',' -> {
+                             message.append(char)
+                             message.append("\n")
+                             message.append(" ".repeat(indentation))
+                         }
+
+                         else -> {
+                             message.append(char)
+                         }
+
+                     }
+                 }*/
+
+                message.append(JSONObject(body).toString(4))
+
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            message.append("\n-------------------  END ($time)  -------------------")
+
+
+
+            debug(message.toString(), "Retrofit")
+        }
+    }
+
+
+
+    response
 }
 
 

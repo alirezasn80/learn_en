@@ -37,4 +37,8 @@ interface ContentDao {
     @Query("SELECT * FROM CONTENTENTITY WHERE categoryId = :categoryId AND contentId = :contentId")
     suspend fun getContent(categoryId: Int, contentId: Int): ContentEntity
 
+    //todo(temp query)
+    @Query("SELECT * FROM CONTENTENTITY WHERE categoryId = :categoryId")
+    suspend fun getStoriesByCategory(categoryId: Int): List<ContentEntity>
+
 }
