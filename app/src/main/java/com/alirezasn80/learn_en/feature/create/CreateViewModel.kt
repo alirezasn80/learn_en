@@ -5,8 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
@@ -20,9 +18,6 @@ import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.MessageState
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -38,7 +33,7 @@ class CreateViewModel @Inject constructor(
 ) : BaseViewModel<CreateState>(CreateState()) {
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechIntent: Intent
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    //private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
 
     init {
@@ -109,7 +104,7 @@ class CreateViewModel @Inject constructor(
 
     }
 
-    fun processImageUri(uri: Uri) {
+    /*fun processImageUri(uri: Uri) {
         val image: InputImage
         try {
             image = InputImage.fromFilePath(context, uri)
@@ -127,7 +122,7 @@ class CreateViewModel @Inject constructor(
         } catch (e: IOException) {
             e.printStackTrace()
         }
-    }
+    }*/
 
     fun createStory(categoryId: Int) {
         viewModelScope.launch(Dispatchers.IO) {

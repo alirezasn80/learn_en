@@ -114,7 +114,7 @@ fun CreateScreen(
     }
 
     val imagePickerBuilder = rememberImagePickerBuilder(context = context) {
-        viewModel.processImageUri(it)
+        //viewModel.processImageUri(it)
     }
 
     /*val launcherGallery = rememberLauncherForActivityResult(
@@ -191,7 +191,7 @@ fun CreateScreen(
                                 enSttResult.launch(it)
                             },
                             onFaToEnSttClick = { faToEnResult.launch(it) },
-                            onScanImgClick = { imagePickerBuilder.launchPicker() }
+                            //onScanImgClick = { imagePickerBuilder.launchPicker() }
                         )
 
                 }
@@ -320,14 +320,14 @@ fun SheetCell(
 private fun KeyboardBar(
     onEnSttClick: (Intent) -> Unit,
     onFaToEnSttClick: (Intent) -> Unit,
-    onScanImgClick: () -> Unit,
+    // onScanImgClick: () -> Unit,
 ) {
 
     Row(
         Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background),
-        horizontalArrangement = Arrangement.SpaceBetween
+        // horizontalArrangement = Arrangement.SpaceBetween
     ) {
         IconButton(
             onClick = {
@@ -344,6 +344,8 @@ private fun KeyboardBar(
             )
         }
 
+        SmallSpacer()
+
         IconButton(
             onClick = {
                 val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -359,13 +361,13 @@ private fun KeyboardBar(
             )
         }
 
-        IconButton(onClick = onScanImgClick) {
+        /*IconButton(onClick = onScanImgClick) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_doc_scan),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground
             )
-        }
+        }*/
 
     }
 }
