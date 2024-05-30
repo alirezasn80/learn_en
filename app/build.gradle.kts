@@ -139,4 +139,9 @@ dependencies {
 
     //Crop
     implementation("com.vanniktech:android-image-cropper:4.5.0")
+
+    //Paging3
+    implementation("androidx.paging:paging-compose:3.2.1")
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+
 }

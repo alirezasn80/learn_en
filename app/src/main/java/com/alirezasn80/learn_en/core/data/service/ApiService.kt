@@ -1,6 +1,9 @@
 package com.alirezasn80.learn_en.core.data.service
 
 import androidx.annotation.Keep
+import com.alirezasn80.learn_en.core.domain.remote.Category
+import com.alirezasn80.learn_en.core.domain.remote.RemoteModel
+import com.alirezasn80.learn_en.feature.stories.model.BookResponse
 import com.alirezasn80.learn_en.utill.toRB
 import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
@@ -9,14 +12,8 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
-import retrofit2.http.Path
 import retrofit2.http.Query
 
-@Keep
-data class RemoteModel(
-    @SerializedName("success")
-    val success: Boolean
-)
 
 interface ApiService {
 
@@ -30,7 +27,6 @@ interface ApiService {
         @Part cover: MultipartBody.Part?,
         @Part file: MultipartBody.Part,
         @Part("key") key: RequestBody = "13800831".toRB(),
-
     ): RemoteModel
 
     @POST("active_book")
@@ -51,9 +47,10 @@ interface ApiService {
         ): String
 
     @GET("get_books")
-    fun getBooks(
-        @Query("id") id: Int
-    ): Unit//todo()
+    suspend fun getBooks(
+        @Query("id") id: Int,
+        @Query("page") page: Int
+    ): BookResponse
 
 
     // Category ----------------------------------------------------------
@@ -80,7 +77,7 @@ interface ApiService {
     ): String
 
     @GET("get_categories")
-    suspend fun getCategories(): Unit//todo()
+    suspend fun getCategories(): List<Category>
 
     //-----------------------------------------------------------------------------------
 }

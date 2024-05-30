@@ -32,7 +32,7 @@ interface ContentDao {
     suspend fun getItems(categoryId: Int): List<Items>
 
     @Query("SELECT categoryId,contentId,title FROM CONTENTENTITY WHERE favorite = 1")
-    suspend fun getFavorites(): List<Items>
+    suspend fun getFavoriteBooks(): List<Items>
 
     @Query("SELECT * FROM CONTENTENTITY WHERE categoryId = :categoryId AND contentId = :contentId")
     suspend fun getContent(categoryId: Int, contentId: Int): ContentEntity

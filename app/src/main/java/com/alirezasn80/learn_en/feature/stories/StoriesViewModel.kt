@@ -4,18 +4,25 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
+import com.alirezasn80.learn_en.feature.stories.model.Book
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.CustomPager
 import com.alirezasn80.learn_en.utill.Key
+import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.toPart
 import com.alirezasn80.learn_en.utill.toRB
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -32,16 +39,46 @@ class StoriesViewModel @Inject constructor(
 ) : BaseViewModel<StoriesState>(StoriesState()) {
     val categoryId = savedstate.getString(Arg.CATEGORY_ID)!!.toInt()
     private val title = savedstate.getString(Arg.TITLE)!!
+    var books: Flow<PagingData<Book>>? = null
 
 
     init {
         state.update { it.copy(title = title) }
-        getStories()
+        getStoriesRemote()
+        //getStories()
         getLastReadCategory()
-       // addBook()
+        // addBook()
     }
 
-     fun addBook(key:String) {
+    private fun getStoriesRemote() {
+        progress(Progress.Loading)
+
+
+        books = CustomPager(
+            request = { page ->
+                val bookResponse = apiService.getBooks(categoryId, page)
+                val items = bookResponse.books
+                setKeys(items.isEmpty())
+                progress(Progress.Idle)
+                items
+            },
+            handleException = {
+                AppMetrica.reportError("Error Get Stories Remote", it)
+                debug("Error Get Stories Remote:${it.message}")
+                progress(Progress.Idle)
+
+            }
+        ).build().cachedIn(viewModelScope)
+
+
+    }
+
+
+    private fun progress(_progress: Progress) {
+        progress[""] = _progress
+    }
+
+    fun addBook(key: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
             val stories = database.contentDao.getStoriesByCategory(categoryId)

@@ -11,22 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,13 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
-import com.alirezasn80.learn_en.core.domain.entity.Items
+import com.alirezasn80.learn_en.feature.stories.model.Book
+import com.alirezasn80.learn_en.ui.common.LoadingBlurLayout
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Ltr
+import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.User
 
 
@@ -50,24 +48,43 @@ fun StoriesScreen(
     viewmodel: StoriesViewModel = hiltViewModel()
 ) {
     val state by viewmodel.state.collectAsStateWithLifecycle()
+    val books = viewmodel.books?.collectAsLazyPagingItems()
 
     UI {
         Column(Modifier.fillMaxSize()) {
-
-
-            //temp--------------------------------------------------------------------------
-            var template by remember { mutableStateOf("") }
-            TextField(value = template, onValueChange = { template = it })
-            Button(onClick = { viewmodel.addBook(template.trim()) }) {}
-            //----------------------------------------------------------------------------
-
 
             Header(state.title, upPress = navigationState::upPress)
             if (!User.isVipUser)
                 FreeTip()
 
             Ltr {
-                LazyColumn {
+
+                if (books?.loadState?.refresh is LoadState.Loading || viewmodel.progress[""] is Progress.Loading)
+                    LoadingBlurLayout()
+                else
+                    LazyColumn {
+                        items(books?.itemCount ?: 0) { index ->
+                            books?.get(index)?.let { item ->
+                                val isTrial = index <= 1 || User.isVipUser
+
+                                ItemSection(
+                                    isLastRead = item.bookId == state.isLastReadStory,
+                                    isFree = isTrial,
+                                    index = index,
+                                    book = item,
+                                    onClick = {
+                                        viewmodel.saveAsLastRead(item.bookId)
+                                        navigationState.navToContent(1/*todo()*/, item.bookId, if (isTrial) "trial" else "lock")
+                                    }
+                                )
+                            }
+
+                        }
+
+                    }
+
+
+                /*LazyColumn {
                     itemsIndexed(state.items) { index, item ->
                         val isTrial = index <= 1 || User.isVipUser
                         ItemSection(
@@ -81,7 +98,7 @@ fun StoriesScreen(
                             }
                         )
                     }
-                }
+                }*/
             }
 
         }
@@ -131,7 +148,7 @@ private fun ItemSection(
     isLastRead: Boolean,
     isFree: Boolean,
     index: Int,
-    item: Items,
+    book: Book,
     onClick: () -> Unit
 ) {
     /*val infiniteTransition = rememberInfiniteTransition(label = "")
@@ -168,10 +185,10 @@ private fun ItemSection(
             }
             SmallSpacer()
             Column {
-                Text(text = "Story ${item.contentId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text(text = "Story ${book.bookId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
                 SmallSpacer()
                 Text(
-                    text = item.title, style = MaterialTheme.typography.titleSmall,
+                    text = book.name, style = MaterialTheme.typography.titleSmall,
                     color = if (isLastRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 )
             }

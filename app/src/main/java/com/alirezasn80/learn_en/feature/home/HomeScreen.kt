@@ -1,6 +1,5 @@
 package com.alirezasn80.learn_en.feature.home
 
-import android.graphics.BitmapFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,12 +31,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
@@ -90,11 +84,10 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.AsyncImage
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
-import com.alirezasn80.learn_en.core.domain.entity.CategoryModel
 import com.alirezasn80.learn_en.core.domain.entity.Items
+import com.alirezasn80.learn_en.core.domain.remote.Category
 import com.alirezasn80.learn_en.ui.common.BaseTextButton
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
@@ -111,7 +104,6 @@ import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
-import com.alirezasn80.learn_en.utill.createImageBitmap
 import com.alirezasn80.learn_en.utill.openAppInCafeBazaar
 import com.alirezasn80.learn_en.utill.openBazaarComment
 import com.alirezasn80.learn_en.utill.openGmail
@@ -135,7 +127,7 @@ fun HomeScreen(
     var reqToExit by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val context = LocalContext.current
-    var showCategory by remember { mutableStateOf(false) }
+    var showTabs by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val permissionState = rememberPermissionState(
@@ -210,25 +202,30 @@ fun HomeScreen(
 
     // Check Reload
     LaunchedEffect(Unit) {
-        if (Reload.created) {
-            if (state.selectedSection.key == "created") {
-                viewModel.reloadData()
-            } else {
-                viewModel.setSelectedLevel(Section.Created)
-            }
-        } else if (Reload.favorite) {
-            if (state.selectedSection.key == "favorite") viewModel.reloadData()
+        /* if (Reload.created) {
+             if (state.selectedSection.key == "created") {
+                 viewModel.reloadData()
+             } else {
+                 viewModel.setSelectedLevel(Section.Created)
+             }
+         } else*/
+
+        if (Reload.favorite) {
+            // Current is Favorite
+            if (state.selectedTab.key == "favorite") viewModel.reloadData()
         }
     }
 
     UI(uiComponent = viewModel.uiComponents, progress = viewModel.progress["bazaar"]) {
 
-        if (showCategory) {
+        if (showTabs) {
             BottomSheet(
-                onDismiss = { showCategory = false },
+                onDismiss = { showTabs = false },
                 onClick = {
-                    viewModel.setSelectedLevel(it)
-                    showCategory = false
+                    if (it != state.selectedTab) {
+                        viewModel.setSelectedTab(it)
+                    }
+                    showTabs = false
                 },
                 onCreateClick = navigationState::navToCreate
             )
@@ -338,10 +335,10 @@ fun HomeScreen(
             Column(Modifier.fillMaxSize()) {
                 Header(
                     needUpdate = state.needUpdate,
-                    selectedLevel = state.selectedSection.name,
+                    selectedTab = state.selectedTab.name,
                     onMenuClick = { scope.launch { drawerState.open() } },
-                    onLevelClick = {
-                        showCategory = !showCategory
+                    onTabClick = {
+                        showTabs = !showTabs
                     },
                     onCreateClick = navigationState::navToCreate
                 )
@@ -349,7 +346,7 @@ fun HomeScreen(
                     if (viewModel.progress[""] is Progress.Loading) {
                         LoadingLayout()
                     } else {
-                        if (state.selectedSection.key == "favorite") {
+                        if (state.selectedTab.key == "favorite") {
                             if (state.favorites.isEmpty()) {
                                 EmptyLayout()
                             } else {
@@ -379,7 +376,7 @@ fun HomeScreen(
                                             item = it,
                                             onClick = {
                                                 viewModel.saveAsLastRead(it.id)
-                                                navigationState.navToStories(it.id, it.title)
+                                                navigationState.navToStories(it.id, it.name)
                                             }
                                         )
                                     }
@@ -599,7 +596,7 @@ private fun EmptyLayout() {
 @Composable
 private fun CategoryItemSection(
     isLastRead: Boolean,
-    item: CategoryModel,
+    item: Category,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -612,7 +609,7 @@ private fun CategoryItemSection(
     ) {
 
         // Number
-        if (item.image == null)
+        if (item.cover == null)
             Box(
                 modifier = Modifier
                     .aspectRatio(1f)
@@ -637,7 +634,7 @@ private fun CategoryItemSection(
                     .size(100.dp)
                     .clip(MaterialTheme.shapes.medium)
                     .shadow(1.dp)
-                    .zIndex(1f), data = item.image,
+                    .zIndex(1f), data = item.cover,
                 contentScale = ContentScale.Crop
             )
         }
@@ -645,7 +642,7 @@ private fun CategoryItemSection(
         SmallSpacer()
 
         Text(
-            text = item.title,
+            text = item.name,
             style = MaterialTheme.typography.bodyLarge,
             color = if (isLastRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
@@ -708,9 +705,9 @@ private fun FavoriteItemSection(
 @Composable
 private fun Header(
     needUpdate: Boolean,
-    selectedLevel: Int,
+    selectedTab: Int,
     onMenuClick: () -> Unit,
-    onLevelClick: () -> Unit,
+    onTabClick: () -> Unit,
     onCreateClick: () -> Unit
 ) {
     Box(
@@ -735,20 +732,20 @@ private fun Header(
                 )
         }
 
-        TextButton(onClick = onLevelClick, modifier = Modifier.align(Alignment.Center)) {
+        TextButton(onClick = onTabClick, modifier = Modifier.align(Alignment.Center)) {
             Icon(modifier = Modifier.align(Alignment.CenterVertically), imageVector = Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
             Text(
                 modifier = Modifier.align(Alignment.CenterVertically),
-                text = stringResource(id = selectedLevel),
+                text = stringResource(id = selectedTab),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onPrimary
             )
 
         }
 
-        IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterEnd)) {
+        /*IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterEnd)) {
             Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_circle_add), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
-        }
+        }*/
 
     }
 }
@@ -758,7 +755,7 @@ private fun Header(
 @Composable
 private fun BottomSheet(
     onDismiss: () -> Unit,
-    onClick: (Section) -> Unit,
+    onClick: (Tab) -> Unit,
     onCreateClick: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -774,7 +771,7 @@ private fun BottomSheet(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(bottom = 40.dp)
         ) {
-            sections.forEach {
+            tabs.forEach {
                 Column {
                     Row(
                         Modifier
@@ -785,12 +782,12 @@ private fun BottomSheet(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
-                        if (it is Section.Created)
+                        /*if (it is Tab.Created)
                             Text(
                                 text = stringResource(id = R.string.create),
                                 color = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.clickable { onCreateClick() }
-                            )
+                            )*/
 
                     }
                     Divider(color = MaterialTheme.colorScheme.background, thickness = 2.dp)
