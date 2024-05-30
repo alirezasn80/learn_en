@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
-import com.alirezasn80.learn_en.core.domain.entity.toItems
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Key
@@ -19,15 +18,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
 import java.io.File
 import javax.inject.Inject
 
@@ -48,23 +38,28 @@ class StoriesViewModel @Inject constructor(
         state.update { it.copy(title = title) }
         getStories()
         getLastReadCategory()
-        // addBook()
+       // addBook()
     }
 
-    private fun addBook() {
+     fun addBook(key:String) {
 
         viewModelScope.launch(Dispatchers.IO) {
-            val story = database.contentDao.getStoriesByCategory(categoryId).first()//todo()
+            val stories = database.contentDao.getStoriesByCategory(categoryId)
+
             try {
-                val result = apiService.addBook(
-                    categoryId = "4".toRB(),
-                    name = story.title.toRB(),
-                    cover = null,
-                    file = createTXT(application, story.title, story.content).toPart("file")
-                )
-                debug(result)
+                stories.forEach {
+                    val result = apiService.addBook(
+                        categoryId = key.toRB(),
+                        name = it.title.toRB(),
+                        cover = null,
+                        file = createTXT(application, it.title, it.content).toPart("file")
+                    )
+                    debug(result.success.toString())
+                }
+                debug("Finish All (${stories.size})")
+
             } catch (e: Exception) {
-                debug("Error!")
+                debug("Error! ${e.message}")
             }
 
 
@@ -72,7 +67,7 @@ class StoriesViewModel @Inject constructor(
     }
 
     private fun createTXT(context: Context, title: String, body: String): File {
-        val file = File(context.cacheDir, title)
+        val file = File(context.cacheDir, "$title.txt")
         file.createNewFile()
         file.writeText(body)
         return file

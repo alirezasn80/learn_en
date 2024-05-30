@@ -53,7 +53,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-const val DEBUG = false
+const val DEBUG = true
 fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
