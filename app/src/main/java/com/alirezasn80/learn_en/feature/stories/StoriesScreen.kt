@@ -74,7 +74,8 @@ fun StoriesScreen(
                                     book = item,
                                     onClick = {
                                         viewmodel.saveAsLastRead(item.bookId)
-                                        navigationState.navToContent(1/*todo()*/, item.bookId, if (isTrial) "trial" else "lock")
+                                        //viewmodel.download(item.file, item.bookId)
+                                        navigationState.navToContent(item, if (isTrial) "trial" else "lock")
                                     }
                                 )
                             }

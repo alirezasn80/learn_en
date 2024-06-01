@@ -5,6 +5,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.alirezasn80.learn_en.feature.stories.model.Book
+import com.alirezasn80.learn_en.utill.Arg
+import com.alirezasn80.learn_en.utill.putParam
+
 
 @Composable
 fun rememberNavigationState(navController: NavHostController = rememberNavController()) = remember(navController) {
@@ -15,6 +19,7 @@ fun rememberNavigationState(navController: NavHostController = rememberNavContro
 class NavigationState(
     val navController: NavHostController
 ) {
+
     val currentRoute: String? get() = navController.currentDestination?.route
 
     val previousRoute: String? get() = navController.previousBackStackEntry?.destination?.route
@@ -43,7 +48,10 @@ class NavigationState(
 
     fun navToStories(categoryId: Int, title: String) = navController.navigate(Screen.Stories.route(categoryId, title))
 
-    fun navToContent(categoryId: Int, contentId: Int, key: String) = navController.navigate(Screen.Content.route(categoryId, contentId, key))
+    fun navToContent(book: Book?, key: String) {
+        putParam(Arg.FILE_URL, book!!)
+        navController.navigate(Screen.Content.route(key))
+    }
 
     fun navToOnBoarding() = navController.navigate(Screen.OnBoarding.route) { popUpTo(0) }
 

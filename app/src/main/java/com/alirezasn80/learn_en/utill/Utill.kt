@@ -36,10 +36,8 @@ import com.alirezasn80.learn_en.R
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.TimeoutCancellationException
 import okhttp3.Interceptor
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.Buffer
@@ -58,6 +56,14 @@ fun debug(message: String?, tag: String = "AppDebug") {
     if (DEBUG)
         Log.d(tag, "********DEBUG********\n$message")
 }
+
+
+private val _parameter = mutableMapOf<String, Any>()
+
+fun putParam(key: String, value: Any) = _parameter.put(key, value)
+
+fun getParam(key: String): Any? = _parameter[key]
+
 
 @Composable
 fun Any.toStr(): String {
@@ -286,6 +292,7 @@ object Arg {
     const val Key = "Key"
     const val CATEGORY_ID = "CATEGORY_ID"
     const val CONTENT_ID = "CONTENT_ID"
+    const val FILE_URL = "FILE_URL"
     const val TITLE = "TITLE"
 }
 
@@ -483,6 +490,7 @@ fun SavedStateHandle.getInt(key: String): Int? {
 
 fun SavedStateHandle.getString(key: String) = this.get<String>(key)
 
+
 @Composable
 fun randomColor(): Color {
     val alpha = Random.nextInt(200, 256)
@@ -568,7 +576,6 @@ data class FontModel(
     val id: Int
 )
 
-
 val fontsOfStory = listOf(
     FontModel(
         title = "helvetica",
@@ -595,3 +602,5 @@ val fontsOfStory = listOf(
         id = R.font.times_new_roman
     )
 )
+
+fun Context.bookPath(bookId: String,key:String="main") = getExternalFilesDir("books")!!.absolutePath + "/" + bookId + ".txt"

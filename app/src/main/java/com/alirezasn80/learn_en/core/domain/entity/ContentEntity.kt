@@ -15,7 +15,8 @@ import androidx.room.PrimaryKey
     ]
 )
 data class ContentEntity(
-    @PrimaryKey(autoGenerate = true) val contentId: Int? = null,
+    @PrimaryKey(autoGenerate = true)
+    val contentId: Int? = null,
     val categoryId: Int?,
     val title: String,
     val content: String,

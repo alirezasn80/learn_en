@@ -20,11 +20,7 @@ import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
         WordEntity::class,
         WordImgEntity::class
     ],
-    version = 3,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
-    ]
+    version = 1
 )
 abstract class AppDB : RoomDatabase() {
 

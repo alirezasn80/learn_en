@@ -1,18 +1,18 @@
 package com.alirezasn80.learn_en.core.data.service
 
-import androidx.annotation.Keep
 import com.alirezasn80.learn_en.core.domain.remote.Category
 import com.alirezasn80.learn_en.core.domain.remote.RemoteModel
 import com.alirezasn80.learn_en.feature.stories.model.BookResponse
 import com.alirezasn80.learn_en.utill.toRB
-import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 
 interface ApiService {
@@ -80,4 +80,8 @@ interface ApiService {
     suspend fun getCategories(): List<Category>
 
     //-----------------------------------------------------------------------------------
+
+    //Webservice
+    @GET
+    suspend fun downloadFile(@Url fileUrl: String): ResponseBody
 }

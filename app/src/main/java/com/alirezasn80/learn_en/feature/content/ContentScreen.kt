@@ -112,7 +112,7 @@ fun ContentScreen(navigationState: NavigationState, viewModel: ContentViewModel 
     UI(
         checkOnline = true,
         onRefresh = {
-            viewModel.getContent()
+            viewModel.readBook()
         },
         uiComponent = viewModel.uiComponents
     ) {

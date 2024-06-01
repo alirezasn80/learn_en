@@ -16,18 +16,14 @@ object DBModule {
     @Singleton
     @Provides
     fun provideAppDatabase(app: Application): AppDB {
-        val databaseFile = app.getDatabasePath("learn_en.db")
 
-        return if (databaseFile.exists()) {
-            Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")
-                .build()
-
-        } else {
-            Room.databaseBuilder(app, AppDB::class.java, "learn_en.db")
-                .createFromAsset("database/learn_en.db")
-                .build()
-        }
-
+        return Room
+            .databaseBuilder(
+                context = app,
+                klass = AppDB::class.java,
+                name = "learn_en2.db"
+            )
+            .build()
     }
 }
 

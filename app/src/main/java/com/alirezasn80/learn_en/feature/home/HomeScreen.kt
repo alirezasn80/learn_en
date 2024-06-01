@@ -355,7 +355,7 @@ fun HomeScreen(
                                         FavoriteItemSection(
                                             index = index + 1,
                                             item = item,
-                                            onClick = { navigationState.navToContent(item.categoryId!!, item.contentId!!, "lock") }
+                                            onClick = { navigationState.navToContent(null, "lock")/*todo()*/ }
                                         )
                                     }
                                 }

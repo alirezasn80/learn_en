@@ -37,7 +37,7 @@ sealed class Screen(val route: String) {
 
     data object Stories : Screen("Stories/{${Arg.CATEGORY_ID}}/{${Arg.TITLE}}")
 
-    data object Content : Screen("Content/{${Arg.CATEGORY_ID}}/{${Arg.CONTENT_ID}}/{${Arg.IS_TRIAL}}")
+    data object Content : Screen("Content/{${Arg.IS_TRIAL}}")
 
     data object Home : Screen("Home")
 }

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
+import com.alirezasn80.learn_en.core.data.service.ApiService
 import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
@@ -18,6 +19,7 @@ import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
 import com.alirezasn80.learn_en.core.domain.local.Synonym
+import com.alirezasn80.learn_en.feature.stories.model.Book
 import com.alirezasn80.learn_en.utill.GoogleTranslate
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
@@ -26,7 +28,9 @@ import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
+import com.alirezasn80.learn_en.utill.bookPath
 import com.alirezasn80.learn_en.utill.debug
+import com.alirezasn80.learn_en.utill.getParam
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.isOnline
 import com.alirezasn80.learn_en.utill.removeBlankLines
@@ -43,6 +47,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.jsoup.Jsoup
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
 import java.util.Locale
 import javax.inject.Inject
 
@@ -53,16 +62,16 @@ class ContentViewModel @Inject constructor(
     private val database: AppDB,
     private val application: Application,
     private val dataStore: AppDataStore,
+    private val apiService: ApiService,
 ) : BaseViewModel<ContentState>(ContentState()) {
-    var job: Job? = null
+    private var job: Job? = null
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechIntent: Intent
-    private val categoryId = savedStateHandle.getString(Arg.CATEGORY_ID)!!.toInt()
-    private val contentId = savedStateHandle.getString(Arg.CONTENT_ID)!!.toInt()
+    private val book = getParam(Arg.FILE_URL)!! as Book
     val isTrial = savedStateHandle.getString(Arg.IS_TRIAL)!! == "trial"
     private var maxReadableIndex = 0
     private var readMode = "default"
-    private var title = ""
+
 
     private val tts: TextToSpeech = TextToSpeech(application) { status ->
         if (status == TextToSpeech.SUCCESS) ttsSetting()
@@ -75,7 +84,7 @@ class ContentViewModel @Inject constructor(
     init {
         initDefaultFont()
         initSpeechToText()
-        getContent()
+        readBook()
         getHighlights()
     }
 
@@ -213,18 +222,23 @@ class ContentViewModel @Inject constructor(
     }
 
 
-    fun getContent() = viewModelScope.launch(Dispatchers.IO) {
+    /*fun readBookMain() = viewModelScope.launch(Dispatchers.IO) {
 
         if (!isOnline(application)) {
             return@launch
         }
 
-
-
         loading(Progress.Loading)
 
+        val bookFile = File(application.bookPath(bookId.toString(), "main"))
+        if (bookFile.exists()) {
+
+        } else {
+            download(book, bookId)
+        }
+
         val contentEntity = try {
-            database.contentDao.getContent(categoryId, contentId)
+            database.contentDao.getContent(categoryId, bookId)
         } catch (e: Exception) {
             errorException("Error in get content entity", e)
             return@launch
@@ -235,7 +249,7 @@ class ContentViewModel @Inject constructor(
 
         val paragraphs = if (contentEntity.translation.isNullOrBlank()) {// remote
 
-            translateRemote(contentEntity)
+            translateRemoteMain(contentEntity)
         } else { // locale
             processTranslateJson(contentEntity.translation)
         }
@@ -252,16 +266,88 @@ class ContentViewModel @Inject constructor(
         loading(Progress.Idle)
 
 
+    }*/
+
+    fun readBook() {
+        if (!isOnline(application))
+            return
+
+
+        viewModelScope.launch(Dispatchers.IO) {
+            loading(Progress.Loading)
+
+            val bookFile = File(application.bookPath(book.bookId.toString()))
+
+            if (bookFile.exists()) {
+                val textFile = readFile(bookFile)
+                val paragraphs = translateRemote(textFile)
+
+                state.update {
+                    it.copy(
+                        //    isBookmark = contentEntity.favorite.toBoolean(),
+                        title = book.name,
+                        paragraphs = paragraphs
+                    )
+                }
+
+                loading(Progress.Idle)
+
+            } else {
+                download(book.fileUrl, book.bookId)
+            }
+
+        }
     }
 
-    private suspend fun translateRemote(
+
+    private fun download(url: String, id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val responseBody = apiService.downloadFile(url)
+                val bookFile = File(application.bookPath(id.toString()))
+                writeFile(bookFile, responseBody.byteStream())
+                readBook()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun readFile(file: File): String {
+        val bufferedReader: BufferedReader = file.bufferedReader()
+        val inputString = bufferedReader.use { it.readText() }
+        return inputString
+    }
+
+    private fun writeFile(file: File, inputStream: InputStream) {
+
+        try {
+            val fileOutputStream = FileOutputStream(file)
+
+            //write and save data
+            val bytes = ByteArray(1024)
+            var read = inputStream.read(bytes)
+            while (read != -1) {
+                fileOutputStream.write(bytes, 0, read)
+                read = inputStream.read(bytes)
+            }
+            fileOutputStream.close()
+            inputStream.close()
+            fileOutputStream.flush()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    /*private suspend fun translateRemoteMain(
         contentEntity: ContentEntity,
         from: String = "en",
         to: String = "fa"
     ): List<Paragraph> {
         //todo(check max 5,000 char)
         var newContent = contentEntity.content.trimIndent().removeBlankLines()
-        if (newContent.startsWith(title)) newContent = newContent.replace(title, "$title.\n")
+        if (newContent.startsWith(book.name)) newContent = newContent.replace(book.name, "${book.name}.\n")
 
         return try {
             val translated = GoogleTranslate.getJsonTranslate(
@@ -279,7 +365,32 @@ class ContentViewModel @Inject constructor(
         }
 
 
+    }*/
+
+    private suspend fun translateRemote(
+        text: String,
+        from: String = "en",
+        to: String = "fa"
+    ): List<Paragraph> {
+        //todo(check max 5,000 char)
+        var newContent = text.trimIndent().removeBlankLines()
+        if (newContent.startsWith(book.name)) newContent = newContent.replace(book.name, "${book.name}.\n")
+
+        return try {
+            val translated = GoogleTranslate.getJsonTranslate(
+                newContent,
+                to,
+                from
+            )
+            val result = processTranslateJson(translated)
+            result
+
+        } catch (e: Exception) {
+            errorException("Error in Translation", e)
+            emptyList()
+        }
     }
+
 
     private fun processTranslateJson(value: String): List<Paragraph> {
         return try {
@@ -570,14 +681,14 @@ class ContentViewModel @Inject constructor(
 
     private fun addToBookmark() {
         viewModelScope.launch(Dispatchers.IO) {
-            database.contentDao.addToBookmark(contentId, categoryId)
+            database.contentDao.addToBookmark(book.bookId, book.categoryId)
         }
         application.showToast(R.string.add_to_bookmark)
     }
 
     private fun deleteFromBookmark() {
         viewModelScope.launch(Dispatchers.IO) {
-            database.contentDao.deleteFromBookmark(contentId, categoryId)
+            database.contentDao.deleteFromBookmark(book.bookId, book.categoryId)
         }
         application.showToast(R.string.delete_from_bookmark)
     }
