@@ -178,7 +178,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
-                val favoriteBooks = dp.contentDao.getFavoriteBooks()
+                val favoriteBooks = dp.bookDao.getFavoriteBooks()
                 state.update { it.copy(favorites = favoriteBooks) }
             } catch (e: Exception) {
                 AppMetrica.reportError("Error Get Favorite Books", e)

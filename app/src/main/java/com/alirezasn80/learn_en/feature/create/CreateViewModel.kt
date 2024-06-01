@@ -2,7 +2,6 @@ package com.alirezasn80.learn_en.feature.create
 
 import android.app.Application
 import android.content.Intent
-import android.net.Uri
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.compose.ui.text.TextRange
@@ -11,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
-import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
+import com.alirezasn80.learn_en.core.domain.entity.BookEntity
 import com.alirezasn80.learn_en.core.domain.entity.toCategoryModel
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Destination
@@ -23,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -126,13 +124,13 @@ class CreateViewModel @Inject constructor(
 
     fun createStory(categoryId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.contentDao.insertContent(
-                ContentEntity(
+            db.bookDao.insertContent(
+                BookEntity(
                     categoryId = categoryId,
-                    content = state.value.content.text,
+                    bookPath = state.value.content.text,
                     title = state.value.title,
-                    favorite = 0,
-                    translation = null
+                    isFavorite = 0,
+                    translationPath = null
                 )
             )
             setMessageByToast(R.string.saved, MessageState.Success)

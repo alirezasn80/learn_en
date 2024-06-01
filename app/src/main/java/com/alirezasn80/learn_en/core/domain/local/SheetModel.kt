@@ -27,7 +27,6 @@ data class SheetModel(
     val images: List<String> = emptyList(),
 ) {
     fun getCategories(): List<DictCategory> {
-        // create categories
         val dictCategories = listOf<DictCategory>(DictCategory.Meaning).toMutableList()
         if (descriptions.isNotEmpty()) dictCategories.add(DictCategory.Desc)
         if (examples.isNotEmpty()) dictCategories.add(DictCategory.Example)

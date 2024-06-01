@@ -14,16 +14,12 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class ContentEntity(
+data class BookEntity(
     @PrimaryKey(autoGenerate = true)
-    val contentId: Int? = null,
+    val bookId: Int? = null,
     val categoryId: Int?,
     val title: String,
-    val content: String,
-    val translation: String?,
-    val favorite: Int
+    val bookPath: String,
+    val translationPath: String?,
+    val isFavorite: Int
 )
-
-data class Items(val categoryId: Int?, val contentId: Int?, val title: String)
-
-fun ContentEntity.toItems() = Items(categoryId = categoryId, contentId = contentId, title = title)

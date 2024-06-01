@@ -12,7 +12,6 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
-import com.alirezasn80.learn_en.core.domain.entity.ContentEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
 import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
@@ -681,14 +680,14 @@ class ContentViewModel @Inject constructor(
 
     private fun addToBookmark() {
         viewModelScope.launch(Dispatchers.IO) {
-            database.contentDao.addToBookmark(book.bookId, book.categoryId)
+            database.bookDao.addToFavorite(book.bookId, book.categoryId)
         }
         application.showToast(R.string.add_to_bookmark)
     }
 
     private fun deleteFromBookmark() {
         viewModelScope.launch(Dispatchers.IO) {
-            database.contentDao.deleteFromBookmark(book.bookId, book.categoryId)
+            database.bookDao.deleteFromFavorite(book.bookId, book.categoryId)
         }
         application.showToast(R.string.delete_from_bookmark)
     }

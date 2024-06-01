@@ -70,6 +70,7 @@ import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
 import com.alirezasn80.learn_en.ui.theme.ExtraSmallSpacer
 import com.alirezasn80.learn_en.ui.theme.Line
+import com.alirezasn80.learn_en.ui.theme.Red100
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.DictCategory
@@ -422,9 +423,9 @@ private fun DefinitionSection(
                 .padding(dimension.small)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_star_fill),
+                painter = painterResource(id = R.drawable.ic_delete),
                 contentDescription = null,
-                tint = Color(0xFFFFBF00),
+                tint = Red100,
                 modifier = Modifier.size(40.dp)
 
             )

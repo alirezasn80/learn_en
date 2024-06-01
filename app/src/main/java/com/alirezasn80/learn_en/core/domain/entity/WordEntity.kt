@@ -9,7 +9,5 @@ data class WordEntity(
     @PrimaryKey
     val word: String,
     val definition: String,
-
-    @ColumnInfo(defaultValue = "0")
     val isHighlight: Int,
 )

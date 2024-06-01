@@ -78,10 +78,10 @@ class StoriesViewModel @Inject constructor(
         progress[""] = _progress
     }
 
-    fun addBook(key: String) {
+    /*fun addBook(key: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
-            val stories = database.contentDao.getStoriesByCategory(categoryId)
+            val stories = database.bookDao.getStoriesByCategory(categoryId)
 
             try {
                 stories.forEach {
@@ -89,7 +89,7 @@ class StoriesViewModel @Inject constructor(
                         categoryId = key.toRB(),
                         name = it.title.toRB(),
                         cover = null,
-                        file = createTXT(application, it.title, it.content).toPart("file")
+                        file = createTXT(application, it.title, it.bookPath).toPart("file")
                     )
                     debug(result.success.toString())
                 }
@@ -101,7 +101,7 @@ class StoriesViewModel @Inject constructor(
 
 
         }
-    }
+    }*/
 
     private fun createTXT(context: Context, title: String, body: String): File {
         val file = File(context.cacheDir, "$title.txt")
@@ -110,14 +110,14 @@ class StoriesViewModel @Inject constructor(
         return file
     }
 
-    private fun getStories() {
+    /*private fun getStories() {
         viewModelScope.launch(Dispatchers.IO) {
-            val items = database.contentDao.getItems(categoryId)
+            val items = database.bookDao.getItems(categoryId)
 
             state.update { it.copy(items = items) }
         }
 
-    }
+    }*/
 
     fun saveAsLastRead(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
