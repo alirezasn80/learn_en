@@ -1,8 +1,8 @@
 package com.alirezasn80.learn_en.feature.home
 
 import com.alirezasn80.learn_en.R
-import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.core.domain.remote.Category
+import com.alirezasn80.learn_en.feature.stories.model.Book
 
 sealed class Tab(val name: Int, val key: String) {
     data object Default : Tab(R.string.stories, "default")
@@ -25,7 +25,7 @@ sealed interface HomeDialogKey {
 data class HomeState(
     val selectedTab: Tab = Tab.Default,
     val categories: List<Category> = emptyList(),
-    val favorites: List<Items> = emptyList(),
+    val favorites: List<Book> = emptyList(),
     val dialogKey: HomeDialogKey = HomeDialogKey.Hide,
     val openAppCount: Int = 0,
     val needUpdate: Boolean = false,

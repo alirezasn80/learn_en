@@ -11,7 +11,6 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
 import com.alirezasn80.learn_en.core.domain.entity.BookEntity
-import com.alirezasn80.learn_en.core.domain.entity.toCategoryModel
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Destination
 import com.alirezasn80.learn_en.utill.MessageState
@@ -35,16 +34,17 @@ class CreateViewModel @Inject constructor(
 
 
     init {
+        //todo()
         initSpeechToText()
-        initCreatedCategories()
+        //initCreatedCategories()
     }
 
-    private fun initCreatedCategories() {
+    /*private fun initCreatedCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             val createdCategories = db.categoryDao.getCategories("created").map { it.toCategoryModel() }
             state.update { it.copy(createdCategories = createdCategories) }
         }
-    }
+    }*/
 
     private fun initSpeechToText() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
@@ -123,7 +123,7 @@ class CreateViewModel @Inject constructor(
     }*/
 
     fun createStory(categoryId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             db.bookDao.insertContent(
                 BookEntity(
                     categoryId = categoryId,
@@ -136,7 +136,7 @@ class CreateViewModel @Inject constructor(
             setMessageByToast(R.string.saved, MessageState.Success)
             Reload.created = true
             setDestination(Destination.Back)
-        }
+        }*/
     }
 
     fun createCategory(title: String) {

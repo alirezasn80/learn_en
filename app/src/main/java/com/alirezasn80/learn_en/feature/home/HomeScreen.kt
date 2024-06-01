@@ -86,8 +86,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.annotation.ExperimentalCoilApi
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
-import com.alirezasn80.learn_en.core.domain.entity.Items
 import com.alirezasn80.learn_en.core.domain.remote.Category
+import com.alirezasn80.learn_en.feature.stories.model.Book
 import com.alirezasn80.learn_en.ui.common.BaseTextButton
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.common.shimmerEffect
@@ -354,7 +354,7 @@ fun HomeScreen(
                                     itemsIndexed(state.favorites) { index, item ->
                                         FavoriteItemSection(
                                             index = index + 1,
-                                            item = item,
+                                            book = item,
                                             onClick = { navigationState.navToContent(null, "lock")/*todo()*/ }
                                         )
                                     }
@@ -657,7 +657,7 @@ private fun CategoryItemSection(
 @Composable
 private fun FavoriteItemSection(
     index: Int,
-    item: Items,
+    book: Book,
     onClick: () -> Unit
 ) {
 
@@ -687,9 +687,9 @@ private fun FavoriteItemSection(
 
             SmallSpacer()
             Column {
-                Text(text = "Story ${item.contentId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text(text = "Story ${book.bookId}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onBackground)
                 SmallSpacer()
-                Text(text = item.title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+                Text(text = book.name, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
             }
         }
 

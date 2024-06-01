@@ -8,6 +8,7 @@ import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
+import com.alirezasn80.learn_en.core.domain.entity.toBook
 import com.alirezasn80.learn_en.feature.payment.toMonth
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Key
@@ -178,7 +179,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
-                val favoriteBooks = dp.bookDao.getFavoriteBooks()
+                val favoriteBooks = dp.bookDao.getFavoriteBooks().map { it.toBook() }
                 state.update { it.copy(favorites = favoriteBooks) }
             } catch (e: Exception) {
                 AppMetrica.reportError("Error Get Favorite Books", e)

@@ -13,7 +13,6 @@ import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
-import com.alirezasn80.learn_en.core.domain.entity.WordImgEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
@@ -488,7 +487,7 @@ class ContentViewModel @Inject constructor(
     }
 
     // not used because some images not related the word
-    private fun getRelatedImages(word: String) {
+    /*private fun getRelatedImages(word: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val url = "https://images.search.yahoo.com/search/images?p=$word"
@@ -512,7 +511,7 @@ class ContentViewModel @Inject constructor(
                     .take(20)
 
                 images.forEach { imageUrl ->
-                    database.wordImgDao.insertWordImg(WordImgEntity(word = word, url = imageUrl))
+                   // database.wordImgDao.insertWordImg(WordImgEntity(word = word, url = imageUrl))
                 }
 
                 state.update { it.copy(sheetModel = state.value.sheetModel?.copy(images = images)) }
@@ -523,7 +522,7 @@ class ContentViewModel @Inject constructor(
             }
 
         }
-    }
+    }*/
 
     private fun createSheetModel(
         mainWord: String,

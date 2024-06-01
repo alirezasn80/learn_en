@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ed1ff960d8fe70ab30cabf91e7ca11b2",
+    "identityHash": "498cece04012bc0fce24683c5dc70614",
     "entities": [
       {
         "tableName": "CategoryEntity",
@@ -37,12 +37,12 @@
         "foreignKeys": []
       },
       {
-        "tableName": "ContentEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`contentId` INTEGER PRIMARY KEY AUTOINCREMENT, `categoryId` INTEGER, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `translation` TEXT, `favorite` INTEGER NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `CategoryEntity`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "tableName": "BookEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER PRIMARY KEY AUTOINCREMENT, `categoryId` INTEGER, `title` TEXT NOT NULL, `bookPath` TEXT NOT NULL, `translationPath` TEXT, `isFavorite` INTEGER NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `CategoryEntity`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "contentId",
-            "columnName": "contentId",
+            "fieldPath": "bookId",
+            "columnName": "bookId",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -59,20 +59,20 @@
             "notNull": true
           },
           {
-            "fieldPath": "content",
-            "columnName": "content",
+            "fieldPath": "bookPath",
+            "columnName": "bookPath",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "translation",
-            "columnName": "translation",
+            "fieldPath": "translationPath",
+            "columnName": "translationPath",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "favorite",
-            "columnName": "favorite",
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -80,7 +80,7 @@
         "primaryKey": {
           "autoGenerate": true,
           "columnNames": [
-            "contentId"
+            "bookId"
           ]
         },
         "indices": [],
@@ -100,7 +100,7 @@
       },
       {
         "tableName": "WordEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`word` TEXT NOT NULL, `definition` TEXT NOT NULL, PRIMARY KEY(`word`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`word` TEXT NOT NULL, `definition` TEXT NOT NULL, `isHighlight` INTEGER NOT NULL, PRIMARY KEY(`word`))",
         "fields": [
           {
             "fieldPath": "word",
@@ -112,6 +112,12 @@
             "fieldPath": "definition",
             "columnName": "definition",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isHighlight",
+            "columnName": "isHighlight",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -128,7 +134,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed1ff960d8fe70ab30cabf91e7ca11b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '498cece04012bc0fce24683c5dc70614')"
     ]
   }
 }

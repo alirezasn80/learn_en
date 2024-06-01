@@ -174,7 +174,8 @@ fun CreateScreen(
                         onClick = { createCategoryDialog = true }
                     )
                     state.createdCategories.forEach {
-                        SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
+                        //todo()
+                      //  SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
                     }
                 }
 
