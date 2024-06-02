@@ -9,6 +9,7 @@ import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
 import com.alirezasn80.learn_en.core.domain.entity.toBook
+import com.alirezasn80.learn_en.core.domain.entity.toCategory
 import com.alirezasn80.learn_en.feature.payment.toMonth
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Key
@@ -142,29 +143,40 @@ class HomeViewModel @Inject constructor(
         if (tab is Tab.Favorite) {
             if (state.value.favorites.isEmpty() || Reload.favorite)
                 getFavoriteBooks()
+
+            return
+        }
+
+        if (tab is Tab.Local) {
+            if (state.value.localCategories.isEmpty() || Reload.local)
+                getLocalCategories()
+
+            return
+        }
+    }
+
+    private fun getLocalCategories() {
+        progress(Progress.Loading)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val categories = dp.categoryDao.getLocalCategories().map { it.toCategory() }
+                state.update { it.copy(localCategories = categories, favorites = emptyList()) }
+            } catch (e: Exception) {
+                AppMetrica.reportError("error reload data in home", e)
+            } finally {
+                progress(Progress.Idle)
+            }
+
         }
     }
 
     fun reloadData() {
-
-        if (state.value.selectedTab.key == "favorite") {
-            getFavoriteBooks()
-            return
+        when (state.value.selectedTab) {
+            Tab.Default -> Unit
+            Tab.Favorite -> getFavoriteBooks()
+            Tab.Local -> getLocalCategories()
         }
-
-        /*loading(Progress.Loading)
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val categories = dp.categoryDao.getCategories(state.value.selectedSection.key).map { it.toCategoryModel(true) }
-                state.update { it.copy(categories = categories, favorites = emptyList()) }
-            } catch (e: Exception) {
-                AppMetrica.reportError("error reload data in home", e)
-            } finally {
-                loading(Progress.Idle)
-            }
-
-        }*/
-
     }
 
     private fun progress(value: Progress) {
@@ -174,6 +186,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getFavoriteBooks() {
+        debug("get Favorite Books")
         progress(Progress.Loading)
 
         viewModelScope.launch(Dispatchers.IO) {

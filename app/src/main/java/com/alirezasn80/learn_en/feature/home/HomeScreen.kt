@@ -114,15 +114,12 @@ import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-private const val COLUMN_COUNT = 3
-
 @Composable
 fun HomeScreen(
     navigationState: NavigationState,
     themeViewModel: ThemeViewModel,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-
     val state by viewModel.state.collectAsStateWithLifecycle()
     var reqToExit by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -137,7 +134,6 @@ fun HomeScreen(
 
     // Check to show witch dialog
     when (state.dialogKey) {
-
         HomeDialogKey.AskRate -> {
             viewModel.resetOpenAppCounter()
             AskRateDialog(
@@ -176,7 +172,6 @@ fun HomeScreen(
         }
 
         HomeDialogKey.Hide -> Unit
-
     }
 
     //Back With Ask Comment
@@ -202,18 +197,11 @@ fun HomeScreen(
 
     // Check Reload
     LaunchedEffect(Unit) {
-        /* if (Reload.created) {
-             if (state.selectedSection.key == "created") {
-                 viewModel.reloadData()
-             } else {
-                 viewModel.setSelectedLevel(Section.Created)
-             }
-         } else*/
 
-        if (Reload.favorite) {
-            // Current is Favorite
-            if (state.selectedTab.key == "favorite") viewModel.reloadData()
+        if (Reload.local || Reload.favorite) {
+            viewModel.reloadData()
         }
+
     }
 
     UI(uiComponent = viewModel.uiComponents, progress = viewModel.progress["bazaar"]) {
@@ -343,10 +331,15 @@ fun HomeScreen(
                     onCreateClick = navigationState::navToCreate
                 )
                 Ltr {
-                    if (viewModel.progress[""] is Progress.Loading) {
-                        LoadingLayout()
-                    } else {
-                        if (state.selectedTab.key == "favorite") {
+
+                    when {
+
+                        viewModel.progress[""] is Progress.Loading -> {
+                            LoadingLayout()
+                        }
+
+                        state.selectedTab is Tab.Favorite -> {
+
                             if (state.favorites.isEmpty()) {
                                 EmptyLayout()
                             } else {
@@ -355,12 +348,16 @@ fun HomeScreen(
                                         FavoriteItemSection(
                                             index = index + 1,
                                             book = item,
-                                            onClick = { navigationState.navToContent(null, "lock")/*todo()*/ }
+                                            onClick = { navigationState.navToContent(item, "lock") }
                                         )
                                     }
                                 }
                             }
-                        } else {
+
+                        }
+
+                        state.selectedTab is Tab.Default -> {
+
                             if (state.categories.isEmpty()) {
                                 EmptyLayout()
                             } else {
@@ -383,9 +380,36 @@ fun HomeScreen(
 
                                 }
                             }
-
                         }
+
+                        state.selectedTab is Tab.Local -> {
+                            if (state.localCategories.isEmpty()) {
+                                EmptyLayout()
+                            } else {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    contentPadding = PaddingValues(12.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    items(state.localCategories) {
+                                        CategoryItemSection(
+                                            isLastRead = it.id == state.lastReadCategory,
+                                            item = it,
+                                            onClick = {
+                                                viewModel.saveAsLastRead(it.id)
+                                                navigationState.navToStories(it.id, it.name)
+                                            }
+                                        )
+                                    }
+
+                                }
+                            }
+                        }
+
                     }
+
+
                 }
 
             }
@@ -743,9 +767,9 @@ private fun Header(
 
         }
 
-        /*IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterEnd)) {
+        IconButton(onClick = onCreateClick, modifier = Modifier.align(Alignment.CenterEnd)) {
             Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_circle_add), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
-        }*/
+        }
 
     }
 }
@@ -782,12 +806,12 @@ private fun BottomSheet(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(text = stringResource(id = it.name), color = MaterialTheme.colorScheme.onBackground)
-                        /*if (it is Tab.Created)
+                        if (it is Tab.Local)
                             Text(
                                 text = stringResource(id = R.string.create),
                                 color = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.clickable { onCreateClick() }
-                            )*/
+                            )
 
                     }
                     Divider(color = MaterialTheme.colorScheme.background, thickness = 2.dp)

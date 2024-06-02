@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "775c58e3e622f7b4b91ee951d0cf7cfc",
+    "identityHash": "c84466a8b6960eb2d9c747d2137acc06",
     "entities": [
       {
         "tableName": "CategoryEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `type` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `tag` TEXT NOT NULL, `cover` TEXT)",
         "fields": [
           {
             "fieldPath": "categoryId",
@@ -21,10 +21,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
-            "columnName": "type",
+            "fieldPath": "tag",
+            "columnName": "tag",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "cover",
+            "columnName": "cover",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -38,7 +44,7 @@
       },
       {
         "tableName": "BookEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER PRIMARY KEY AUTOINCREMENT, `categoryId` INTEGER, `title` TEXT NOT NULL, `cover` TEXT, `isFavorite` INTEGER NOT NULL, `type` TEXT NOT NULL, `fileUrl` TEXT NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `CategoryEntity`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` INTEGER PRIMARY KEY AUTOINCREMENT, `categoryId` INTEGER, `name` TEXT NOT NULL, `cover` TEXT, `isFavorite` INTEGER NOT NULL, `type` TEXT NOT NULL, `fileUrl` TEXT NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `CategoryEntity`(`categoryId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -53,8 +59,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "title",
-            "columnName": "title",
+            "fieldPath": "name",
+            "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -140,7 +146,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '775c58e3e622f7b4b91ee951d0cf7cfc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c84466a8b6960eb2d9c747d2137acc06')"
     ]
   }
 }

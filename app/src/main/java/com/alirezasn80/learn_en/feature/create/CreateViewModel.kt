@@ -7,14 +7,9 @@ import android.speech.SpeechRecognizer
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
-import com.alirezasn80.learn_en.core.domain.entity.BookEntity
 import com.alirezasn80.learn_en.utill.BaseViewModel
-import com.alirezasn80.learn_en.utill.Destination
-import com.alirezasn80.learn_en.utill.MessageState
-import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -140,10 +135,10 @@ class CreateViewModel @Inject constructor(
     }
 
     fun createCategory(title: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val categoryId = db.categoryDao.insertCategory(CategoryEntity(title = title, type = "created"))
+        /*viewModelScope.launch(Dispatchers.IO) {
+            val categoryId = db.categoryDao.insertCategory(CategoryEntity(title = title, tag = "created"))
             createStory(categoryId.toInt())
-        }
+        }*/
     }
 
 }

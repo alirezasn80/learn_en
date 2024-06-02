@@ -19,7 +19,7 @@ data class BookEntity(
     @PrimaryKey(autoGenerate = true)
     val bookId: Int? = null,
     val categoryId: Int?,
-    val title: String,
+    val name: String,
     val cover: String?,
     val isFavorite: Int,
     val type: String,
@@ -29,9 +29,20 @@ data class BookEntity(
 fun BookEntity.toBook() = Book(
     bookId = this.bookId!!,
     categoryId = categoryId!!,
-    name = this.title,
+    name = this.name,
     cover = this.cover,
     type = this.type,
     fileUrl = fileUrl
+)
+
+fun Book.toBookEntity(isFavorite: Int) = BookEntity(
+    bookId = bookId,
+    categoryId = categoryId,
+    name = name,
+    cover = cover,
+    isFavorite = isFavorite,
+    type = type,
+    fileUrl = fileUrl
+
 )
 

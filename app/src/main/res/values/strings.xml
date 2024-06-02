@@ -83,5 +83,6 @@
     <string name="removed_from_flashcards">لغت از فلش کارت حذف شد</string>
     <string name="more_detail">«جزییات بیشتر»</string>
     <string name="check_connection">لطفا اینترنت خود را چک کنید!</string>
+    <string name="local">محلی</string>
 
 </resources>

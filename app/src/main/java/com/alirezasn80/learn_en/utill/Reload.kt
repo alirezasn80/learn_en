@@ -10,10 +10,10 @@ object Reload {
         }
 
 
-    var created = false
+    var local = false
         get() {
             val current = field
-            created = false
+            local = false
             return current
         }
 }

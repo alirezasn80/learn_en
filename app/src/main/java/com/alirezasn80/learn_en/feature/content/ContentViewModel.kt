@@ -13,6 +13,7 @@ import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
 import com.alirezasn80.learn_en.core.domain.entity.WordEntity
+import com.alirezasn80.learn_en.core.domain.entity.toBookEntity
 import com.alirezasn80.learn_en.core.domain.local.Define
 import com.alirezasn80.learn_en.core.domain.local.Desc
 import com.alirezasn80.learn_en.core.domain.local.SheetModel
@@ -677,9 +678,11 @@ class ContentViewModel @Inject constructor(
         state.update { it.copy(isBookmark = isBookmark) }
     }
 
+
+    // todo(crash it)
     private fun addToBookmark() {
         viewModelScope.launch(Dispatchers.IO) {
-            database.bookDao.addToFavorite(book.bookId, book.categoryId)
+            database.bookDao.addToFavorite(book.toBookEntity(1))
         }
         application.showToast(R.string.add_to_bookmark)
     }

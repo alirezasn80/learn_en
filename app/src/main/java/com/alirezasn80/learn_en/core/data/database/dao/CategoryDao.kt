@@ -23,7 +23,10 @@ interface CategoryDao {
     @Query("SELECT * FROM CATEGORYENTITY")
     suspend fun getCategories(): List<CategoryEntity>
 
-    @Query("SELECT * FROM CATEGORYENTITY WHERE type = :type")
+    @Query("SELECT * FROM CATEGORYENTITY WHERE tag = :type")
     suspend fun getCategories(type: String): List<CategoryEntity>
+
+    @Query("SELECT * FROM CATEGORYENTITY WHERE tag = 'local' ")
+    suspend fun getLocalCategories(): List<CategoryEntity>
 
 }
