@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(navigationState, themeViewModel)
                     }
 
-                    composable(Screen.Stories.route) {
+                    composable(Screen.Books.route) {
                         StoriesScreen(navigationState)
                     }
 

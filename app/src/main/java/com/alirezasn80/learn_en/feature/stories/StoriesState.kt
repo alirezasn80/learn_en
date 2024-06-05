@@ -8,5 +8,5 @@ data class StoriesState(
     val isLastReadStory: Int = 0,
     val page: Int = 1,
     val totalPage: Int = 1,
-    val tickets: List<Book> = emptyList(),
+    val localBooks: List<Book> = emptyList()
 )

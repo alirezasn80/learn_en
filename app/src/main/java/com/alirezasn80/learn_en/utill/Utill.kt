@@ -294,6 +294,7 @@ object Arg {
     const val CONTENT_ID = "CONTENT_ID"
     const val FILE_URL = "FILE_URL"
     const val TITLE = "TITLE"
+    const val IS_LOCAL = "IS_LOCAL"
 }
 
 suspend fun withDuration(title: String = "", content: suspend () -> Unit) {
@@ -603,4 +604,6 @@ val fontsOfStory = listOf(
     )
 )
 
-fun Context.bookPath(bookId: String,key:String="main") = getExternalFilesDir("books")!!.absolutePath + "/" + bookId + ".txt"
+fun Context.serverBookPath(bookId: String, key: String = "main") = getExternalFilesDir("server_books")!!.absolutePath + "/" + bookId + ".txt"
+
+fun Context.localBookPath(bookId: String, key: String = "main") = getExternalFilesDir("local_books")!!.absolutePath + "/" + bookId + ".txt"

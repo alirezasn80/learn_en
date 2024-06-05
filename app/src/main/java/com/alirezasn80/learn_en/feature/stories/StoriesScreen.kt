@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
@@ -41,7 +43,6 @@ import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.User
 
-
 @Composable
 fun StoriesScreen(
     navigationState: NavigationState,
@@ -59,12 +60,12 @@ fun StoriesScreen(
 
             Ltr {
 
-                if (books?.loadState?.refresh is LoadState.Loading || viewmodel.progress[""] is Progress.Loading)
-                    LoadingBlurLayout()
-                else
-                    LazyColumn {
-                        items(books?.itemCount ?: 0) { index ->
-                            books?.get(index)?.let { item ->
+                when (viewmodel.isLocal) {
+
+                    true -> {
+                        LazyColumn {
+                            itemsIndexed(state.localBooks) { index, item ->
+
                                 val isTrial = index <= 1 || User.isVipUser
 
                                 ItemSection(
@@ -74,15 +75,42 @@ fun StoriesScreen(
                                     book = item,
                                     onClick = {
                                         viewmodel.saveAsLastRead(item.bookId)
-                                        //viewmodel.download(item.file, item.bookId)
-                                        navigationState.navToContent(item, if (isTrial) "trial" else "lock")
+                                        navigationState.navToReader(item, if (isTrial) "trial" else "lock")
                                     }
                                 )
+
+
                             }
 
                         }
-
                     }
+
+                    false -> {
+                        if (books?.loadState?.refresh is LoadState.Loading || viewmodel.progress[""] is Progress.Loading)
+                            LoadingBlurLayout()
+                        else
+                            LazyColumn {
+                                items(books?.itemCount ?: 0) { index ->
+                                    books?.get(index)?.let { item ->
+                                        val isTrial = index <= 1 || User.isVipUser
+
+                                        ItemSection(
+                                            isLastRead = item.bookId == state.isLastReadStory,
+                                            isFree = isTrial,
+                                            index = index,
+                                            book = item,
+                                            onClick = {
+                                                viewmodel.saveAsLastRead(item.bookId)
+                                                //viewmodel.download(item.file, item.bookId)
+                                                navigationState.navToReader(item, if (isTrial) "trial" else "lock")
+                                            }
+                                        )
+                                    }
+
+                                }
+                            }
+                    }
+                }
 
 
                 /*LazyColumn {

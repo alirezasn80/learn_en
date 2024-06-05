@@ -140,12 +140,12 @@ class HomeViewModel @Inject constructor(
     fun setSelectedTab(tab: Tab) {
         state.update { it.copy(selectedTab = tab) }
 
-        if (tab is Tab.Favorite) {
+        /*if (tab is Tab.Favorite) {
             if (state.value.favorites.isEmpty() || Reload.favorite)
                 getFavoriteBooks()
 
             return
-        }
+        }*/
 
         if (tab is Tab.Local) {
             if (state.value.localCategories.isEmpty() || Reload.local)
@@ -174,7 +174,7 @@ class HomeViewModel @Inject constructor(
     fun reloadData() {
         when (state.value.selectedTab) {
             Tab.Default -> Unit
-            Tab.Favorite -> getFavoriteBooks()
+          //  Tab.Favorite -> getFavoriteBooks()
             Tab.Local -> getLocalCategories()
         }
     }

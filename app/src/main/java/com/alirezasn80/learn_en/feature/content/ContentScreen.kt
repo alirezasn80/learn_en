@@ -987,7 +987,7 @@ private fun Header(
             PopUpMenu(
                 mainIcon = Icons.Rounded.MoreVert,
                 titleMenuItems = listOf(
-                    if (isBookmark) "حذف از علاقه مندی" else "افزودن به علاقه مندی",
+                  //  if (isBookmark) "حذف از علاقه مندی" else "افزودن به علاقه مندی",
                     if (isMute) "با صدا" else "بی صدا",
                     "تنظیمات"
                 ),
@@ -999,9 +999,9 @@ private fun Header(
                 selectedItem = {
                     when (it) {
 
-                        0 -> {
+                        /*0 -> {
                             onBookmarkClick()
-                        }
+                        }*/
 
                         1 -> {
                             onMuteClick()

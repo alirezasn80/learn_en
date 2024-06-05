@@ -1,12 +1,10 @@
 package com.alirezasn80.learn_en.feature.create
 
 import android.content.Intent
-import android.os.Build
 import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -174,8 +172,7 @@ fun CreateScreen(
                         onClick = { createCategoryDialog = true }
                     )
                     state.createdCategories.forEach {
-                        //todo()
-                      //  SheetCell(title = it.title, onClick = { viewModel.createStory(it.id) })
+                        SheetCell(title = it.name, onClick = { viewModel.createBook(it.id) })
                     }
                 }
 
@@ -208,7 +205,7 @@ fun CreateScreen(
                         upPress = navigationState::upPress,
                         onSaveClick = {
                             keyboardController?.hide()
-                            if (User.isVipUser)
+                            if (User.isVipUser) //todo()
                                 validation(
                                     title = state.title,
                                     content = state.content.text,

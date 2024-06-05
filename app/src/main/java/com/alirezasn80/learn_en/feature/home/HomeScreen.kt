@@ -338,7 +338,7 @@ fun HomeScreen(
                             LoadingLayout()
                         }
 
-                        state.selectedTab is Tab.Favorite -> {
+                        /*state.selectedTab is Tab.Favorite -> {
 
                             if (state.favorites.isEmpty()) {
                                 EmptyLayout()
@@ -348,13 +348,13 @@ fun HomeScreen(
                                         FavoriteItemSection(
                                             index = index + 1,
                                             book = item,
-                                            onClick = { navigationState.navToContent(item, "lock") }
+                                            onClick = { navigationState.navToReader(item, "lock") }
                                         )
                                     }
                                 }
                             }
 
-                        }
+                        }*/
 
                         state.selectedTab is Tab.Default -> {
 
@@ -373,7 +373,7 @@ fun HomeScreen(
                                             item = it,
                                             onClick = {
                                                 viewModel.saveAsLastRead(it.id)
-                                                navigationState.navToStories(it.id, it.name)
+                                                navigationState.navToBooks(it.id, it.name, "0")
                                             }
                                         )
                                     }
@@ -398,7 +398,7 @@ fun HomeScreen(
                                             item = it,
                                             onClick = {
                                                 viewModel.saveAsLastRead(it.id)
-                                                navigationState.navToStories(it.id, it.name)
+                                                navigationState.navToBooks(it.id, it.name, "1")
                                             }
                                         )
                                     }

@@ -46,9 +46,9 @@ class NavigationState(
 
     fun navToPayment(key: String) = navController.navigate(Screen.Payment.route(key))
 
-    fun navToStories(categoryId: Int, title: String) = navController.navigate(Screen.Stories.route(categoryId, title))
+    fun navToBooks(categoryId: Int, title: String,isLocal:String) = navController.navigate(Screen.Books.route(categoryId, title,isLocal))
 
-    fun navToContent(book: Book?, key: String) {
+    fun navToReader(book: Book?, key: String) {
         putParam(Arg.FILE_URL, book!!)
         navController.navigate(Screen.Content.route(key))
     }

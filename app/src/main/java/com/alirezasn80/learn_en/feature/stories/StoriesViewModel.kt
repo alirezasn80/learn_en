@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import com.alirezasn80.learn_en.core.data.database.AppDB
 import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
+import com.alirezasn80.learn_en.core.domain.entity.toBook
 import com.alirezasn80.learn_en.feature.stories.model.Book
 import com.alirezasn80.learn_en.utill.Arg
 import com.alirezasn80.learn_en.utill.BaseViewModel
@@ -17,8 +18,7 @@ import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getString
-import com.alirezasn80.learn_en.utill.toPart
-import com.alirezasn80.learn_en.utill.toRB
+import com.alirezasn80.learn_en.utill.toBoolean
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.appmetrica.analytics.AppMetrica
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-
 
 @HiltViewModel
 class StoriesViewModel @Inject constructor(
@@ -39,18 +38,34 @@ class StoriesViewModel @Inject constructor(
 ) : BaseViewModel<StoriesState>(StoriesState()) {
     val categoryId = savedstate.getString(Arg.CATEGORY_ID)!!.toInt()
     private val title = savedstate.getString(Arg.TITLE)!!
+    val isLocal = savedstate.getString(Arg.IS_LOCAL)!!.toInt().toBoolean()
     var books: Flow<PagingData<Book>>? = null
 
 
     init {
         state.update { it.copy(title = title) }
-        getStoriesRemote()
+
+        if (isLocal) {
+            getLocalBooks()
+        } else
+            getServerBooks()
+
         //getStories()
         getLastReadCategory()
         // addBook()
     }
 
-    private fun getStoriesRemote() {
+    private fun getLocalBooks() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val books = database.bookDao.getLocalBooks().map { it.toBook() }
+            debug("books :${books.toString()}")
+            state.update { it.copy(localBooks = books) }
+        }
+
+    }
+
+    private fun getServerBooks() {
         progress(Progress.Loading)
 
 
@@ -103,12 +118,6 @@ class StoriesViewModel @Inject constructor(
         }
     }*/
 
-    private fun createTXT(context: Context, title: String, body: String): File {
-        val file = File(context.cacheDir, "$title.txt")
-        file.createNewFile()
-        file.writeText(body)
-        return file
-    }
 
     /*private fun getStories() {
         viewModelScope.launch(Dispatchers.IO) {

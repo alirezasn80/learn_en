@@ -15,7 +15,7 @@ interface BookDao {
     suspend fun deleteContent(content: BookEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContent(bookEntity: BookEntity)
+    suspend fun insertBook(bookEntity: BookEntity):Long
 
     @Update
     suspend fun updateContent(bookEntity: BookEntity)
@@ -29,4 +29,7 @@ interface BookDao {
 
     @Query("SELECT * FROM BookEntity WHERE isFavorite = 1")
     suspend fun getFavoriteBooks(): List<BookEntity>
+
+    @Query("SELECT * FROM BookEntity WHERE fileUrl = 'local'")
+    suspend fun getLocalBooks(): List<BookEntity>
 }

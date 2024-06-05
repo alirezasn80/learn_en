@@ -7,15 +7,23 @@ import android.speech.SpeechRecognizer
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
+import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
+import com.alirezasn80.learn_en.core.domain.entity.BookEntity
 import com.alirezasn80.learn_en.core.domain.entity.CategoryEntity
+import com.alirezasn80.learn_en.core.domain.entity.toCategory
 import com.alirezasn80.learn_en.utill.BaseViewModel
+import com.alirezasn80.learn_en.utill.Destination
+import com.alirezasn80.learn_en.utill.MessageState
+import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.debug
+import com.alirezasn80.learn_en.utill.localBookPath
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,15 +39,15 @@ class CreateViewModel @Inject constructor(
     init {
         //todo()
         initSpeechToText()
-        //initCreatedCategories()
+        initCreatedCategories()
     }
 
-    /*private fun initCreatedCategories() {
+    private fun initCreatedCategories() {
         viewModelScope.launch(Dispatchers.IO) {
-            val createdCategories = db.categoryDao.getCategories("created").map { it.toCategoryModel() }
-            state.update { it.copy(createdCategories = createdCategories) }
+            val localCategories = db.categoryDao.getCategories("local").map { it.toCategory() }
+            state.update { it.copy(createdCategories = localCategories) }
         }
-    }*/
+    }
 
     private fun initSpeechToText() {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
@@ -117,28 +125,42 @@ class CreateViewModel @Inject constructor(
         }
     }*/
 
-    fun createStory(categoryId: Int) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            db.bookDao.insertContent(
-                BookEntity(
-                    categoryId = categoryId,
-                    bookPath = state.value.content.text,
-                    title = state.value.title,
-                    isFavorite = 0,
-                    translationPath = null
-                )
+    fun createBook(categoryId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val book = BookEntity(
+                categoryId = categoryId,
+                name = state.value.title,
+                cover = null,
+                isFavorite = 0,
+                type = "txt",
+                fileUrl = "local"
+            )
+            val bookId = db.bookDao.insertBook(book).toInt()
+            createTXTFile(
+                file = File(context.localBookPath(bookId.toString())),
+                body = state.value.content.text
             )
             setMessageByToast(R.string.saved, MessageState.Success)
-            Reload.created = true
+            Reload.local = true
             setDestination(Destination.Back)
-        }*/
+        }
+    }
+
+    private fun createTXTFile(file: File, body: String) {
+        file.createNewFile()
+        file.writeText(body)
     }
 
     fun createCategory(title: String) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val categoryId = db.categoryDao.insertCategory(CategoryEntity(title = title, tag = "created"))
-            createStory(categoryId.toInt())
-        }*/
+        viewModelScope.launch(Dispatchers.IO) {
+            val category = CategoryEntity(
+                title = title,
+                tag = "local",
+                cover = null,
+            )
+            val categoryId = db.categoryDao.insertCategory(category)
+            createBook(categoryId.toInt())
+        }
     }
 
 }

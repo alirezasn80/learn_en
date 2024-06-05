@@ -27,11 +27,12 @@ import com.alirezasn80.learn_en.utill.Key
 import com.alirezasn80.learn_en.utill.LoadingKey
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
-import com.alirezasn80.learn_en.utill.bookPath
+import com.alirezasn80.learn_en.utill.serverBookPath
 import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getParam
 import com.alirezasn80.learn_en.utill.getString
 import com.alirezasn80.learn_en.utill.isOnline
+import com.alirezasn80.learn_en.utill.localBookPath
 import com.alirezasn80.learn_en.utill.removeBlankLines
 import com.alirezasn80.learn_en.utill.showToast
 import com.alirezasn80.learn_en.utill.toBoolean
@@ -45,7 +46,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONArray
-import org.jsoup.Jsoup
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -268,18 +268,22 @@ class ContentViewModel @Inject constructor(
     }*/
 
     fun readBook() {
-        if (!isOnline(application))
-            return
+        if (!isOnline(application)) return
 
 
         viewModelScope.launch(Dispatchers.IO) {
             loading(Progress.Loading)
 
-            val bookFile = File(application.bookPath(book.bookId.toString()))
+            val path = if (book.fileUrl == "local")
+                application.localBookPath(book.bookId.toString())
+            else
+                application.serverBookPath(book.bookId.toString())
+
+            val bookFile = File(path)
 
             if (bookFile.exists()) {
-                val textFile = readFile(bookFile)
-                val paragraphs = translateRemote(textFile)
+                val textBook = readFile(bookFile)
+                val paragraphs = translate(textBook)
 
                 state.update {
                     it.copy(
@@ -303,7 +307,7 @@ class ContentViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val responseBody = apiService.downloadFile(url)
-                val bookFile = File(application.bookPath(id.toString()))
+                val bookFile = File(application.serverBookPath(id.toString()))
                 writeFile(bookFile, responseBody.byteStream())
                 readBook()
             } catch (e: Exception) {
@@ -366,7 +370,7 @@ class ContentViewModel @Inject constructor(
 
     }*/
 
-    private suspend fun translateRemote(
+    private fun translate(
         text: String,
         from: String = "en",
         to: String = "fa"
