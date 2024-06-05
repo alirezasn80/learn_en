@@ -987,12 +987,12 @@ private fun Header(
             PopUpMenu(
                 mainIcon = Icons.Rounded.MoreVert,
                 titleMenuItems = listOf(
-                  //  if (isBookmark) "حذف از علاقه مندی" else "افزودن به علاقه مندی",
+                    //  if (isBookmark) "حذف از علاقه مندی" else "افزودن به علاقه مندی",
                     if (isMute) "با صدا" else "بی صدا",
                     "تنظیمات"
                 ),
                 iconMenuItems = listOf(
-                    if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark,
+                    //   if (isBookmark) R.drawable.ic_enable_bookmark else R.drawable.ic_disable_bookmark,
                     if (isMute) R.drawable.ic_sound_mute else R.drawable.ic_sound_max,
                     Icons.Rounded.Settings
                 ),
@@ -1003,11 +1003,11 @@ private fun Header(
                             onBookmarkClick()
                         }*/
 
-                        1 -> {
+                        0 -> {
                             onMuteClick()
                         }
 
-                        2 -> {
+                        1 -> {
                             onSettingClick()
                         }
 
