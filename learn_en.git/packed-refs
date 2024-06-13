@@ -1,0 +1,11 @@
+# pack-refs with: peeled fully-peeled sorted 
+c0baec190bbe9fd78df16d9bddac2d5d5fc6ce0c refs/heads/master
+10317e6933612a1274f2323c34228cff89b398d5 refs/heads/temp-translate-of-desc-dict
+caa5275ba451cfff7277042800511ad99eec2d6a refs/heads/v1
+3c9699896e0f25abc55fe9340cf99564496301fc refs/heads/v1.0.1
+60ce4cfb25fb907172da53d4b9c66a2d36b4a554 refs/heads/v1.1.0
+b90ea1bd23a3d03588488f3cb6b309d1b10b31ee refs/heads/v1.2.0
+dfa341af55549959d8a1a7478e4535363dda793a refs/heads/v1.2.1
+60ef3e034b3ec59c2a8e5ef5fef1fa38a2020349 refs/heads/v1.2.3
+a48c790804d0474182025827b3f814c69c831201 refs/heads/v1.2.4
+dc20e716e7a516d8017e93aa450831409cfb637f refs/heads/v1.3.0
