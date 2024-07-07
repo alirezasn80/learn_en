@@ -104,9 +104,7 @@ import com.alirezasn80.learn_en.utill.Ltr
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
-import com.alirezasn80.learn_en.utill.openAppInCafeBazaar
 import com.alirezasn80.learn_en.utill.openAppInMyket
-import com.alirezasn80.learn_en.utill.openBazaarComment
 import com.alirezasn80.learn_en.utill.openGmail
 import com.alirezasn80.learn_en.utill.openMyketComment
 import com.alirezasn80.learn_en.utill.rememberPermissionState
