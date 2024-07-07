@@ -1,8 +1,6 @@
 package com.alirezasn80.learn_en.feature.home
 
 import android.app.Application
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.core.data.database.AppDB
@@ -10,18 +8,16 @@ import com.alirezasn80.learn_en.core.data.datastore.AppDataStore
 import com.alirezasn80.learn_en.core.data.service.ApiService
 import com.alirezasn80.learn_en.core.domain.entity.toBook
 import com.alirezasn80.learn_en.core.domain.entity.toCategory
-import com.alirezasn80.learn_en.feature.payment.toMonth
 import com.alirezasn80.learn_en.utill.BaseViewModel
 import com.alirezasn80.learn_en.utill.Key
-import com.alirezasn80.learn_en.utill.MessageState
+import com.alirezasn80.learn_en.utill.Myket
 import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.debug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.appmetrica.analytics.AppMetrica
-import ir.cafebazaar.poolakey.Connection
-import ir.cafebazaar.poolakey.Payment
+import ir.myket.billingclient.IabHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,20 +28,18 @@ import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.Jsoup
 import java.io.IOException
-import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val dp: AppDB,
     private val dataStore: AppDataStore,
-    private val payment: Payment,
+    private val payment: IabHelper,
     private val apiService: ApiService,
     private val application: Application,
 ) : BaseViewModel<HomeState>(HomeState()) {
-    private var bazaarConnection: Connection? = null
-    private var connection: CheckUpdateApp? = null
+
+
 
     init {
         checkUpdate()
@@ -81,21 +75,25 @@ class HomeViewModel @Inject constructor(
 
     fun hideNotificationAlert() = state.update { it.copy(showNotificationAlert = false) }
 
+
     private fun checkUpdate() {
-        connection = CheckUpdateApp(object : CheckUpdateAppListener {
-            override fun needUpdate(value: Boolean) {
-                state.update { it.copy(needUpdate = value) }
-                connection?.let {
-                    application.unbindService(it);
-                    connection = null
+        /*val mMyketHelper = MyketSupportHelper(application)
+
+        mMyketHelper.startSetup { result ->
+            if (result.isSuccess) {
+                mMyketHelper.getAppUpdateStateAsync { result2, update ->
+                    if (update != null && update.isUpdateAvailable) {
+                        state.update { it.copy(needUpdate = true) }
+
+                    }
                 }
 
+
             }
-        })
-        val i = Intent("com.farsitel.bazaar.service.UpdateCheckService.BIND")
-        i.setPackage("com.farsitel.bazaar")
-        application.bindService(i, connection!!, Context.BIND_AUTO_CREATE)
+        }*/
     }
+
+
 
     private fun openAppCounter() {
 
@@ -174,7 +172,7 @@ class HomeViewModel @Inject constructor(
     fun reloadData() {
         when (state.value.selectedTab) {
             Tab.Default -> Unit
-          //  Tab.Favorite -> getFavoriteBooks()
+            //  Tab.Favorite -> getFavoriteBooks()
             Tab.Local -> getLocalCategories()
         }
     }
@@ -205,65 +203,62 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun checkSubscribeStatus() {
-        progress["bazaar"] = Progress.Loading
+    private fun checkPurchaseProduct() {
 
+        try {
+            state.update { it.copy(loadingBazaar = true) }
 
-        viewModelScope.launch(Dispatchers.IO) {
+            payment.queryInventoryAsync(
+                true, listOf("vip")
+            ) { result, inv ->
 
-            bazaarConnection = payment.connect {
+                if (result.isSuccess) {
+                    val purchase = inv.getPurchase("vip")
+                    debug("purchase : ${purchase.toString()}")
 
-                //Success Connection To Cafe Bazaar
-                connectionSucceed {
-                    debug("conection success")
-                    payment.getSubscribedProducts {
-
-                        querySucceed { purchasedProducts ->
-                            debug("query success")
-                            progress["bazaar"] = Progress.Idle
-
-
-                            viewModelScope.launch {
-                                if (purchasedProducts.isEmpty()) {
-                                    debug("is empty")
-                                    setMessageBySnackbar(R.string.no_any_subscribe, MessageState.Error)
-                                    User.isVipUser = false
-                                    dataStore.setExpireDate(Key.EXPIRE_DATE, -1L)
-                                } else {
-                                    debug("else")
-                                    User.isVipUser = true
-                                    val purchaseTime = purchasedProducts[0].purchaseTime
-                                    val dateOfPurchase = Date(purchaseTime)
-                                    val calendar = Calendar.getInstance()
-                                    calendar.time = dateOfPurchase
-                                    calendar.add(Calendar.MONTH, purchasedProducts[0].productId.toMonth()!!)
-                                    val expireDate = calendar.time
-                                    dataStore.setExpireDate(Key.EXPIRE_DATE, expireDate.time)
-                                    setMessageBySnackbar(R.string.you_now_vip, MessageState.Success)
-
-                                }
-                            }
-
-
-                        }
-
-                        queryFailed {
-                            progress["bazaar"] = Progress.Idle
-                            setMessageBySnackbar(R.string.problem_connection_bazaar)
+                    if (purchase == null) {
+                        setMessageByToast(R.string.no_vip_now)
+                    } else {
+                        viewModelScope.launch {
+                            dataStore.isVIP(Key.IS_VIP, true)
+                            User.isVipUser = true
+                            setMessageByToast(R.string.you_now_vip)
                         }
                     }
+
+
+                } else {
+                    setMessageByToast(R.string.error_connect_bazaar)
                 }
-
-                connectionFailed {
-                    progress["bazaar"] = Progress.Idle
-
-                    setMessageBySnackbar(R.string.problem_connection_bazaar)
-                }
-
 
             }
+        } catch (e: Exception) {
+            setMessageByToast(R.string.error_connect_bazaar)
+        } finally {
+            state.update { it.copy(loadingBazaar = false) }
+
         }
+
     }
+
+    fun connectMyket() {
+        if (Myket.alreadyConnection)
+            checkPurchaseProduct()
+        else
+            payment.startSetup { result ->
+                if (result.isSuccess) {
+                    Myket.alreadyConnection = true
+                    debug("success connect to myket")
+                    checkPurchaseProduct()
+
+                } else {
+                    debug("failed connect to myket")
+                    setMessageByToast(R.string.error_connect_bazaar)
+                }
+            }
+
+    }
+
 
     fun saveAsLastRead(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {

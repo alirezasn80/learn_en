@@ -16,7 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,14 +25,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alirezasn80.learn_en.R
 import com.alirezasn80.learn_en.app.navigation.NavigationState
+import com.alirezasn80.learn_en.app.navigation.Screen
 import com.alirezasn80.learn_en.ui.common.UI
 import com.alirezasn80.learn_en.ui.theme.LargeSpacer
 import com.alirezasn80.learn_en.ui.theme.SmallSpacer
 import com.alirezasn80.learn_en.ui.theme.dimension
 import com.alirezasn80.learn_en.utill.Destination
-import com.alirezasn80.learn_en.utill.debug
 import com.alirezasn80.learn_en.utill.getVersionName
 
 @Composable
@@ -40,13 +41,23 @@ fun SplashScreen(
     navigationState: NavigationState,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
+    val destination by viewModel.destination.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.checkStatus(navigationState)
 
+    LaunchedEffect(key1 = destination) {
+
+        when (viewModel.destination.value) {
+
+            Destination.Home -> navigationState.navToHome()
+
+            Destination.OnBoarding -> navigationState.navToOnBoarding()
+
+            Destination.Offline -> navigationState.navToOffline()
+
+            else -> Unit
+        }
     }
-
     UI {
         Box(
             modifier = Modifier
@@ -82,7 +93,9 @@ private fun BoxScope.LogoSection() {
         Icon(
             painter = painterResource(id = R.drawable.img_logo),
             contentDescription = null,
-            modifier = Modifier.size(150.dp).clip(CircleShape),
+            modifier = Modifier
+                .size(150.dp)
+                .clip(CircleShape),
             tint = Color.Unspecified
 
         )

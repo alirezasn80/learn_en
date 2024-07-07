@@ -7,7 +7,7 @@ import dagger.hilt.android.HiltAndroidApp
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
 import io.appmetrica.analytics.push.AppMetricaPush
-import ir.cafebazaar.poolakey.Payment
+
 import javax.inject.Inject
 
 private const val METRICA_API = "a530bfed-31f4-466f-937a-638e8b7f1a47"
@@ -15,9 +15,6 @@ private const val METRICA_API_FAKE = "33dc1c30-fda5-17e8-9a1d-291f2806cb8e"
 
 @HiltAndroidApp
 class BaseApplication : Application() {
-
-    @Inject
-    lateinit var payment: Payment
 
     @Inject
     lateinit var dataStore: AppDataStore

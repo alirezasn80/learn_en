@@ -105,8 +105,10 @@ import com.alirezasn80.learn_en.utill.Progress
 import com.alirezasn80.learn_en.utill.Reload
 import com.alirezasn80.learn_en.utill.User
 import com.alirezasn80.learn_en.utill.openAppInCafeBazaar
+import com.alirezasn80.learn_en.utill.openAppInMyket
 import com.alirezasn80.learn_en.utill.openBazaarComment
 import com.alirezasn80.learn_en.utill.openGmail
+import com.alirezasn80.learn_en.utill.openMyketComment
 import com.alirezasn80.learn_en.utill.rememberPermissionState
 import com.alirezasn80.learn_en.utill.shareText
 import com.alirezasn80.learn_en.utill.showToast
@@ -146,7 +148,7 @@ fun HomeScreen(
                     viewModel.setDialogKey(HomeDialogKey.Hide)
                     viewModel.hideCommentItem(Key.POSITIVE)
                     context.showToast(R.string.support_by_5_star)
-                    context.openBazaarComment()
+                    context.openMyketComment()
                 },
                 onNoClick = {
                     viewModel.setDialogKey(HomeDialogKey.BadRate)
@@ -234,7 +236,7 @@ fun HomeScreen(
 
                     if (state.needUpdate) {
                         UpdateSection(onClick = {
-                            context.openAppInCafeBazaar()
+                            context.openAppInMyket()
                             viewModel.hideNeedUpdate()
                         })
                     }
@@ -256,11 +258,11 @@ fun HomeScreen(
 
                     // Check Subscribe
                     DrawerItem(
-                        label = R.string.check_subscribe_status,
+                        label = R.string.check_before_buy,
                         icon = painterResource(id = R.drawable.img_check_subscribe),
                         onClick = {
                             scope.launch { drawerState.close() }
-                            viewModel.checkSubscribeStatus()
+                            viewModel.connectMyket()
                         }
                     )
 

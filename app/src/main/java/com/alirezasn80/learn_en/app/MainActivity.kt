@@ -47,7 +47,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.Splash.route) {
-                        SplashScreen(navigationState)
+                        SplashScreen(
+                            navigationState=navigationState
+                        )
                     }
 
                     composable(Screen.Home.route) {

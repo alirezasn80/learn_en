@@ -20,4 +20,5 @@ data class HomeState(
     val showNotificationAlert: Boolean = true,
     val showComment: Boolean = true,
     val lastReadCategory: Int = 0,
+    val loadingBazaar: Boolean = false
 )

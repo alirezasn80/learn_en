@@ -38,6 +38,24 @@ android {
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
+
+        android.buildFeatures.buildConfig = true
+
+
+        // Myket ------------------------------------------------------------------------------------
+        val marketApplicationId = "ir.mservices.market"
+        val marketBindAddress = "ir.mservices.market.InAppBillingService.BIND"
+        manifestPlaceholders.apply {
+            this["marketApplicationId"] = marketApplicationId
+            this["marketBindAddress"] = marketBindAddress
+            this["marketPermission"] = "${marketApplicationId}.BILLING"
+        }
+        buildConfigField(
+            "String",
+            "IAB_PUBLIC_KEY",
+            "\"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCKFpVk9/o6yKsWHfGQlFDvnW5kx2JvWIOjOnYiclYWgK8djollpT/UJhd9613XTk9rlcsOuDMW05rheskNl0EEqPNI9NLWUVb6UGj5XkZEZjQa9Adao8qiWIsvb1UjkuCvR6VJgNxYEZkHR1c9rFQ6V3PQsLtwMOvQ8EuHjayI0wIDAQAB" +
+                    "\""
+        )
     }
 
     buildTypes {
@@ -116,7 +134,7 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
 
     // Poolakey
-    implementation("com.github.cafebazaar.Poolakey:poolakey:2.2.0")
+    //implementation("com.github.cafebazaar.Poolakey:poolakey:2.2.0")
 
     //retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -143,5 +161,8 @@ dependencies {
     //Paging3
     implementation("androidx.paging:paging-compose:3.2.1")
     implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+
+    // Myket
+    implementation("com.github.myketstore:myket-billing-client:1.6")
 
 }

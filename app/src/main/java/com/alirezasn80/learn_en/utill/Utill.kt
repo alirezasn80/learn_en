@@ -414,26 +414,25 @@ fun Context.openBrowser(url: String?) {
     }
 }
 
-fun Context.openBazaarComment() {
+
+fun Context.openAppInMyket() {
     try {
-        val intent = Intent(Intent.ACTION_EDIT)
-        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.learn_en"))
-        intent.setPackage("com.farsitel.bazaar")
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setData(Uri.parse("myket://details?id=com.alirezasn80.learn_en"))
         startActivity(intent)
     } catch (e: Exception) {
-        AppMetrica.reportError("Error : Open Cafe Bazaar to send comment", e)
+        AppMetrica.reportError("Error : Open App In Myket ", e)
     }
 
 }
 
-fun Context.openAppInCafeBazaar() {
+fun Context.openMyketComment() {
     try {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setData(Uri.parse("bazaar://details?id=com.alirezasn80.learn_en"))
-        intent.setPackage("com.farsitel.bazaar")
+        intent.setData(Uri.parse("myket://comment?id=com.alirezasn80.learn_en"))
         startActivity(intent)
     } catch (e: Exception) {
-        AppMetrica.reportError("Error : Open App In Cafe Bazaar ", e)
+        AppMetrica.reportError("Error : Open Myket to send comment", e)
     }
 
 }
@@ -607,3 +606,10 @@ val fontsOfStory = listOf(
 fun Context.serverBookPath(bookId: String, key: String = "main") = getExternalFilesDir("server_books")!!.absolutePath + "/" + bookId + ".txt"
 
 fun Context.localBookPath(bookId: String, key: String = "main") = getExternalFilesDir("local_books")!!.absolutePath + "/" + bookId + ".txt"
+
+object Myket {
+    const val PUBLIC_KEY =
+        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCKFpVk9/o6yKsWHfGQlFDvnW5kx2JvWIOjOnYiclYWgK8djollpT/UJhd9613XTk9rlcsOuDMW05rheskNl0EEqPNI9NLWUVb6UGj5XkZEZjQa9Adao8qiWIsvb1UjkuCvR6VJgNxYEZkHR1c9rFQ6V3PQsLtwMOvQ8EuHjayI0wIDAQAB"
+
+    var alreadyConnection = false
+}

@@ -41,12 +41,12 @@
     <string name="vip_user" translatable="false">کاربر ویژه</string>
     <string name="invite_friends" translatable="false">دعوت از دوستان</string>
     <string name="send_app_to_other" translatable="false">اپلیکیشن یادگیری زبان با داستان های مختلف و داستان های خود!
-    https://cafebazaar.ir/app/com.alirezasn80.learn_en</string>
+    https://myket.ir/app/com.alirezasn80.learn_en</string>
     <string name="about_us" translatable="false">درباره ما</string>
     <string name="report_text" translatable="false">متن گزارش</string>
     <string name="your_text_sent" translatable="false">متن شما ارسال شد</string>
-    <string name="error_connect_bazaar" translatable="false">در اتصال به کافه بازار، مشکلی بوجود آمده است.لطفا پس از اطمینان از نصب بودن اپلیکیشن کافه بازار بر روی دیوایس خود، مجددا تلاش کنید</string>
-    <string name="error_payment_page_bazaar" translatable="false">متاسفانه مشکلی در اتصال به کافه بازار بوجود آمده است. لطفا مجددا تلاش کنید</string>
+    <string name="error_connect_bazaar" translatable="false">در اتصال به مایکت، مشکلی بوجود آمده است.لطفا پس از اطمینان از نصب بودن اپلیکیشن مایکت بر روی دیوایس خود، مجددا تلاش کنید</string>
+    <string name="error_payment_page_bazaar" translatable="false">متاسفانه مشکلی در اتصال به مایکت بوجود آمده است. لطفا مجددا تلاش کنید</string>
     <string name="error_process_payment_bazaar" translatable="false">عملیات پرداخت ناموفق بود</string>
     <string name="you_now_vip" translatable="false">تبریک! درحال حاضر شما کاربر ویژه هستید 🥳</string>
     <string name="vip_payment" translatable="false">ارتقا دائمی به کاربر ویژه</string>
@@ -67,7 +67,7 @@
     <string name="mounch_1" translatable="false">۱ ماهه</string>
     <string name="your_subscribe_is_finished" translatable="false">اعتبار اشتراک ویژه شما تمام شده :(</string>
     <string name="check_subscribe_status" translatable="false">بررسی وضعیت اشتراک</string>
-    <string name="problem_connection_bazaar" translatable="false">اتصال به کافه بازار با مشکل مواجه شد!</string>
+    <string name="problem_connection_bazaar" translatable="false">اتصال به مایکت با مشکل مواجه شد!</string>
     <string name="no_any_subscribe" translatable="false">درحال حاضر اشتراکی ندارید</string>
     <string name="tip_free_state" translatable="false">از ترجمه و دیکشنری دو داستان نخست به صورت رایگان لذت ببرید و با خرید اشتراک، دسترسی نامحدود به تمامی داستان‌ها و امکانات برنامه را تجربه کنید</string>
     <string name="youre_offline" translatable="false">لطفا از اتصال دستگاه خود به اینترنت مطمئن شوید</string>
@@ -84,5 +84,7 @@
     <string name="more_detail">«جزییات بیشتر»</string>
     <string name="check_connection">لطفا اینترنت خود را چک کنید!</string>
     <string name="local">محلی</string>
+    <string name="check_before_buy">بررسی وضعیت خرید قبلی</string>
+    <string name="no_vip_now">درحال حاضر کاربر ویژه نیستید</string>
 
 </resources>
