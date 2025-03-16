@@ -318,31 +318,8 @@ fun createSAFintent(context: Context, dir: String): Intent {
     val uri = DocumentsContract.buildDocumentUri(authority, documentId)
 
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    //  (context.getSystemService(Context.STORAGE_SERVICE) as StorageManager).primaryStorageVolume.createOpenDocumentTreeIntent()
-    // intent.addCategory(Intent.CATEGORY_OPENABLE)
-    //intent.setDataAndType(uri, DocumentsContract.Document.MIME_TYPE_DIR)
-    //intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    // intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
     return intent
-
-
-    //val storageManager = (context.getSystemService(Context.STORAGE_SERVICE) as StorageManager)
-    //return storageManager.primaryStorageVolume.createOpenDocumentTreeIntent().putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
-
-
-    /*debug("dir : $dir")
-    val intent = (context.getSystemService(Context.STORAGE_SERVICE) as StorageManager).primaryStorageVolume.createOpenDocumentTreeIntent()
-    var startDir = dir
-    var uri = intent.getParcelableExtra<Uri>(DocumentsContract.EXTRA_INITIAL_URI)
-    var scheme = uri.toString()
-    scheme = scheme.replace("/root/", "/document/")
-    startDir = startDir.replace("/", "%2F")
-    scheme += "%3A$startDir"
-    uri = Uri.parse(scheme)
-    debug("uri : $uri")
-    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
-    return intent*/
 }
 
 fun Context.isStoragePermissionGranted() = listOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).all {
@@ -608,8 +585,7 @@ fun Context.serverBookPath(bookId: String, key: String = "main") = getExternalFi
 fun Context.localBookPath(bookId: String, key: String = "main") = getExternalFilesDir("local_books")!!.absolutePath + "/" + bookId + ".txt"
 
 object Myket {
-    const val PUBLIC_KEY =
-        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCKFpVk9/o6yKsWHfGQlFDvnW5kx2JvWIOjOnYiclYWgK8djollpT/UJhd9613XTk9rlcsOuDMW05rheskNl0EEqPNI9NLWUVb6UGj5XkZEZjQa9Adao8qiWIsvb1UjkuCvR6VJgNxYEZkHR1c9rFQ6V3PQsLtwMOvQ8EuHjayI0wIDAQAB"
+    const val PUBLIC_KEY = "***********"
 
     var alreadyConnection = false
 }

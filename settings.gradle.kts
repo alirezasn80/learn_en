@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://google403.ir/")
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
@@ -14,6 +15,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven("https://google403.ir/")
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")

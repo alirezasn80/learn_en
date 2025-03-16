@@ -58,7 +58,7 @@ object NetworkModule {
     @Provides
     fun provideRetrofitBuilder(gsonBuilder: Gson, okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://alirezasn80.ir/api/")
+            .baseUrl("**************")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gsonBuilder))
             .build()
